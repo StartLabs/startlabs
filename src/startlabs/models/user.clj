@@ -1,0 +1,1 @@
+(ns startlabs.models.user)
