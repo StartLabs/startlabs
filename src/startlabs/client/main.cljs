@@ -58,10 +58,10 @@
         access-token (:access_token hash-vals)
         expiration (:expires_in hash-vals)]
     (if access-token
-      (fm/remote (user-info access-token) [result]
+      (fm/remote (token-info access-token) [result]
         (do
-          (.log js/console result))))))
-          ; (set! (.-location js/window) "/"))))))
+          (.log js/console result)
+          (set! (.-location js/window) "/"))))))
 
 (-main)
 

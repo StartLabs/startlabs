@@ -2,19 +2,23 @@
   (:require [noir.server :as server]
             [noir.cljs.core :as cljs]
             [noir.session :as session]
+            [clojure.string :as str]
             [startlabs.secrets :as secrets]
             [startlabs.models.user :as user])
   (:use [noir.fetch.remotes :only [defremote]]))
 
 
-(defremote user-info [access-token]
+(defremote token-info [access-token]
   (let [token-info (user/get-token-info access-token)
-        valid-token? (= (:audience token-info) secrets/oauth-client-id)]
-    (if valid-token?
+        valid-token? (= (:audience token-info) secrets/oauth-client-id)
+        lab-member? (= (last (str/split (:email token-info) #"@")) "startlabs.org")]
+    (if (and valid-token? lab-member?)
       (do
-        (map #(session/put! k (k vals)) [:user_id :email])
-        (str "Token is valid! " token-info))
-      (:audience token-info))))
+        (map (fn [k] session/put! k (k token-info)) [:user_id :email])
+        (str token-info))
+      (do
+        (session/flash-put! :message "Invalid login. Make sure you're using your email@startlabs.org")
+        (str "Invalid login")))))
 
 (server/load-views-ns 'startlabs.views)
 (def cljs-options {:advanced {:externs ["externs/jquery.js"]}})
