@@ -11,12 +11,14 @@
 (defremote token-info [access-token]
   (let [token-info (user/get-token-info access-token)
         valid-token? (= (:audience token-info) secrets/oauth-client-id)
-        lab-member? (= (last (str/split (:email token-info) #"@")) "startlabs.org")]
+        lab-member? (and (= (last (str/split (:email token-info) #"@")) "startlabs.org") (:verified_email token-info))]
     (if (and valid-token? lab-member?)
       (do
+        (session/put! :access-token access-token)
         (map (fn [k] session/put! k (k token-info)) [:user_id :email])
         (str token-info))
       (do
+        (session/clear!)
         (session/flash-put! :message "Invalid login. Make sure you're using your email@startlabs.org")
         (str "Invalid login")))))
 
