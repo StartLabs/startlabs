@@ -35,6 +35,15 @@
 
 (defn get-user-info [& access-token]
   (let [userinfo-url (str googleapis-url "userinfo")
-        access-token (or access-token (session/get :access-token))
-        response-body (if access-token (get-request-with-token userinfo-url access-token))]
-    response-body))
+        access-token (or access-token (session/get :access-token))]
+    (if access-token
+      (try
+        (get-request-with-token userinfo-url access-token)
+        (catch Exception e
+          (do
+            (session/clear!)
+            (session/flash-put! :error "Invalid session. Try logging in again.")
+            nil) ;return nil if there's an exception
+          ))
+      ; lack of else clause = implicit nil
+      )))
