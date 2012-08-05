@@ -1,0 +1,76 @@
+[
+  ;; user
+  
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/id,
+  :db/unique :db.unique/identity,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: 00000000000000",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/gender,
+  :db/valueType :db.type/ref,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "A user gender enu value",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/name,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: Fred Example",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/given_name,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: Fred",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/locale,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: en-US",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/verified_email,
+  :db/valueType :db.type/boolean,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: true",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/family_name,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: Example",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/email,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: fred.example@gmail.com",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/picture,
+  :db/valueType :db.type/uri,
+  :db/cardinality :db.cardinality/one,
+  :db/doc
+  "Example value: https://lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
+  :db.install/_attribute :db.part/db}
+
+   ;; user/gender enum values
+ {:db/id #db/id[:db.part/user],
+  :db/ident :user.gender/male}
+
+ {:db/id #db/id[:db.part/user],
+  :db/ident :user.gender/female}
+
+]

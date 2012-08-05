@@ -5,6 +5,7 @@
   :dependencies [ ;clj
                   [org.clojure/clojure "1.4.0"]
                   [noir "1.3.0-beta10"]
+                  [fetch "0.1.0-alpha2"]
                   [clj-http "0.5.2"]
                   [oauth-clj "0.0.5"]
                   [com.datomic/datomic-free "0.8.3372" 
@@ -22,7 +23,6 @@
   :cljsbuild {:builds
               [{:source-path "src/cljs"
                 :compiler {:output-to "resources/public/client.js"
-                           :externs ["resources/externs/jquery.js"]
                            :pretty-print false
                            :optimizations :simple}}]}
                            ; switch to :advanced for production
