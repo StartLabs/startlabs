@@ -5,8 +5,11 @@
   :dependencies [ ;clj
                   [org.clojure/clojure "1.4.0"]
                   [noir "1.3.0-beta10"]
+                  [clj-http "0.5.2"]
+                  [oauth-clj "0.0.5"]
                   ;cljs
                   [com.keminglabs/c2 "0.2.0"]
+                  [jayq "0.1.0-alpha4"]
                 ]
   :source-paths ["src/clj"]
   :cljsbuild {:builds
