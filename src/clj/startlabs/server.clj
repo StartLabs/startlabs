@@ -3,7 +3,8 @@
             [noir.session :as session]
             [clojure.string :as str]
             [startlabs.secrets :as secrets]
-            [startlabs.models.user :as user])
+            [startlabs.models.user :as user]
+            [startlabs.models.database :as db])
   (:use [noir.fetch.remotes :only [defremote]]))
 
 
@@ -26,6 +27,6 @@
 (defn -main [& m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "8000"))]
-    ;(db/do-default-setup)
+    (db/do-default-setup)
     (server/start port {:mode mode
                         :ns 'startlabs})))
