@@ -1,7 +1,6 @@
-;; user
-
 [
-
+  ;; user
+  
  {:db/id #db/id[:db.part/db],
   :db/ident :user/id,
   :db/unique :db.unique/identity,
@@ -12,9 +11,9 @@
 
  {:db/id #db/id[:db.part/db],
   :db/ident :user/gender,
-  :db/valueType :db.type/string,
+  :db/valueType :db.type/ref,
   :db/cardinality :db.cardinality/one,
-  :db/doc "Example value: male",
+  :db/doc "A user gender enu value",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -40,7 +39,7 @@
 
  {:db/id #db/id[:db.part/db],
   :db/ident :user/verified_email,
-  :db/valueType :db.type/string,
+  :db/valueType :db.type/boolean,
   :db/cardinality :db.cardinality/one,
   :db/doc "Example value: true",
   :db.install/_attribute :db.part/db}
@@ -66,4 +65,12 @@
   :db/doc
   "Example value: https://lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
   :db.install/_attribute :db.part/db}
+
+   ;; user/gender enum values
+ {:db/id #db/id[:db.part/user],
+  :db/ident :user.gender/male}
+
+ {:db/id #db/id[:db.part/user],
+  :db/ident :user.gender/female}
+
 ]

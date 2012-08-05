@@ -1,0 +1,17 @@
+(ns startlabs.models.database
+  (:use [datomic.api :only [q db] :as d]
+        [clojure.pprint]))
+
+(def uri    "datomic:mem://startlabs")
+(def schema "startlabs/models/schema.dtm")
+
+(defn do-setup [uri schema]
+  (if (d/create-database uri)
+    (do
+      (def conn (d/connect uri))
+      (def schema-tx (read-string (slurp "startlabs/models/schema.dtm")))
+      @(d/transact conn schema-tx)))
+    "Database already exists")
+
+(defn do-default-setup []
+  (do-setup uri schema))

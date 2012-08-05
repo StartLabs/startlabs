@@ -29,5 +29,6 @@
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "8000"))]
     (cljs/start mode cljs-options)
+    ;(db/do-default-setup)
     (server/start port {:mode mode
                         :ns 'startlabs})))
