@@ -2,7 +2,7 @@
   (:use [datomic.api :only [q db] :as d]
         [clojure.pprint]))
 
-(def uri    "datomic:mem://startlabs")
+(def uri    "datomic:free://localhost:4434/startlabs")
 (def schema "startlabs/models/schema.dtm")
 
 (defn do-setup [uri schema]

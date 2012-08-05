@@ -11,3 +11,4 @@ pom.xml
 .lein-cljsbuild-compiler-0/
 /datomic-free
 /logs
+secrets.clj
