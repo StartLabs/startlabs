@@ -66,6 +66,31 @@
   "Example value: https://lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
   :db.install/_attribute :db.part/db}
 
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/bio,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/graduation_year,
+  :db/valueType :db.type/long,
+  :db/cardinality :db.cardinality/one,
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/website,
+  :db/valueType :db.type/uri,
+  :db/cardinality :db.cardinality/one,
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/studying,
+  :db/valueType :db.type/string,
+  :db/fulltext true,
+  :db/cardinality :db.cardinality/one,
+  :db.install/_attribute :db.part/db}
+
    ;; user/gender enum values
  {:db/id #db/id[:db.part/user],
   :db/ident :user.gender/male}

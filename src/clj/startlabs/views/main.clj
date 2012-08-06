@@ -11,9 +11,9 @@
     (common/layout
       [:div#content
         (if user-info
-          [:div#logged-in
-            [:p (str user-info)]
-            [:a {:href "/logout"} "Logout"]]
+          [:div#user-info
+            [:p "Hey, " [:a {:href (str "mailto:" (:email user-info))} (:name user-info)]]
+            [:a#logout {:href "/logout"} "Logout"]]
           [:a {:href "/login"} "Login"])])))
 
 (defpage "/login" []
