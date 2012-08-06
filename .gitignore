@@ -2,6 +2,7 @@
 /lib
 /classes
 /checkouts
+/out
 pom.xml
 *.jar
 *.class
@@ -9,6 +10,7 @@ pom.xml
 .lein-failures
 .lein-plugins
 .lein-cljsbuild-compiler-0/
+.lein-cljsbuild-repl/
 /datomic-free
 /logs
 secrets.clj

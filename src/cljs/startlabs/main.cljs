@@ -5,8 +5,12 @@
             [fetch.remotes :as remotes]
             [c2.dom :as dom]
             [c2.event :as event]
-            [c2.util :as util])
+            [c2.util :as util]
+            [clojure.browser.repl :as repl])
   (:require-macros [fetch.macros :as fm]))
+
+; browser repl for development
+; (repl/connect "http://localhost:9000/repl")
 
 (def $ dom/select)
 
@@ -14,8 +18,6 @@
 
 (def up-and-running
   [:p.alert "CLJS is compiled and active... Time to build something!"])
-
-(dom/append! $content (render up-and-running))
 
 (def location-hash (.-hash js/location))
 
@@ -31,10 +33,9 @@
         access-token (:access_token hash-vals)
         expiration (:expires_in hash-vals)]
     (if access-token
-      (fm/remote (token-info access-token) [result]
-        (do
-          (.log js/console result)
-          ; redirect to home
+      (do
+        (dom/text ($ "#loading") "Verifying credentials...")
+        (fm/remote (token-info access-token) [result]
           (set! (.-location js/window) "/"))))))
 
 (defn main []
