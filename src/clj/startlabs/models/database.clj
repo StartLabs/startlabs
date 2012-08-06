@@ -9,7 +9,7 @@
   (if (d/create-database uri)
     (do
       (def conn (d/connect uri))
-      (def schema-tx (read-string (slurp "startlabs/models/schema.dtm")))
+      (def schema-tx (read-string (slurp "src/clj/startlabs/models/schema.dtm")))
       @(d/transact conn schema-tx)))
     "Database already exists")
 
