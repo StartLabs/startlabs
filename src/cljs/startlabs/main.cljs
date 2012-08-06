@@ -21,7 +21,9 @@
 
 (def location-hash (.-hash js/location))
 
-(defn mapify-hash []
+(defn mapify-hash 
+  "convert location.hash into a clojure map"
+  []
   (let [hash (.slice location-hash 1)
         split-hash (.split hash #"[=&]")
         keyvals (map-indexed (fn [idx val] (if (even? idx) (keyword val) val)) split-hash)]
@@ -36,7 +38,9 @@
       (do
         (dom/text ($ "#loading") "Verifying credentials...")
         (fm/remote (token-info access-token) [result]
-          (set! (.-location js/window) "/"))))))
+          (.log js/console (util/clj->js result))
+          (set! (.-location js/window) "/")
+          )))))
 
 (defn main []
   (if location-hash (handle-hash-change))

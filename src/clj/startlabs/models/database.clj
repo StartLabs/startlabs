@@ -2,16 +2,15 @@
   (:use [datomic.api :only [q db] :as d]
         [clojure.pprint]))
 
-(def uri    "datomic:free://localhost:4334/startlabs")
-(def schema "startlabs/models/schema.dtm")
+(def uri  "datomic:free://localhost:4334/startlabs")
+(def conn (d/connect uri))
 
 (defn do-setup [uri schema]
   (if (d/create-database uri)
-    (do
-      (def conn (d/connect uri))
-      (def schema-tx (read-string (slurp "src/clj/startlabs/models/schema.dtm")))
-      @(d/transact conn schema-tx)))
-    "Database already exists")
+    (let [schema-tx (read-string (slurp schema))]
+      @(d/transact conn schema-tx))
+    "Database already exists"))
 
 (defn do-default-setup []
-  (do-setup uri schema))
+  (let [schema "src/clj/startlabs/models/schema.dtm"]
+    (do-setup uri schema)))

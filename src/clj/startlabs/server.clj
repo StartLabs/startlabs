@@ -15,12 +15,12 @@
     (if (and valid-token? lab-member?)
       (do
         (session/put! :access-token access-token)
-        (map (fn [k] session/put! k (k token-map)) [:user_id :email])
-        (str token-info))
+        (doseq [k [:user_id :email]] (session/put! k (k token-map)))
+        token-map)
       (do
         (session/clear!)
         (session/flash-put! :message "Invalid login. Make sure you're using your email@startlabs.org.")
-        (str "Invalid login")))))
+        "Invalid login"))))
 
 (server/load-views-ns 'startlabs.views)
 

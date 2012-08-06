@@ -1,4 +1,6 @@
 (ns startlabs.models.user
+  (:use [datomic.api :only [q db] :as d]
+        [startlabs.models.database :only [conn]])
   (:require [startlabs.secrets :as secrets]
             [clojure.string :as str]
             [oauth.google :as oa]
@@ -33,24 +35,34 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
+(def user-with-id '[:find ?u 
+                    :in $ ?id 
+                    :where [?u :user/id ?id]])
+
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id"
   [access-token user-id]
-  (let [userinfo-url (str googleapis-url "userinfo")]
-    ; only do this if the user's not in the db!
-    (get-request-with-token userinfo-url access-token)))
+  (let [userinfo-url (str googleapis-url "userinfo")
+        conn-db      (db conn)
+        user         (first (q user-with-id conn-db user-id))]
+    (if (not user)
+      ; also need to write the user to the db...
+      (get-request-with-token userinfo-url access-token)
+      (let [user-entity (d/entity db user)]
+        ; just return the user's name for now
+        (:user/name user-entity)))))
 
 (defn get-my-info []
   (let [access-token (session/get :access-token)
         user-id      (session/get :user_id)]
-    (if access-token
+    (if (and access-token user-id)
       (try
         (find-or-create-user access-token user-id)
         (catch Exception e
           (do
             (session/clear!)
             (session/flash-put! :error "Invalid session. Try logging in again.")
-            nil) ;return nil if there's an exception
+            e) ;return nil if there's an exception
           ))
       ; lack of else clause = implicit nil
       )))

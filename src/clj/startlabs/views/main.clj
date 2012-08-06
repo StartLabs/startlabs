@@ -7,12 +7,12 @@
         [hiccup.core :only [html]]))
 
 (defpage "/" []
-  (let [user-info (user/get-user-info)]
+  (let [user-info (user/get-my-info)]
     (common/layout
       [:div#content
         (if user-info
           [:div#logged-in
-            [:p (str (user/get-my-info))]
+            [:p (str user-info)]
             [:a {:href "/logout"} "Logout"]]
           [:a {:href "/login"} "Login"])])))
 
