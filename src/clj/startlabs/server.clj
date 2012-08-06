@@ -9,17 +9,17 @@
 
 
 (defremote token-info [access-token]
-  (let [token-info (user/get-token-info access-token)
-        valid-token? (= (:audience token-info) secrets/oauth-client-id)
-        lab-member? (and (= (last (str/split (:email token-info) #"@")) "startlabs.org") (:verified_email token-info))]
+  (let [token-map    (user/get-token-info access-token)
+        valid-token? (= (:audience token-map) secrets/oauth-client-id)
+        lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org") (:verified_email token-map))]
     (if (and valid-token? lab-member?)
       (do
         (session/put! :access-token access-token)
-        (map (fn [k] session/put! k (k token-info)) [:user_id :email])
+        (map (fn [k] session/put! k (k token-map)) [:user_id :email])
         (str token-info))
       (do
         (session/clear!)
-        (session/flash-put! :message "Invalid login. Make sure you're using your email@startlabs.org")
+        (session/flash-put! :message "Invalid login. Make sure you're using your email@startlabs.org.")
         (str "Invalid login")))))
 
 (server/load-views-ns 'startlabs.views)

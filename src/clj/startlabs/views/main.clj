@@ -12,7 +12,7 @@
       [:div#content
         (if user-info
           [:div#logged-in
-            [:p (str (user/get-user-info))]
+            [:p (str (user/get-my-info))]
             [:a {:href "/logout"} "Logout"]]
           [:a {:href "/login"} "Login"])])))
 

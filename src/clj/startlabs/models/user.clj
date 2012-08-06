@@ -33,12 +33,19 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-(defn get-user-info [& access-token]
-  (let [userinfo-url (str googleapis-url "userinfo")
-        access-token (or access-token (session/get :access-token))]
+(defn find-or-create-user
+  "Finds the user in the database or creates a new one based on their user-id"
+  [access-token user-id]
+  (let [userinfo-url (str googleapis-url "userinfo")]
+    ; only do this if the user's not in the db!
+    (get-request-with-token userinfo-url access-token)))
+
+(defn get-my-info []
+  (let [access-token (session/get :access-token)
+        user-id      (session/get :user_id)]
     (if access-token
       (try
-        (get-request-with-token userinfo-url access-token)
+        (find-or-create-user access-token user-id)
         (catch Exception e
           (do
             (session/clear!)
