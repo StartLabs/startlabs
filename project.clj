@@ -4,6 +4,7 @@
   :plugins [[lein-cljsbuild "0.2.5"]]
   :dependencies [ ;clj
                   [org.clojure/clojure "1.4.0"]
+                  [org.clojure/tools.logging "0.2.4"]
                   [noir "1.3.0-beta10"]
                   [fetch "0.1.0-alpha2"]
                   [clj-http "0.5.2"]

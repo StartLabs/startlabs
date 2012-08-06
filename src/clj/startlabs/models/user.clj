@@ -39,18 +39,57 @@
                     :in $ ?id 
                     :where [?u :user/id ?id]])
 
+(defn enumify-gender 
+  "Convert the :gender field's string value to :user.gender/male or :user.gender/female if present"
+  [user-data]
+  (if-let [gender (:gender user-data)]
+    (assoc user-data :gender (keyword (str "user.gender/" gender)))
+    user-data))
+
+(defn namespace-keys 
+  "Converts the keys of the-map to be prefixed with the-ns/
+  (namespace-keys [{:locale 'en'} :user]) returns {:user/locale 'en'}"
+  [the-map the-ns]
+  (reduce conj {} (for [[k v] the-map] 
+    [(keyword (str (name the-ns) "/" (name k))) 
+     v])))
+
+(defn denamespace-keys
+  "The inverse of namespace-keys. Do not have to specify the-ns"
+  [the-map]
+  (reduce conj {} (for [[k v] the-map] 
+    [(keyword (last (str/split (name k) #"/")))
+     v])))
+
+(defn txify-user-data 
+  "Convert a map representation of the userinfo response from google into a database transaction"
+  [user-data]
+  (let [user-data (enumify-gender user-data)
+        data-map  (namespace-keys user-data "user")
+        data-map  (assoc data-map :db/id (d/tempid :db.part/user))]
+    [data-map]))
+
+(defn create-user [access-token user-id]
+  (let [userinfo-url (str googleapis-url "userinfo")
+        user-data (get-request-with-token userinfo-url access-token)
+        tx-data (txify-user-data user-data)]
+    (d/transact @conn tx-data)))
+
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id"
   [access-token user-id]
-  (let [userinfo-url (str googleapis-url "userinfo")
-        conn-db      (db conn)
-        user         (first (q user-with-id conn-db user-id))]
+  (let [conn-db      (db @conn)
+        user         (first (q user-with-id conn-db user-id))] ; should be a vector with one entry
     (if (not user)
-      ; also need to write the user to the db...
-      (get-request-with-token userinfo-url access-token)
-      (let [user-entity (d/entity db user)]
-        ; just return the user's name for now
-        (:user/name user-entity)))))
+      (try
+        @(create-user access-token user-id) ; force the transaction to return
+        (find-or-create-user access-token user-id) ; now we should be able to find the user
+        (catch Exception e ; transaction may fail, returning an ExecutionException
+          (session/flash-put! :message "Trouble connecting to the database.")))
+
+      ; else return the user's data from the db
+      (let [user-entity (d/entity conn-db (first user))]
+        (denamespace-keys (into {} user-entity))))))
 
 (defn get-my-info []
   (let [access-token (session/get :access-token)
