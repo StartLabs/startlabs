@@ -24,4 +24,5 @@
   (response/redirect "/"))
 
 (defpage "/oauth2callback" []
-  (common/layout))
+  (common/layout
+    [:div#loading "Fetching credentials..."]))
