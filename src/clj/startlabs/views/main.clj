@@ -12,7 +12,7 @@
       [:div#content
         (if user-info
           [:div#user-info
-            [:p "Hey, " [:a {:href (str "mailto:" (:email user-info))} (:name user-info)]]
+            [:p "Hey, " [:a {:href "/users/me"} (:name user-info)]]
             [:a#logout {:href "/logout"} "Logout"]]
           [:a {:href "/login"} "Login"])])))
 
@@ -26,3 +26,12 @@
 (defpage "/oauth2callback" []
   (common/layout
     [:div#loading "Fetching credentials..."]))
+
+(defpage "/users/me" []
+  (let [user-info (user/get-my-info)]
+  	(common/layout
+      [:table#me
+		(for [key (keys user-info)]
+       		[:tr
+             [:td (str key)]
+             [:td (key user-info)]])])))

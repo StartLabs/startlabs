@@ -8,6 +8,7 @@
             [noir.session :as session]))
 
 (def redirect-url   "http://localhost:8000/oauth2callback")
+
 (def googleapis-url "https://www.googleapis.com/oauth2/v1/")
 
 (defn scope-strings [scopes origin]
@@ -18,7 +19,6 @@
 (defn joined-scope-strings [scopes origin]
   (str/join " " (scope-strings scopes origin)))
 
-; pass the current url as the state
 (defn get-login-url []
   (let [scopes {:userinfo [:email :profile]}
         scope-origin "https://www.googleapis.com/auth/"]
@@ -48,7 +48,7 @@
 
 (defn namespace-keys 
   "Converts the keys of the-map to be prefixed with the-ns/
-  (namespace-keys [{:locale 'en'} :user]) returns {:user/locale 'en'}"
+  (namespace-keys {:locale 'en'} :user) returns {:user/locale 'en'}"
   [the-map the-ns]
   (reduce conj {} (for [[k v] the-map] 
     [(keyword (str (name the-ns) "/" (name k))) 
