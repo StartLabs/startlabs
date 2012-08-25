@@ -14,3 +14,5 @@ pom.xml
 /datomic-free
 /logs
 secrets.clj
+.DS_Store
+

@@ -9,7 +9,7 @@
                   [fetch "0.1.0-alpha2"]
                   [clj-http "0.5.2"]
                   [oauth-clj "0.0.5"]
-                  [com.datomic/datomic-free "0.8.3372" 
+                  [com.datomic/datomic-free "0.8.3435" 
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
                   [org.slf4j/slf4j-log4j12 "1.6.4"]
                   ;cljs
@@ -17,6 +17,7 @@
                 ]
   ; download datomic here: http://downloads.datomic.com/free.html
   ; put it into datomic-free, then install locally with mvn
+  ; mvn install:install-file -DgroupId=com.datomic -DartifactId=datomic-free -Dfile=datomic-free-0.8.3435.jar -DpomFile=pom.xml
   :repositories {"local" ~(str (.toURI (java.io.File. "datomic-free")))}
 
   :source-paths ["src/clj"]

@@ -6,6 +6,7 @@
  "given_name": "Fred",
  "family_name": "Example",
  "picture": "https://lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
+ "link": "https://plus.google.com/102683988994498158215",
  "gender": "male",
  "locale": "en-US"
 }

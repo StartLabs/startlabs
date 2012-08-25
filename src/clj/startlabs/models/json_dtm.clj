@@ -3,7 +3,7 @@
             [clojure.pprint :as pp]))
 
 (defn get-sample-data []
-  (json/read-json (slurp "src/startlabs/models/userinfo_example.json")))
+  (json/read-json (slurp "src/clj/startlabs/models/userinfo_example.json")))
 
 (defn datalogify [data ns]
   (letfn [(dtm-kv [k v]

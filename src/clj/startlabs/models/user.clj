@@ -1,5 +1,5 @@
 (ns startlabs.models.user
-  (:use [datomic.api :only [q db] :as d]
+  (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]])
   (:require [startlabs.secrets :as secrets]
             [clojure.string :as str]
@@ -35,9 +35,35 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-(def user-with-id '[:find ?u 
-                    :in $ ?id 
-                    :where [?u :user/id ?id]])
+(def q-user-with-id '[:find ?u 
+                      :in $ ?id 
+                      :where [?u :user/id ?id]])
+
+; db/valueTypes are represented as integers. 23 = string, 58 = link
+(def q-user-schema '[:find ?name ?val-type
+                     :where [_ :db.install/attribute ?a] 
+                            [?a :db/ident ?name]
+                            [?a :db/valueType ?val-type]])
+
+; multimethod party
+(defmulti transform-attr )
+
+(defn map-of-entities 
+  "Converts the set of [:attr-name value-entid] pairs returned by querying for q-user-schema 
+   into a single map of {:attr-name :value-ident ...} pairs"
+  []
+  (let [conn-db (db @conn)
+        schema (q q-user-schema conn-db)]
+    (into {} (for [[k v] schema]
+                {k (ident conn-db v)}))))
+
+; (defmulti ...) (defmethod), dispatch based on db.type...
+(defn transform-tx-values
+  "Takes a pending transaction and transforms the values, 
+   dispatching based on current and desired :db/valueType,
+   e.g. transforms the string 'http://www.google.com'
+   to a proper URI if its corresponding :db/valueType is :db.type/uri"
+  [])
 
 (defn enumify-gender 
   "Convert the :gender field's string value to :user.gender/male or :user.gender/female if present"
@@ -61,6 +87,9 @@
     [(keyword (last (str/split (name k) #"/")))
      v])))
 
+; need to create a notion of data-transformers fot txify:
+; look at database schema, and from that, determine if strings need to be converted to uris, enums, etc.
+
 (defn txify-user-data 
   "Convert a map representation of the userinfo response from google into a database transaction"
   [user-data]
@@ -70,6 +99,7 @@
     [data-map]))
 
 (defn create-user [access-token user-id]
+  "Need to make this more flexible: should handle the case of new fields"
   (let [userinfo-url (str googleapis-url "userinfo")
         user-data (get-request-with-token userinfo-url access-token)
         tx-data (txify-user-data user-data)]
@@ -79,13 +109,13 @@
   "Finds the user in the database or creates a new one based on their user-id"
   [access-token user-id]
   (let [conn-db      (db @conn)
-        user         (first (q user-with-id conn-db user-id))] ; should be a vector with one entry
+        user         (first (q q-user-with-id conn-db user-id))] ; should be a vector with one entry
     (if (not user)
       (try
         @(create-user access-token user-id) ; force the transaction to return
         (find-or-create-user access-token user-id) ; now we should be able to find the user
         (catch Exception e ; transaction may fail, returning an ExecutionException
-          (session/flash-put! :message "Trouble connecting to the database.")))
+          (session/flash-put! :message (str "Trouble connecting to the database." e))))
 
       ; else return the user's data from the db
       (let [user-entity (d/entity conn-db (first user))]

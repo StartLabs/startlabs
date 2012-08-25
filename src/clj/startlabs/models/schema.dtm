@@ -76,12 +76,14 @@
   :db/ident :user/graduation_year,
   :db/valueType :db.type/long,
   :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: 2014",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :user/website,
+  :db/ident :user/link,
   :db/valueType :db.type/uri,
   :db/cardinality :db.cardinality/one,
+  :db/doc "Example value: http://ethan.sherbondy.com",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
