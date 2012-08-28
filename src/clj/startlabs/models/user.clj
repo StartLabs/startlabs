@@ -45,12 +45,29 @@
                             [?a :db/ident ?name]
                             [?a :db/valueType ?val-type]])
 
-; multimethod party
-(defmulti transform-attr )
+; should start making a datomic utility library
+(defmulti 
+  transform-attr 
+  "Transforms an attribute to the proper database type,
+   dispatching based on the attribute's current type and 
+   the desired datomic type.
+   Example: (transform-attr 'www.google.com' :db.type/uri)
+   will yield <URI 'www.google.com'>"
+  (fn [attr attr-type] [(type attr) attr-type])
+  :default [String db.type/string])
+
+(defmethod transform-attr [String :db.type/string] [attr _] attr)
+
+(defmethod transform-attr [String :db.type/uri] [attr attr-type]
+  (URI. attr))
+
+(defmethod transform-attr [String :user/gender] [attr attr-type]
+  (keyword (str "user.gender/" gender)))
+
 
 (defn map-of-entities 
-  "Converts the set of [:attr-name value-entid] pairs returned by querying for q-user-schema 
-   into a single map of {:attr-name :value-ident ...} pairs"
+  "Converts the set of [:attr-name valueType-entid] pairs returned by querying for q-user-schema 
+   into a single map of {:attr-name :valueType-ident ...} pairs"
   []
   (let [conn-db (db @conn)
         schema (q q-user-schema conn-db)]
@@ -59,44 +76,39 @@
 
 ; (defmulti ...) (defmethod), dispatch based on db.type...
 (defn transform-tx-values
-  "Takes a pending transaction and transforms the values, 
+  "Takes a map for a pending transaction and transforms the values, 
    dispatching based on current and desired :db/valueType,
    e.g. transforms the string 'http://www.google.com'
-   to a proper URI if its corresponding :db/valueType is :db.type/uri"
-  [])
-
-(defn enumify-gender 
-  "Convert the :gender field's string value to :user.gender/male or :user.gender/female if present"
-  [user-data]
-  (if-let [gender (:gender user-data)]
-    (assoc user-data :gender (keyword (str "user.gender/" gender)))
-    user-data))
+   to a proper URI if its corresponding :db/valueType is :db.type/uri."
+  [tx-map entity-map]
+  (into {} (for [[k v] entity-map]
+    {k (transform-attr v (k tx-map))})))
 
 (defn namespace-keys 
   "Converts the keys of the-map to be prefixed with the-ns/
   (namespace-keys {:locale 'en'} :user) returns {:user/locale 'en'}"
   [the-map the-ns]
-  (reduce conj {} (for [[k v] the-map] 
-    [(keyword (str (name the-ns) "/" (name k))) 
-     v])))
+  (into {} (for [[k v] the-map] 
+    {(keyword (str (name the-ns) "/" (name k))) 
+     v})))
 
 (defn denamespace-keys
   "The inverse of namespace-keys. Do not have to specify the-ns"
   [the-map]
-  (reduce conj {} (for [[k v] the-map] 
-    [(keyword (last (str/split (name k) #"/")))
-     v])))
+  (into {} (for [[k v] the-map] 
+    {(keyword (last (str/split (name k) #"/")))
+     v})))
 
-; need to create a notion of data-transformers fot txify:
+; need to create a notion of data-transformers for txify:
 ; look at database schema, and from that, determine if strings need to be converted to uris, enums, etc.
 
 (defn txify-user-data 
   "Convert a map representation of the userinfo response from google into a database transaction"
   [user-data]
-  (let [user-data (enumify-gender user-data)
-        data-map  (namespace-keys user-data "user")
-        data-map  (assoc data-map :db/id (d/tempid :db.part/user))]
-    [data-map]))
+  (let [tranny-user-data  (transform-tx-values (namespace-keys user-data "user") 
+                                               (map-of-entities))
+        tx-map            (assoc tranny-user-data :db/id (d/tempid :db.part/user))]
+    [tx-map]))
 
 (defn create-user [access-token user-id]
   "Need to make this more flexible: should handle the case of new fields"
