@@ -110,9 +110,12 @@
 (defn txify-user-data 
   "Convert a map representation of the userinfo response from google into a database transaction"
   [user-data]
-  (let [tranny-user-data  (transform-tx-values (namespace-keys user-data "user") 
-                                               (map-of-entities))
-        tx-map            (assoc tranny-user-data :db/id (d/tempid :db.part/user))]
+  (let [entity-map        (map-of-entities)
+        tranny-user-data  (transform-tx-values (namespace-keys user-data "user") 
+                                               entity-map)
+        ; remove any keys that don't have corresponding schema
+        clean-user-data   (into {} (map (fn [[k v]] (if (k entity-map) {k v})) tranny-user-data))
+        tx-map            (assoc clean-user-data :db/id (d/tempid :db.part/user))]
     [tx-map]))
 
 (defn create-user [access-token user-id]
