@@ -40,13 +40,13 @@
                       :in $ ?id 
                       :where [?u :user/id ?id]])
 
-; db/valueTypes are represented as integers. 23 = string, 58 = link
 (def q-user-schema '[:find ?name ?val-type
-                     :where [_ :db.install/attribute ?a] 
+                     :where [_ :db.install/attribute ?a]
                             [?a :db/ident ?name]
+                            [(str ?name) ?nom]
+                     		[(re-find #"^:user" ?nom)]
                             [?a :db/valueType ?val-type]])
 
-; should start making a datomic utility library
 (defmulti 
   transform-attr 
   "Transforms an attribute to the proper database type,
@@ -74,7 +74,6 @@
     (into {} (for [[k v] schema]
                 {k (ident conn-db v)}))))
 
-; (defmulti ...) (defmethod), dispatch based on db.type...
 (defn transform-tx-values
   "Takes a map for a pending transaction and transforms the values, 
    dispatching based on current and desired :db/valueType,
@@ -103,9 +102,6 @@
   (into {} (for [[k v] the-map] 
     {(keyword (last (str/split (name k) #"/")))
      v})))
-
-; need to create a notion of data-transformers for txify:
-; look at database schema, and from that, determine if strings need to be converted to uris, enums, etc.
 
 (defn txify-user-data 
   "Convert a map representation of the userinfo response from google into a database transaction"
@@ -139,7 +135,9 @@
 
       ; else return the user's data from the db
       (let [user-entity (d/entity conn-db (first user))]
-        (denamespace-keys (into {} user-entity))))))
+        ; include all keys from map-of-entities, plus the filled-out values
+        (denamespace-keys (conj (map-of-entities) 
+                                (into {} user-entity)))))))
 
 (defn get-my-info []
   (let [access-token (session/get :access-token)
