@@ -3,18 +3,24 @@
             [startlabs.models.user :as user]
             [noir.session :as session]
             [noir.response :as response])
-  (:use [noir.core :only [defpage]]
+  (:use [noir.core :only [defpage defpartial]]
         [hiccup.core :only [html]]))
 
+(defpartial user-info-p [info]
+  (if info
+    [:div#user-info
+      [:p "Hey, " [:a {:href "/users/me"} (:name info)]]
+      [:a#logout {:href "/logout"} "Logout"]]
+    [:a {:href "/login"} "Login"]))
+
+(defn user-info
+  ([] (user-info-p (user/get-my-info)))
+  ([info] (user-info-p info)))
+
 (defpage "/" []
-  (let [user-info (user/get-my-info)]
-    (common/layout
-      [:div#content
-        (if user-info
-          [:div#user-info
-            [:p "Hey, " [:a {:href "/users/me"} (:name user-info)]]
-            [:a#logout {:href "/logout"} "Logout"]]
-          [:a {:href "/login"} "Login"])])))
+  (common/layout
+    [:div#content
+      (user-info)]))
 
 (defpage "/login" []
   (response/redirect (user/get-login-url)))
@@ -28,10 +34,11 @@
     [:div#loading "Fetching credentials..."]))
 
 (defpage "/users/me" []
-  (let [user-info (user/get-my-info)]
+  (let [my-info (user/get-my-info)]
   	(common/layout
+      (user-info my-info)
       [:table#me
-		(for [key (keys user-info)]
+    		(for [key (keys my-info)]
        		[:tr
              [:td (str key)]
-             [:td (key user-info)]])])))
+             [:td (key my-info)]])])))
