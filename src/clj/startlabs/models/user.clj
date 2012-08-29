@@ -5,7 +5,8 @@
             [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
-            [noir.session :as session]))
+            [noir.session :as session])
+  (:import java.net.URI))
 
 (def redirect-url   "http://localhost:8000/oauth2callback")
 
@@ -54,7 +55,7 @@
    Example: (transform-attr 'www.google.com' :db.type/uri)
    will yield <URI 'www.google.com'>"
   (fn [attr attr-type] [(type attr) attr-type])
-  :default [String db.type/string])
+  :default [String :db.type/string])
 
 (defmethod transform-attr [String :db.type/string] [attr _] attr)
 
@@ -62,8 +63,7 @@
   (URI. attr))
 
 (defmethod transform-attr [String :user/gender] [attr attr-type]
-  (keyword (str "user.gender/" gender)))
-
+  (keyword (str "user.gender/" attr)))
 
 (defn map-of-entities 
   "Converts the set of [:attr-name valueType-entid] pairs returned by querying for q-user-schema 
@@ -79,10 +79,15 @@
   "Takes a map for a pending transaction and transforms the values, 
    dispatching based on current and desired :db/valueType,
    e.g. transforms the string 'http://www.google.com'
-   to a proper URI if its corresponding :db/valueType is :db.type/uri."
+   to a proper URI if its corresponding :db/valueType is :db.type/uri.
+   If the type is :db.type/ref, dispatches based on the key instead, eg: :user/gender"
   [tx-map entity-map]
-  (into {} (for [[k v] entity-map]
-    {k (transform-attr v (k tx-map))})))
+  (into {} (for [[k v] tx-map]
+    (let [attr-type (k entity-map)
+          dereferenced-type (if (= attr-type :db.type/ref)
+                              k
+                              attr-type)]
+      {k (transform-attr v dereferenced-type)}))))
 
 (defn namespace-keys 
   "Converts the keys of the-map to be prefixed with the-ns/
@@ -113,8 +118,8 @@
 (defn create-user [access-token user-id]
   "Need to make this more flexible: should handle the case of new fields"
   (let [userinfo-url (str googleapis-url "userinfo")
-        user-data (get-request-with-token userinfo-url access-token)
-        tx-data (txify-user-data user-data)]
+        user-data    (get-request-with-token userinfo-url access-token)
+        tx-data      (txify-user-data user-data)]
     (d/transact @conn tx-data)))
 
 (defn find-or-create-user
@@ -127,7 +132,7 @@
         @(create-user access-token user-id) ; force the transaction to return
         (find-or-create-user access-token user-id) ; now we should be able to find the user
         (catch Exception e ; transaction may fail, returning an ExecutionException
-          (session/flash-put! :message (str "Trouble connecting to the database." e))))
+          (session/flash-put! :message (str "Trouble connecting to the database: " e))))
 
       ; else return the user's data from the db
       (let [user-entity (d/entity conn-db (first user))]
