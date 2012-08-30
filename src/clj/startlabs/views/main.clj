@@ -2,7 +2,8 @@
   (:require [startlabs.views.common :as common]
             [startlabs.models.user :as user]
             [noir.session :as session]
-            [noir.response :as response])
+            [noir.response :as response]
+            [clojure.string :as str])
   (:use [noir.core :only [defpage defpartial]]
         [hiccup.core :only [html]]))
 
@@ -39,6 +40,9 @@
       (user-info my-info)
       [:table#me
     		(for [key (keys my-info)]
-       		[:tr
-             [:td (str key)]
-             [:td (key my-info)]])])))
+          (let [key-str (name key)
+                key-word (str/capitalize (str/replace key-str "_" " "))]
+         		[:tr
+              [:td [:label {:for key-str} key-word]]
+              [:td
+                [:a.editable {:href "#"} (key my-info)]]]))])))

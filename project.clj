@@ -1,7 +1,7 @@
 (defproject startlabs "0.1.0-SNAPSHOT"
   :description "The new Start Labs Pad"
   :url "http://startlabs.org"
-  :plugins [[lein-cljsbuild "0.2.5"]]
+  :plugins [[lein-cljsbuild "0.2.7"]]
   :dependencies [ ;clj
                   [org.clojure/clojure "1.4.0"]
                   [org.clojure/tools.logging "0.2.4"]
@@ -13,7 +13,8 @@
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
                   [org.slf4j/slf4j-log4j12 "1.6.4"]
                   ;cljs
-                  [com.keminglabs/c2 "0.2.0"]
+                  [com.keminglabs/c2 "0.2.1"]
+                  [jayq "0.1.0-alpha4"]
                 ]
   ; download datomic here: http://downloads.datomic.com/free.html
   ; put it into datomic-free, then install locally with mvn

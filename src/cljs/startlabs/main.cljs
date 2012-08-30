@@ -1,23 +1,16 @@
 (ns startlabs.main
   (:use [singult.core :only [render]]
-        [c2.core :only [unify]])
+        [jayq.core :only [$]])
   (:require [goog.string :as str]
             [fetch.remotes :as remotes]
-            [c2.dom :as dom]
-            [c2.event :as event]
-            [c2.util :as util]
-            [clojure.browser.repl :as repl])
-  (:require-macros [fetch.macros :as fm]))
+            [clojure.browser.repl :as repl]
+            [jayq.core :as jq]
+            [jayq.util :as util])
+  (:require-macros [fetch.macros :as fm]
+                   [jayq.macros :as jm]))
 
 ; browser repl for development
 ; (repl/connect "http://localhost:9000/repl")
-
-(def $ dom/select)
-
-(def $content ($ "#content"))
-
-(def up-and-running
-  [:p.alert "CLJS is compiled and active... Time to build something!"])
 
 (def location-hash (.-hash js/location))
 
@@ -36,7 +29,7 @@
         expiration (:expires_in hash-vals)]
     (if access-token
       (do
-        (dom/text ($ "#loading") "Verifying credentials...")
+        (jq/text ($ "#loading") "Verifying credentials...")
         (fm/remote (token-info access-token) [result]
           (.log js/console (util/clj->js result))
           (set! (.-location js/window) "/")
@@ -44,9 +37,13 @@
 
 (defn main []
   (if location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change))
+  (set! (.-onhashchange js/window) handle-hash-change)
+  (jq/bind ($ ".editable") :click (fn [e]
+    (.preventDefault e)
+    (.log js/console "clicked")
+  )))
 
-(event/on-load
+(jm/ready
   (do
     (.log js/console "Hello world!")
     (main)))
