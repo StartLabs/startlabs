@@ -45,4 +45,4 @@
          		[:tr
               [:td [:label {:for key-str} key-word]]
               [:td
-                [:a.editable {:href "#"} (key my-info)]]]))])))
+                [:a.editable {:href "#" :name key-str :id key-str} (key my-info)]]]))])))

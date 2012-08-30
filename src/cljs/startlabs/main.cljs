@@ -40,8 +40,10 @@
   (set! (.-onhashchange js/window) handle-hash-change)
   (jq/bind ($ ".editable") :click (fn [e]
     (.preventDefault e)
-    (.log js/console "clicked")
-  )))
+    (let [$elem ($ (.-target e))
+          id (attr $elem "id")]
+      (hide $elem)
+  ))))
 
 (jm/ready
   (do

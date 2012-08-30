@@ -18994,7 +18994,9 @@ startlabs.main.main = function() {
   window.onhashchange = startlabs.main.handle_hash_change;
   return jayq.core.bind.call(null, jayq.core.$.call(null, ".editable"), "\ufdd0'click", function(a) {
     a.preventDefault();
-    return console.log("clicked")
+    a = jayq.core.$.call(null, a.target);
+    startlabs.main.attr.call(null, a, "id");
+    return startlabs.main.hide.call(null, a)
   })
 };
 jayq.core.document_ready.call(null, function() {
