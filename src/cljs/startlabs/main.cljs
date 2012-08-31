@@ -33,20 +33,13 @@
         (fm/remote (token-info access-token) [result]
           (.log js/console (util/clj->js result))
           (set! (.-location js/window) "/")
-          )))))
+        )))))
 
 (defn main []
   (if location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change)
-  (jq/bind ($ ".editable") :click (fn [e]
-    (.preventDefault e)
-    (let [$elem ($ (.-target e))
-          id (attr $elem "id")]
-      (hide $elem)
-  ))))
+  (set! (.-onhashchange js/window) handle-hash-change))
 
 (jm/ready
-  (do
-    (.log js/console "Hello world!")
-    (main)))
+  (.log js/console "Hello world!")
+  (main))
 

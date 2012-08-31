@@ -136,7 +136,7 @@
       ; else return the user's data from the db
       (let [user-entity (d/entity conn-db (first user))]
         ; include all keys from map-of-entities, plus the filled-out values
-        (denamespace-keys (conj (into {} (map (fn [[k _]] {k ""}) (map-of-entities)))
+        (denamespace-keys (conj (into {} (map (fn [[k _]] {k nil}) (map-of-entities)))
                                 (into {} user-entity)))))))
 
 (defn get-my-info []

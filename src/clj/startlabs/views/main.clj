@@ -38,11 +38,20 @@
   (let [my-info (user/get-my-info)]
   	(common/layout
       (user-info my-info)
-      [:table#me
-    		(for [key (keys my-info)]
-          (let [key-str (name key)
-                key-word (str/capitalize (str/replace key-str "_" " "))]
-         		[:tr
-              [:td [:label {:for key-str} key-word]]
-              [:td
-                [:a.editable {:href "#" :name key-str :id key-str} (key my-info)]]]))])))
+      [:form {:action "/users/me" :method "post"}
+        [:table#me
+      		(for [key (keys my-info)]
+            (let [key-str  (name key)
+                  key-word (str/capitalize (str/replace key-str "_" " "))
+                  value    (key my-info)
+                  inp-elem (if (= key :bio) :textarea :input)]
+           		[:tr
+                [:td [:label {:for key-str} key-word]]
+                [:td
+                  ; name attr must be filled by script. This way, we only submit values that get changed.
+                  [inp-elem {:id key-str :name key-str :type "text" :value value :class "hidden"} 
+                    (if (= inp-elem :textarea) value)]
+                    (if (= key :picture)
+                      [:img#preview {:src value :width 50 :height 50}])]
+                ]))]
+          [:input {:type "submit" :value "Submit"}]])))
