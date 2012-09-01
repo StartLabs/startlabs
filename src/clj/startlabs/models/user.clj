@@ -1,8 +1,8 @@
 (ns startlabs.models.user
   (:use [datomic.api :only [q db ident] :as d]
-        [startlabs.models.database :only [conn]])
-  (:require [startlabs.secrets :as secrets]
-            [clojure.string :as str]
+        [startlabs.models.database :only [conn]]
+        [environ.core :only [env]])
+  (:require [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
             [noir.session :as session]
@@ -24,7 +24,7 @@
 (defn get-login-url []
   (let [scopes {:userinfo [:email :profile]}
         scope-origin "https://www.googleapis.com/auth/"]
-    (oa/oauth-authorization-url secrets/oauth-client-id redirect-url 
+    (oa/oauth-authorization-url (env :oauth-client-id) redirect-url 
       :scope (joined-scope-strings scopes scope-origin) 
       :response_type "token")))
 

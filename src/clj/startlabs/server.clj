@@ -2,15 +2,15 @@
   (:require [noir.server :as server]
             [noir.session :as session]
             [clojure.string :as str]
-            [startlabs.secrets :as secrets]
             [startlabs.models.user :as user]
             [startlabs.models.database :as db])
-  (:use [noir.fetch.remotes :only [defremote]]))
+  (:use [noir.fetch.remotes :only [defremote]]
+        [environ.core :only [env]]))
 
 
 (defremote token-info [access-token]
   (let [token-map    (user/get-token-info access-token)
-        valid-token? (= (:audience token-map) secrets/oauth-client-id)
+        valid-token? (= (:audience token-map) (env :oauth-client-id))
         lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org") (:verified_email token-map))]
     (if (and valid-token? lab-member?)
       (do
