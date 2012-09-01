@@ -37,7 +37,13 @@
 
 (defn main []
   (if location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change))
+  (set! (.-onhashchange js/window) handle-hash-change)
+
+  (.setKey js/filepicker "AuL8SYGe7TXG-aEqBK1S1z")
+  (jq/bind ($ "#new-picture") :click (fn [e]
+    (.preventDefault e)
+    (.getFile js/filepicker "image/*" (fn [url metadata]
+      (jq/attr ($ "#picture") "value" url))))))
 
 (jm/ready
   (.log js/console "Hello world!")

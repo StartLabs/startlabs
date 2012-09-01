@@ -14,4 +14,5 @@
        [:div#wrapper
         content]
        (include-js "/jquery.js")
-       (include-js "/client.js")])))
+       (include-js "/client.js")
+       (include-js "https://api.filepicker.io/v0/filepicker.js")])))
