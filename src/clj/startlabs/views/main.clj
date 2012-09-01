@@ -1,6 +1,7 @@
 (ns startlabs.views.main
   (:require [startlabs.views.common :as common]
             [startlabs.models.user :as user]
+            [startlabs.util :as util]
             [noir.session :as session]
             [noir.response :as response]
             [clojure.string :as str])
@@ -55,3 +56,11 @@
                       [:img#preview {:src value :width 50 :height 50}])]
                 ]))]
           [:input {:type "submit" :value "Submit"}]])))
+
+(defpage [:post "/users/me"] params
+  (let [my-info (user/get-my-info)]
+    (common/layout
+      [:p (str my-info)]
+      [:p (str params)]
+      [:p (str (util/map-diff params my-info))])))
+

@@ -5,7 +5,8 @@
             [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
-            [noir.session :as session])
+            [noir.session :as session]
+            [startlabs.util :as util])
   (:import java.net.URI))
 
 (def redirect-url   "http://localhost:8000/oauth2callback")
@@ -103,15 +104,21 @@
     {(keyword (last (str/split (name k) #"/")))
      v})))
 
-(defn txify-user-data 
-  "Convert a map representation of the userinfo response from google into a database transaction"
-  [user-data]
+(defn namespace-and-transform [user-data]
   (let [entity-map        (map-of-entities)
         tranny-user-data  (transform-tx-values (namespace-keys user-data "user") 
                                                entity-map)
-        ; remove any keys that don't have corresponding schema
-        clean-user-data   (into {} (map (fn [[k v]] (if (k entity-map) {k v})) tranny-user-data))
-        tx-map            (assoc clean-user-data :db/id (d/tempid :db.part/user))]
+        clean-user-data   (into {} (map (fn [[k v]] (if (k entity-map) {k v})) tranny-user-data))]
+    clean-user-data))
+
+(defn temp-identify [user-map]
+  (assoc user-map :db/id (d/tempid :db.part/user)))
+
+(defn txify-user-data 
+  "Convert a map representation of the userinfo response from google into a database transaction"
+  [user-data]
+  (let [clean-user-data   (namespace-and-transform user-data)
+        tx-map            (temp-identify clean-user-data)]
     [tx-map]))
 
 (defn create-user [access-token user-id]
@@ -144,7 +151,7 @@
         user-id      (session/get :user_id)]
     (if (and access-token user-id)
       (try
-        (find-or-create-user access-token user-id)
+        (util/clean-values (find-or-create-user access-token user-id))
         (catch Exception e
           (do
             (session/clear!)
