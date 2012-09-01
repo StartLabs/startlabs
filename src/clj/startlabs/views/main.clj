@@ -58,11 +58,10 @@
                 ]))]
           [:input {:type "submit" :value "Submit"}]])))
 
+; right now, a user could hypothetically add additional post params...
 (defpage [:post "/users/me"] params
   (let [my-info (user/get-my-info)
         new-facts (util/map-diff params my-info)]
-    (common/layout
-      [:p (str my-info)]
-      [:p (str params)]
-      [:p (str new-facts)])))
-
+    (if (not (empty? new-facts))
+      (user/update-my-info new-facts))
+    (response/redirect "/users/me")))

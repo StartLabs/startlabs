@@ -128,14 +128,20 @@
         tx-data      (txify-user-data user-data)]
     (d/transact @conn tx-data)))
 
+(defn find-user 
+  ([user-id] (find-user user-id (db @conn)))
+  ([user-id conn-db]
+    (first (q q-user-with-id conn-db user-id))))
+
 (defn find-or-create-user
-  "Finds the user in the database or creates a new one based on their user-id"
+  "Finds the user in the database or creates a new one based on their user-id.
+   Returns a hash-map of the user's data, with the user/ namespace stripped out."
   [access-token user-id]
   (let [conn-db      (db @conn)
-        user         (first (q q-user-with-id conn-db user-id))] ; should be a vector with one entry
+        user         (find-user user-id conn-db)] ; should be a vector with one entry
     (if (not user)
       (try
-        @(create-user access-token user-id) ; force the transaction to return
+        @(create-user access-token user-id) ; dereferencing forces the transaction to return
         (find-or-create-user access-token user-id) ; now we should be able to find the user
         (catch Exception e ; transaction may fail, returning an ExecutionException
           (session/flash-put! :message (str "Trouble connecting to the database: " e))))
@@ -146,12 +152,29 @@
         (denamespace-keys (conj (into {} (map (fn [[k _]] {k nil}) (map-of-entities)))
                                 (into {} user-entity)))))))
 
+(defn update-user 
+  "Expects new-fact-map to *not* already be namespaced with user/"
+  [user-id new-fact-map]
+  (try
+    (let [user-id       (first (find-user user-id))
+          tranny-facts  (namespace-and-transform new-fact-map)
+          idented-facts (assoc tranny-facts :db/id user-id)]
+      (d/transact @conn (list idented-facts))
+      (session/flash-put! :message (str "Updated info successfully!")))
+    (catch Exception e
+      (session/flash-put! :message (str "Trouble updating user: " e)))))
+
+(defn update-my-info [new-fact-map]
+  (let [user-id (session/get :user_id)]
+    (if user-id
+      (update-user user-id new-fact-map))))
+
 (defn get-my-info []
   (let [access-token (session/get :access-token)
         user-id      (session/get :user_id)]
     (if (and access-token user-id)
       (try
-        (util/clean-values (find-or-create-user access-token user-id))
+        (util/stringify-values (find-or-create-user access-token user-id))
         (catch Exception e
           (do
             (session/clear!)
