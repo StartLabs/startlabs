@@ -388,13 +388,6 @@ goog.base = function(a, b, c) {
 goog.scope = function(a) {
   a.call(goog.global)
 };
-goog.debug = {};
-goog.debug.Error = function(a) {
-  this.stack = Error().stack || "";
-  a && (this.message = "" + a)
-};
-goog.inherits(goog.debug.Error, Error);
-goog.debug.Error.prototype.name = "CustomError";
 goog.string = {};
 goog.string.Unicode = {NBSP:"\u00a0"};
 goog.string.startsWith = function(a, b) {
@@ -715,6 +708,13 @@ goog.string.toSelectorCaseCache_ = {};
 goog.string.toSelectorCase = function(a) {
   return goog.string.toSelectorCaseCache_[a] || (goog.string.toSelectorCaseCache_[a] = ("" + a).replace(/([A-Z])/g, "-$1").toLowerCase())
 };
+goog.debug = {};
+goog.debug.Error = function(a) {
+  this.stack = Error().stack || "";
+  a && (this.message = "" + a)
+};
+goog.inherits(goog.debug.Error, Error);
+goog.debug.Error.prototype.name = "CustomError";
 goog.asserts = {};
 goog.asserts.ENABLE_ASSERTS = goog.DEBUG;
 goog.asserts.AssertionError = function(a, b) {
@@ -13475,99 +13475,6 @@ clojure.browser.event.has_listener = function() {
 clojure.browser.event.remove_all = function() {
   return null
 };
-goog.json = {};
-goog.json.isValid_ = function(a) {
-  return/^\s*$/.test(a) ? !1 : /^[\],:{}\s\u2028\u2029]*$/.test(a.replace(/\\["\\\/bfnrtu]/g, "@").replace(/"[^"\\\n\r\u2028\u2029\x00-\x08\x10-\x1f\x80-\x9f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g, ""))
-};
-goog.json.parse = function(a) {
-  a = "" + a;
-  if(goog.json.isValid_(a)) {
-    try {
-      return eval("(" + a + ")")
-    }catch(b) {
-    }
-  }
-  throw Error("Invalid JSON string: " + a);
-};
-goog.json.unsafeParse = function(a) {
-  return eval("(" + a + ")")
-};
-goog.json.serialize = function(a, b) {
-  return(new goog.json.Serializer(b)).serialize(a)
-};
-goog.json.Serializer = function(a) {
-  this.replacer_ = a
-};
-goog.json.Serializer.prototype.serialize = function(a) {
-  var b = [];
-  this.serialize_(a, b);
-  return b.join("")
-};
-goog.json.Serializer.prototype.serialize_ = function(a, b) {
-  switch(typeof a) {
-    case "string":
-      this.serializeString_(a, b);
-      break;
-    case "number":
-      this.serializeNumber_(a, b);
-      break;
-    case "boolean":
-      b.push(a);
-      break;
-    case "undefined":
-      b.push("null");
-      break;
-    case "object":
-      if(null == a) {
-        b.push("null");
-        break
-      }
-      if(goog.isArray(a)) {
-        this.serializeArray_(a, b);
-        break
-      }
-      this.serializeObject_(a, b);
-      break;
-    case "function":
-      break;
-    default:
-      throw Error("Unknown type: " + typeof a);
-  }
-};
-goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\u0008":"\\b", "\u000c":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\u000b"};
-goog.json.Serializer.charsToReplace_ = /\uffff/.test("\uffff") ? /[\\\"\x00-\x1f\x7f-\uffff]/g : /[\\\"\x00-\x1f\x7f-\xff]/g;
-goog.json.Serializer.prototype.serializeString_ = function(a, b) {
-  b.push('"', a.replace(goog.json.Serializer.charsToReplace_, function(a) {
-    if(a in goog.json.Serializer.charToJsonCharCache_) {
-      return goog.json.Serializer.charToJsonCharCache_[a]
-    }
-    var b = a.charCodeAt(0), e = "\\u";
-    16 > b ? e += "000" : 256 > b ? e += "00" : 4096 > b && (e += "0");
-    return goog.json.Serializer.charToJsonCharCache_[a] = e + b.toString(16)
-  }), '"')
-};
-goog.json.Serializer.prototype.serializeNumber_ = function(a, b) {
-  b.push(isFinite(a) && !isNaN(a) ? a : "null")
-};
-goog.json.Serializer.prototype.serializeArray_ = function(a, b) {
-  var c = a.length;
-  b.push("[");
-  for(var d = "", e = 0;e < c;e++) {
-    b.push(d), d = a[e], this.serialize_(this.replacer_ ? this.replacer_.call(a, "" + e, d) : d, b), d = ","
-  }
-  b.push("]")
-};
-goog.json.Serializer.prototype.serializeObject_ = function(a, b) {
-  b.push("{");
-  var c = "", d;
-  for(d in a) {
-    if(Object.prototype.hasOwnProperty.call(a, d)) {
-      var e = a[d];
-      "function" != typeof e && (b.push(c), this.serializeString_(d, b), b.push(":"), this.serialize_(this.replacer_ ? this.replacer_.call(a, d, e) : e, b), c = ",")
-    }
-  }
-  b.push("}")
-};
 goog.structs = {};
 goog.structs.getCount = function(a) {
   return"function" == typeof a.getCount ? a.getCount() : goog.isArrayLike(a) || goog.isString(a) ? a.length : goog.object.getCount(a)
@@ -15611,6 +15518,99 @@ goog.dom.DomHelper.prototype.getNodeTextOffset = goog.dom.getNodeTextOffset;
 goog.dom.DomHelper.prototype.getAncestorByTagNameAndClass = goog.dom.getAncestorByTagNameAndClass;
 goog.dom.DomHelper.prototype.getAncestorByClass = goog.dom.getAncestorByClass;
 goog.dom.DomHelper.prototype.getAncestor = goog.dom.getAncestor;
+goog.json = {};
+goog.json.isValid_ = function(a) {
+  return/^\s*$/.test(a) ? !1 : /^[\],:{}\s\u2028\u2029]*$/.test(a.replace(/\\["\\\/bfnrtu]/g, "@").replace(/"[^"\\\n\r\u2028\u2029\x00-\x08\x10-\x1f\x80-\x9f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g, ""))
+};
+goog.json.parse = function(a) {
+  a = "" + a;
+  if(goog.json.isValid_(a)) {
+    try {
+      return eval("(" + a + ")")
+    }catch(b) {
+    }
+  }
+  throw Error("Invalid JSON string: " + a);
+};
+goog.json.unsafeParse = function(a) {
+  return eval("(" + a + ")")
+};
+goog.json.serialize = function(a, b) {
+  return(new goog.json.Serializer(b)).serialize(a)
+};
+goog.json.Serializer = function(a) {
+  this.replacer_ = a
+};
+goog.json.Serializer.prototype.serialize = function(a) {
+  var b = [];
+  this.serialize_(a, b);
+  return b.join("")
+};
+goog.json.Serializer.prototype.serialize_ = function(a, b) {
+  switch(typeof a) {
+    case "string":
+      this.serializeString_(a, b);
+      break;
+    case "number":
+      this.serializeNumber_(a, b);
+      break;
+    case "boolean":
+      b.push(a);
+      break;
+    case "undefined":
+      b.push("null");
+      break;
+    case "object":
+      if(null == a) {
+        b.push("null");
+        break
+      }
+      if(goog.isArray(a)) {
+        this.serializeArray_(a, b);
+        break
+      }
+      this.serializeObject_(a, b);
+      break;
+    case "function":
+      break;
+    default:
+      throw Error("Unknown type: " + typeof a);
+  }
+};
+goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\u0008":"\\b", "\u000c":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\u000b"};
+goog.json.Serializer.charsToReplace_ = /\uffff/.test("\uffff") ? /[\\\"\x00-\x1f\x7f-\uffff]/g : /[\\\"\x00-\x1f\x7f-\xff]/g;
+goog.json.Serializer.prototype.serializeString_ = function(a, b) {
+  b.push('"', a.replace(goog.json.Serializer.charsToReplace_, function(a) {
+    if(a in goog.json.Serializer.charToJsonCharCache_) {
+      return goog.json.Serializer.charToJsonCharCache_[a]
+    }
+    var b = a.charCodeAt(0), e = "\\u";
+    16 > b ? e += "000" : 256 > b ? e += "00" : 4096 > b && (e += "0");
+    return goog.json.Serializer.charToJsonCharCache_[a] = e + b.toString(16)
+  }), '"')
+};
+goog.json.Serializer.prototype.serializeNumber_ = function(a, b) {
+  b.push(isFinite(a) && !isNaN(a) ? a : "null")
+};
+goog.json.Serializer.prototype.serializeArray_ = function(a, b) {
+  var c = a.length;
+  b.push("[");
+  for(var d = "", e = 0;e < c;e++) {
+    b.push(d), d = a[e], this.serialize_(this.replacer_ ? this.replacer_.call(a, "" + e, d) : d, b), d = ","
+  }
+  b.push("]")
+};
+goog.json.Serializer.prototype.serializeObject_ = function(a, b) {
+  b.push("{");
+  var c = "", d;
+  for(d in a) {
+    if(Object.prototype.hasOwnProperty.call(a, d)) {
+      var e = a[d];
+      "function" != typeof e && (b.push(c), this.serializeString_(d, b), b.push(":"), this.serialize_(this.replacer_ ? this.replacer_.call(a, d, e) : e, b), c = ",")
+    }
+  }
+  b.push("}")
+};
 goog.structs.Collection = function() {
 };
 goog.structs.Set = function(a) {
@@ -18993,11 +18993,14 @@ startlabs.main.main = function() {
   cljs.core.truth_(startlabs.main.location_hash) && startlabs.main.handle_hash_change.call(null);
   window.onhashchange = startlabs.main.handle_hash_change;
   filepicker.setKey("AuL8SYGe7TXG-aEqBK1S1z");
-  return jayq.core.bind.call(null, jayq.core.$.call(null, "#new-picture"), "\ufdd0'click", function(a) {
+  jayq.core.bind.call(null, jayq.core.$.call(null, "#new-picture"), "\ufdd0'click", function(a) {
     a.preventDefault();
     return filepicker.getFile("image/*", function(a) {
       return jayq.core.attr.call(null, jayq.core.$.call(null, "#picture"), "value", a)
     })
+  });
+  return jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", function() {
+    return jayq.core.inner.call(null, jayq.core.$.call(null, "#bio-preview"), markdown.mdToHtml.call(null, jayq.core.$.call(null, "#bio").val()))
   })
 };
 jayq.core.document_ready.call(null, function() {

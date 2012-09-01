@@ -43,7 +43,15 @@
   (jq/bind ($ "#new-picture") :click (fn [e]
     (.preventDefault e)
     (.getFile js/filepicker "image/*" (fn [url metadata]
-      (jq/attr ($ "#picture") "value" url))))))
+      (jq/attr ($ "#picture") "value" url)))))
+
+  (jq/bind ($ "#bio") :keyup (fn [e]
+    (this-as bio
+      (jq/inner ($ "#bio-preview") 
+        (->> ($ "#bio")
+          .val
+          markdown/mdToHtml)))
+  )))
 
 (jm/ready
   (.log js/console "Hello world!")

@@ -7,6 +7,7 @@
                   [org.clojure/tools.logging "0.2.4"]
                   [org.clojure/core.incubator "0.1.1"] ; for -?> goodness
                   [org.clojure/math.numeric-tower "0.0.1"]
+                  
                   [noir "1.3.0-beta10"]
                   [fetch "0.1.0-alpha2"]
                   [clj-http "0.5.2"]
@@ -16,6 +17,7 @@
                   [org.slf4j/slf4j-log4j12 "1.6.4"]
                   [environ "0.3.0"]
                   [clj-aws-s3 "0.3.2"]
+                  [markdown-clj "0.9.8"]
                   ;cljs
                   [com.keminglabs/c2 "0.2.1"]
                   [jayq "0.1.0-alpha4"]

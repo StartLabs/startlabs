@@ -13,6 +13,7 @@
           [:div#message message])
        [:div#wrapper
         content]
-       (include-js "/jquery.js")
-       (include-js "/client.js")
-       (include-js "https://api.filepicker.io/v0/filepicker.js")])))
+       (include-js "https://api.filepicker.io/v0/filepicker.js"
+                   "/markdown.js"
+                   "/jquery.js"
+                   "/client.js")])))

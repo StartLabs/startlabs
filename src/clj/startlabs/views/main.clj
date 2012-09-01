@@ -11,7 +11,8 @@
         [noir.core :only [defpage defpartial]]
         [hiccup.core :only [html]]
         [clojure.java.io :only [input-stream]]
-        [environ.core :only [env]]))
+        [environ.core :only [env]]
+        [markdown :only [md-to-html-string]]))
 
 (defpartial user-info-p [info]
   (if info
@@ -40,7 +41,7 @@
   (common/layout
     [:div#loading "Fetching credentials..."]))
 
-(def editable-attrs [:link :studying :name :bio :graduation_year :picture])
+(def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
 (defpartial user-table [info-map editable?]
   [:table
@@ -53,12 +54,17 @@
           [:td [:label {:for key-str} key-word]]
           [:td
             (if editable?
-              [inp-elem {:id key-str :name key-str :type "text" :value value} 
-                (if (= inp-elem :textarea) value)]
-              [:span value])
+              [:div
+                [inp-elem {:id key-str :name key-str :type "text" :value value} 
+                  (if (= inp-elem :textarea) value)]
+                [:div {:id (str key-str "-preview")}]]
+              [:span 
+                (if (= key :bio)
+                  (md-to-html-string value)
+                  value)])
             (if (= key :picture)
               [:div
-                [:a#new-picture {:href "#"} "Upload Picture"]
+                (if editable? [:a#new-picture {:href "#"} "Upload Picture"])
                 [:img#preview {:src value :width 50 :height 50}]])
           ]]))])
 
