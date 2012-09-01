@@ -11,12 +11,12 @@
 (defpartial user-info-p [info]
   (if info
     [:div#user-info
-      [:p "Hey, " [:a {:href "/users/me"} (:name info)]]
+      [:p "Hey, " [:a {:href "/me"} (:name info)]]
       [:a#logout {:href "/logout"} "Logout"]]
     [:a {:href "/login"} "Login"]))
 
 (defn user-info
-  ([] (user-info-p (user/get-my-info)))
+  ([]     (user-info-p (user/get-my-info)))
   ([info] (user-info-p info)))
 
 (defpage "/" []
@@ -37,31 +37,45 @@
 
 (def editable-attrs [:link :studying :name :bio :graduation_year :picture])
 
-(defpage "/users/me" []
+(defpartial user-table [info-map editable?]
+  [:table
+    (for [key editable-attrs]
+      (let [key-str  (name key)
+            key-word (str/capitalize (str/replace key-str "_" " "))
+            value    (key info-map)
+            inp-elem (if (= key :bio) :textarea :input)]
+        [:tr
+          [:td [:label {:for key-str} key-word]]
+          [:td
+            (if editable?
+              [inp-elem {:id key-str :name key-str :type "text" :value value} 
+                (if (= inp-elem :textarea) value)]
+              [:span value])
+            (if (= key :picture)
+              [:img#preview {:src value :width 50 :height 50}])
+          ]]))])
+
+(defpage [:get ["/me"]] []
   (let [my-info (user/get-my-info)]
   	(common/layout
       (user-info my-info)
-      [:form {:action "/users/me" :method "post"}
-        [:table#me
-      		(for [key editable-attrs]
-            (let [key-str  (name key)
-                  key-word (str/capitalize (str/replace key-str "_" " "))
-                  value    (key my-info)
-                  inp-elem (if (= key :bio) :textarea :input)]
-           		[:tr
-                [:td [:label {:for key-str} key-word]]
-                [:td
-                  [inp-elem {:id key-str :name key-str :type "text" :value value} 
-                    (if (= inp-elem :textarea) value)]
-                    (if (= key :picture)
-                      [:img#preview {:src value :width 50 :height 50}])]
-                ]))]
-          [:input {:type "submit" :value "Submit"}]])))
+      [:h1 "Edit my info"]
+      [:form#me {:action "/team/me" :method "post"}
+        (user-table my-info true)
+        [:input {:type "submit" :value "Submit"}]])))
 
 ; right now, a user could hypothetically add additional post params...
-(defpage [:post "/users/me"] params
+(defpage [:post "/me"] params
   (let [my-info (user/get-my-info)
         new-facts (util/map-diff params my-info)]
     (if (not (empty? new-facts))
       (user/update-my-info new-facts))
-    (response/redirect "/users/me")))
+    (response/redirect "/team/me")))
+
+(defpage [:get ["/team/:name" :name #"\w+"]] {:keys [name]}
+  (let [email       (str name "@startlabs.org")
+        member-info (user/find-user-with-email email)]
+    (common/layout
+      (user-info)
+      [:h1 (:name member-info)]
+      (user-table member-info false))))

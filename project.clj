@@ -12,6 +12,7 @@
                   [com.datomic/datomic-free "0.8.3435" 
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
                   [org.slf4j/slf4j-log4j12 "1.6.4"]
+                  [environ "0.3.0"]
                   ;cljs
                   [com.keminglabs/c2 "0.2.1"]
                   [jayq "0.1.0-alpha4"]

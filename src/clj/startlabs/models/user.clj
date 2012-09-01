@@ -37,10 +37,6 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-(def q-user-with-id '[:find ?u 
-                      :in $ ?id 
-                      :where [?u :user/id ?id]])
-
 (def q-user-schema '[:find ?name ?val-type
                      :where [_ :db.install/attribute ?a]
                             [?a :db/ident ?name]
@@ -48,6 +44,7 @@
                      		[(re-find #"^:user" ?nom)]
                             [?a :db/valueType ?val-type]])
 
+; the transforming and de/namespacing functions should be their own helper library...
 (defmulti 
   transform-attr 
   "Transforms an attribute to the proper database type,
@@ -60,10 +57,13 @@
 
 (defmethod transform-attr [String :db.type/string] [attr _] attr)
 
-(defmethod transform-attr [String :db.type/uri] [attr attr-type]
+(defmethod transform-attr [String :db.type/uri] [attr _]
   (URI. attr))
 
-(defmethod transform-attr [String :user/gender] [attr attr-type]
+(defmethod transform-attr [String :db.type/long] [attr _]
+  (Integer/parseInt attr))
+
+(defmethod transform-attr [String :user/gender] [attr _]
   (keyword (str "user.gender/" attr)))
 
 (defn map-of-entities 
@@ -89,13 +89,15 @@
                               attr-type)]
       {k (transform-attr v dereferenced-type)}))))
 
+(defn namespace-key [the-ns k]
+  (keyword (str (name the-ns) "/" (name k))))
+
 (defn namespace-keys 
   "Converts the keys of the-map to be prefixed with the-ns/
-  (namespace-keys {:locale 'en'} :user) returns {:user/locale 'en'}"
-  [the-map the-ns]
+  (namespace-keys :user {:locale 'en'}) returns {:user/locale 'en'}"
+  [the-ns the-map]
   (into {} (for [[k v] the-map] 
-    {(keyword (str (name the-ns) "/" (name k))) 
-     v})))
+    {(namespace-key the-ns k) v})))
 
 (defn denamespace-keys
   "The inverse of namespace-keys. Do not have to specify the-ns"
@@ -106,7 +108,7 @@
 
 (defn namespace-and-transform [user-data]
   (let [entity-map        (map-of-entities)
-        tranny-user-data  (transform-tx-values (namespace-keys user-data "user") 
+        tranny-user-data  (transform-tx-values (namespace-keys :user user-data) 
                                                entity-map)
         clean-user-data   (into {} (map (fn [[k v]] (if (k entity-map) {k v})) tranny-user-data))]
     clean-user-data))
@@ -128,37 +130,55 @@
         tx-data      (txify-user-data user-data)]
     (d/transact @conn tx-data)))
 
-(defn find-user 
-  ([user-id] (find-user user-id (db @conn)))
-  ([user-id conn-db]
-    (first (q q-user-with-id conn-db user-id))))
+(defn user-with-attr
+  ([k v] (user-with-attr k v (db @conn)))
+  ([k v conn-db]
+    (let [namespaced-key (namespace-key :user k)]
+      (ffirst (q [:find '?u
+                  :in '$ '?v
+                  :where ['?u namespaced-key '?v]] conn-db v)))))
+
+(defn user-with-id [& args]
+  (apply user-with-attr :id args))
+
+(defn user-with-email [& args]
+  (apply user-with-attr :email args))
+
+(defn entity-map-with-nil-vals []
+  (zipmap (keys (map-of-entities)) (repeat nil)))
+
+(defn user-map-for-user
+  "Takes as input a single datomic user-id (the output of ffirsting query)"
+  [user]
+  (let [user-entity (d/entity (db @conn) user)]
+    (denamespace-keys (conj (entity-map-with-nil-vals)
+                            (into {} user-entity)))))
 
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id.
    Returns a hash-map of the user's data, with the user/ namespace stripped out."
   [access-token user-id]
   (let [conn-db      (db @conn)
-        user         (find-user user-id conn-db)] ; should be a vector with one entry
+        user         (user-with-id user-id conn-db)] ; should be a vector with one entry
     (if (not user)
       (try
         @(create-user access-token user-id) ; dereferencing forces the transaction to return
         (find-or-create-user access-token user-id) ; now we should be able to find the user
         (catch Exception e ; transaction may fail, returning an ExecutionException
           (session/flash-put! :message (str "Trouble connecting to the database: " e))))
-
       ; else return the user's data from the db
-      (let [user-entity (d/entity conn-db (first user))]
-        ; include all keys from map-of-entities, plus the filled-out values
-        (denamespace-keys (conj (into {} (map (fn [[k _]] {k nil}) (map-of-entities)))
-                                (into {} user-entity)))))))
+      (user-map-for-user user))))
+
+(defn find-user-with-email [email]
+  (user-map-for-user (user-with-email email)))
 
 (defn update-user 
   "Expects new-fact-map to *not* already be namespaced with user/"
   [user-id new-fact-map]
   (try
-    (let [user-id       (first (find-user user-id))
+    (let [user          (user-with-id user-id)
           tranny-facts  (namespace-and-transform new-fact-map)
-          idented-facts (assoc tranny-facts :db/id user-id)]
+          idented-facts (assoc tranny-facts :db/id user)]
       (d/transact @conn (list idented-facts))
       (session/flash-put! :message (str "Updated info successfully!")))
     (catch Exception e
