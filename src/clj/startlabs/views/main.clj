@@ -35,13 +35,15 @@
   (common/layout
     [:div#loading "Fetching credentials..."]))
 
+(def editable-attrs [:link :studying :name :bio :graduation_year :picture])
+
 (defpage "/users/me" []
   (let [my-info (user/get-my-info)]
   	(common/layout
       (user-info my-info)
       [:form {:action "/users/me" :method "post"}
         [:table#me
-      		(for [key (keys my-info)]
+      		(for [key editable-attrs]
             (let [key-str  (name key)
                   key-word (str/capitalize (str/replace key-str "_" " "))
                   value    (key my-info)
@@ -58,9 +60,10 @@
           [:input {:type "submit" :value "Submit"}]])))
 
 (defpage [:post "/users/me"] params
-  (let [my-info (user/get-my-info)]
+  (let [my-info (user/get-my-info)
+        new-facts (util/map-diff params my-info)]
     (common/layout
       [:p (str my-info)]
       [:p (str params)]
-      [:p (str (util/map-diff params my-info))])))
+      [:p (str new-facts)])))
 
