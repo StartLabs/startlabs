@@ -18992,6 +18992,9 @@ startlabs.main.handle_hash_change = function() {
 startlabs.main.swap_picture_preview = function() {
   return jayq.core.attr.call(null, jayq.core.$.call(null, "#preview"), "src", jayq.core.val.call(null, jayq.core.$.call(null, "#picture")))
 };
+startlabs.main.update_bio_preview = function() {
+  return jayq.core.inner.call(null, jayq.core.$.call(null, "#bio-preview"), markdown.mdToHtml.call(null, jayq.core.$.call(null, "#bio").val()))
+};
 startlabs.main.main = function() {
   cljs.core.truth_(startlabs.main.location_hash) && startlabs.main.handle_hash_change.call(null);
   window.onhashchange = startlabs.main.handle_hash_change;
@@ -19004,9 +19007,8 @@ startlabs.main.main = function() {
     })
   });
   jayq.core.bind.call(null, jayq.core.$.call(null, "#picture"), "\ufdd0'keyup", startlabs.main.swap_picture_preview);
-  return jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", function() {
-    return jayq.core.inner.call(null, jayq.core.$.call(null, "#bio-preview"), markdown.mdToHtml.call(null, jayq.core.$.call(null, "#bio").val()))
-  })
+  jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", startlabs.main.update_bio_preview);
+  return startlabs.main.update_bio_preview.call(null)
 };
 jayq.core.document_ready.call(null, function() {
   console.log("Hello world!");

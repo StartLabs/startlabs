@@ -38,6 +38,12 @@
 (defn swap-picture-preview []
   (jq/attr ($ "#preview") "src" (jq/val ($ "#picture"))))
 
+(defn update-bio-preview []
+  (jq/inner ($ "#bio-preview") 
+    (->> ($ "#bio")
+      .val
+      markdown/mdToHtml)))
+
 (defn main []
   (if location-hash (handle-hash-change))
   (set! (.-onhashchange js/window) handle-hash-change)
@@ -50,14 +56,8 @@
       (swap-picture-preview)))))
 
   (jq/bind ($ "#picture") :keyup swap-picture-preview)
-
-  (jq/bind ($ "#bio") :keyup (fn [e]
-    (this-as bio
-      (jq/inner ($ "#bio-preview") 
-        (->> ($ "#bio")
-          .val
-          markdown/mdToHtml)))
-  )))
+  (jq/bind ($ "#bio") :keyup update-bio-preview)
+  (update-bio-preview))
 
 (jm/ready
   (.log js/console "Hello world!")

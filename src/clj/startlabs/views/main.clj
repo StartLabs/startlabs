@@ -14,21 +14,22 @@
         [environ.core :only [env]]
         [markdown :only [md-to-html-string]]))
 
-(defpartial user-info-p [info]
+(defpartial login-info-p [info]
   (if info
-    [:div#user-info
-      [:p "Hey, " [:a {:href "/me"} (:name info)]]
+    [:div#login-info
+      [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:name info)] 
+          " ("    [:a {:href "/me"} "edit profile"] ")"]
       [:a#logout {:href "/logout"} "Logout"]]
     [:a {:href "/login"} "Login"]))
 
-(defn user-info
-  ([]     (user-info-p (user/get-my-info)))
-  ([info] (user-info-p info)))
+(defn login-info
+  ([]     (login-info-p (user/get-my-info)))
+  ([info] (login-info-p info)))
 
 (defpage "/" []
   (common/layout
     [:div#content
-      (user-info)]))
+      (login-info)]))
 
 (defpage "/login" []
   (response/redirect (user/get-login-url)))
@@ -71,7 +72,7 @@
 (defpage [:get ["/me"]] []
   (if-let [my-info (user/get-my-info)]
   	(common/layout
-      (user-info my-info)
+      (login-info my-info)
       [:h1 "Edit my info"]
       [:form#me {:action "/me" :method "post"}
         (user-table my-info true)
@@ -98,7 +99,10 @@
       ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
       (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
         (let  [file-name   (user/username my-info)]
-          (user/update-my-info (assoc new-facts :picture (save-file-to-s3 picture-url file-name))))
+          (try
+            (user/update-my-info (assoc new-facts :picture (save-file-to-s3 picture-url file-name)))
+            (catch Exception e
+              (session/flash-put! :message "Unable to grab the specified picture"))))
         (user/update-my-info new-facts))))
 
     (response/redirect "/me"))
@@ -107,12 +111,22 @@
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
     (common/layout
-      (user-info)
+      (login-info)
       [:h1 (:name member-info)]
       (user-table member-info false))))
 
 (defpage "/team" []
   (let [my-info user/get-my-info]
     (common/layout
-      (user/find-all-users)
+      [:h1 "Our Team"]
+      (for [person (user/find-all-users)]
+        [:div
+          [:p (str person)]
+          [:h2 [:a {:href (:link person)} (:name person)]]
+          [:img {:src (:picture person) :width 200 :height 200}]
+          [:p  (:role person)]
+          [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
+          [:p  (md-to-html-string (:bio person))]
+        ]
+      )
     )))
