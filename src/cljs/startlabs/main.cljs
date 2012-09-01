@@ -35,6 +35,9 @@
           (set! (.-location js/window) "/")
         )))))
 
+(defn swap-picture-preview []
+  (jq/attr ($ "#preview") "src" (jq/val ($ "#picture"))))
+
 (defn main []
   (if location-hash (handle-hash-change))
   (set! (.-onhashchange js/window) handle-hash-change)
@@ -43,7 +46,10 @@
   (jq/bind ($ "#new-picture") :click (fn [e]
     (.preventDefault e)
     (.getFile js/filepicker "image/*" (fn [url metadata]
-      (jq/attr ($ "#picture") "value" url)))))
+      (jq/attr ($ "#picture") "value" url)
+      (swap-picture-preview)))))
+
+  (jq/bind ($ "#picture") :keyup swap-picture-preview)
 
   (jq/bind ($ "#bio") :keyup (fn [e]
     (this-as bio

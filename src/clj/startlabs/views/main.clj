@@ -82,23 +82,23 @@
 (defn save-file-to-s3 
   "takes a file from a temporary url, downloads it, and saves to s3, returning
    the url of the file on s3."
-  [temp-url]
+  [temp-url file-name]
   (let [aws-creds   {:access-key (env :aws-key) :secret-key (env :aws-secret)}
-        file-hash   (str (abs (hash temp-url)))
         bucket-name "startlabs"]
     (with-open [picture-file (input-stream temp-url)]
-      (s3/put-object aws-creds bucket-name file-hash picture-file)
-      (s3/update-object-acl aws-creds bucket-name file-hash (s3/grant :all-users :read))
-      (str "https://s3.amazonaws.com/" bucket-name "/" file-hash))))
+      (s3/put-object aws-creds bucket-name file-name picture-file)
+      (s3/update-object-acl aws-creds bucket-name file-name (s3/grant :all-users :read))
+      (str "https://s3.amazonaws.com/" bucket-name "/" file-name))))
 
 ; right now, a user could hypothetically add additional post params...
 (defpage [:post "/me"] params
   (let [my-info (user/get-my-info)
         new-facts (util/map-diff params my-info)]
     (if (not (empty? new-facts))
-      ; s3 api is having trouble with https (yields SunCertPathBuilderException)
+      ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
       (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
-        (user/update-my-info (assoc new-facts :picture (save-file-to-s3 picture-url)))
+        (let  [file-name   (user/username my-info)]
+          (user/update-my-info (assoc new-facts :picture (save-file-to-s3 picture-url file-name))))
         (user/update-my-info new-facts))))
 
     (response/redirect "/me"))
@@ -110,3 +110,9 @@
       (user-info)
       [:h1 (:name member-info)]
       (user-table member-info false))))
+
+(defpage "/team" []
+  (let [my-info user/get-my-info]
+    (common/layout
+      (user/find-all-users)
+    )))

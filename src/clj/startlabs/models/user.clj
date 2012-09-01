@@ -37,12 +37,6 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-(def q-user-schema '[:find ?name ?val-type
-                     :where [_ :db.install/attribute ?a]
-                            [?a :db/ident ?name]
-                            [(str ?name) ?nom]
-                     		[(re-find #"^:user" ?nom)]
-                            [?a :db/valueType ?val-type]])
 
 ; the transforming and de/namespacing functions should be their own helper library...
 (defmulti 
@@ -65,6 +59,14 @@
 
 (defmethod transform-attr [String :user/gender] [attr _]
   (keyword (str "user.gender/" attr)))
+
+
+(def q-user-schema '[:find ?name ?val-type
+                     :where [_ :db.install/attribute ?a]
+                            [?a :db/ident ?name]
+                            [(str ?name) ?nom]
+                        [(re-find #"^:user" ?nom)]
+                            [?a :db/valueType ?val-type]])
 
 (defn map-of-entities 
   "Converts the set of [:attr-name valueType-entid] pairs returned by querying for q-user-schema 
@@ -171,6 +173,13 @@
 
 (defn find-user-with-email [email]
   (user-map-for-user (user-with-email email)))
+
+(defn find-all-users []
+  (let [users (q '[:find ?user :where [?user :user/id _]] (db @conn))]
+    (map #(util/stringify-values (user-map-for-user (first %))) users)))
+
+(defn username [person-info]
+  (first (str/split (:email person-info) #"@")))
 
 (defn update-user 
   "Expects new-fact-map to *not* already be namespaced with user/"
