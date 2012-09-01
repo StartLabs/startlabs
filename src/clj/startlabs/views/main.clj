@@ -51,8 +51,7 @@
            		[:tr
                 [:td [:label {:for key-str} key-word]]
                 [:td
-                  ; name attr must be filled by script. This way, we only submit values that get changed.
-                  [inp-elem {:id key-str :name key-str :type "text" :value value :class "hidden"} 
+                  [inp-elem {:id key-str :name key-str :type "text" :value value} 
                     (if (= inp-elem :textarea) value)]
                     (if (= key :picture)
                       [:img#preview {:src value :width 50 :height 50}])]
