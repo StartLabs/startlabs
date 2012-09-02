@@ -106,6 +106,8 @@
 
 (defpartial browse-jobs []
   [:div#browse.tab-pane.active
+    ;; sort by date and location.
+    ;; search descriptions and company names
     [:h1 "Browse Startup Jobs"]])
 
 (defpartial submit-job []

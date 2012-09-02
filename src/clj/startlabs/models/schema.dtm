@@ -107,4 +107,81 @@
  {:db/id #db/id[:db.part/user],
   :db/ident :user.gender/female}
 
+
+
+
+  ;; jobs
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/position,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Frontend Engineering Intern",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/company,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Square Inc.",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/location,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "San Francisco, CA",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/website,
+  :db/valueType :db.type/uri,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "http://www.squareup.com",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/start_date,
+  :db/valueType :db.type/instant,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Approximate start date",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/end_date,
+  :db/valueType :db.type/instant,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Approximate end date",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/description,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Requirements, application deadline, etc.
+           Markdown supported.",
+  :db/fulltext true,
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/contact_info,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Website, email address, or phone number",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/email,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Email address for the confirmation link.
+           Must match company website.",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/confirmed?,
+  :db/valueType :db.type/boolean,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Indicates whether the job was confirmed.",
+  :db.install/_attribute :db.part/db}
 ]
