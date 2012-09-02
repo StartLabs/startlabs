@@ -21,14 +21,17 @@
   (let [message (session/flash-get :message)]
     (html5
       [:head
-       [:title "startlabs"]
-       ; switch to css before deploying
-       [:link {:rel "stylesheet/less" :type "text/css" :href "/css/style.less"}]
-       [:link {:rel "stylesheet" :type "text/css" 
+        [:title "startlabs"]
+        ; switch to css before deploying
+        [:link {:rel "stylesheet/less" :type "text/css" :href "/css/style.less"}]
+        [:link {:rel "stylesheet" :type "text/css" 
                :href (font-link ["Josefin Sans" [400,700]]
                                 ["Josefin Slab" [400,700]]
                                 ["Crimson Text" [400,"400italic",600,"600italic",700,"700italic"]]
                                 ["Ultra"])}]
+
+        (include-css "/bootstrap/css/bootstrap.min.css"
+                     "/bootstrap/css/bootstrap-responsive.min.css")
       ]
 
       [:body
@@ -41,4 +44,5 @@
                    "/markdown.js"
                    "/jquery.js"
                    "/client.js"
-                   "/less-1.3.0.min.js")])))
+                   "/less-1.3.0.min.js"
+                   "/bootstrap/js/bootstrap.min.js")])))
