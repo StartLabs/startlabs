@@ -76,7 +76,7 @@
       [:h1 "Edit my info"]
       [:form#me {:action "/me" :method "post"}
         (user-table my-info true)
-        [:input {:type "submit" :value "Submit"}]])
+        [:input {:type "submit" :value "Submit" :class "btn"}]])
     (response/redirect "/login")))
 
 ; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
