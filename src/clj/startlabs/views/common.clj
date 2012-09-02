@@ -2,7 +2,8 @@
   (:use [noir.core :only [defpartial]]
         [hiccup.page :only [include-css include-js html5]])
   (:require [noir.session :as session]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [startlabs.models.user :as user]))
 
 (defn font
   ([name] (font name nil))
@@ -16,6 +17,14 @@
 (defn font-link [& faces]
   (str "http://fonts.googleapis.com/css?family="
     (str/join "|" (apply fonts faces))))
+
+(defpartial login-info []
+  (if-let [info (user/get-my-info)]
+    [:div#login-info.pull-right
+      [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:name info)] 
+          " ("    [:a {:href "/me"} "edit profile"] ")"]
+      [:a#logout.pull-right {:href "/logout"} "Logout"]]
+    [:a {:href "/login"} "Login"]))
 
 (defpartial layout [& content]
   (let [message (session/flash-get :message)]
@@ -31,8 +40,7 @@
                                 ["Ultra"])}]
 
         (include-css "/bootstrap/css/bootstrap.min.css"
-                     "/bootstrap/css/bootstrap-responsive.min.css")
-      ]
+                     "/bootstrap/css/bootstrap-responsive.min.css")]
 
       [:body
         (if message
@@ -41,6 +49,8 @@
        [:div#wrapper.container-fluid
         [:div.row-fluid
           [:div.span8.offset2
+            (login-info)
+
             content]]]
 
        (include-js "https://api.filepicker.io/v0/filepicker.js"

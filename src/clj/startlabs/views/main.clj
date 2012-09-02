@@ -14,22 +14,9 @@
         [environ.core :only [env]]
         [markdown :only [md-to-html-string]]))
 
-(defpartial login-info-p [info]
-  (if info
-    [:div#login-info.pull-right
-      [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:name info)] 
-          " ("    [:a {:href "/me"} "edit profile"] ")"]
-      [:a#logout.pull-right {:href "/logout"} "Logout"]]
-    [:a {:href "/login"} "Login"]))
-
-(defn login-info
-  ([]     (login-info-p (user/get-my-info)))
-  ([info] (login-info-p info)))
-
 (defpage "/" []
   (common/layout
-    [:div#content
-      (login-info)]))
+    [:div#content]))
 
 (defpage "/login" []
   (response/redirect (user/get-login-url)))
@@ -46,38 +33,38 @@
 
 (defpartial user-table [info-map editable?]
   [:table.table
-    (for [key editable-attrs]
-      (let [key-str  (name key)
-            key-word (str/capitalize (str/replace key-str "_" " "))
-            value    (key info-map)
-            inp-elem (if (= key :bio) :textarea :input)]
-        [:tr
-          [:td [:label {:for key-str} key-word]]
-          [:td
-            (if editable?
-              [:div
-                [inp-elem {:id key-str :name key-str :type "text" :value value} 
-                  (if (= inp-elem :textarea) value)]]
-              [:span 
-                (if (= key :bio)
-                  (md-to-html-string value)
-                  value)])]
-          [:td
-            [:div {:id (str key-str "-preview")}
-              (if (= key :picture)
-                [:div
-                  (if editable? [:a#new-picture {:href "#"} "Upload Picture"])
-                  [:img#preview {:src value :width 50 :height 50}]])]]
-          ]))])
+    [:tbody
+      (for [key editable-attrs]
+        (let [key-str  (name key)
+              key-word (str/capitalize (str/replace key-str "_" " "))
+              value    (key info-map)
+              inp-elem (if (= key :bio) :textarea :input)]
+          [:tr
+            [:td.span3 [:label {:for key-str} key-word]]
+            [:td.span5
+              (if editable?
+                [inp-elem {:id key-str :class "span12" :name key-str 
+                           :type "text" :value value :rows 4} 
+                  (if (= inp-elem :textarea) value)]
+                [:span
+                  (if (= key :bio)
+                    (md-to-html-string value)
+                    value)])]
+            [:td
+              [:div {:id (str key-str "-preview")}
+                (if (= key :picture)
+                  [:div
+                    (if editable? [:a#new-picture.pull-left.btn {:href "#"} "Upload Picture"])
+                    [:img#preview.pull-right {:src value :width 50 :height 50}]])]]
+          ]))]])
 
 (defpage [:get ["/me"]] []
   (if-let [my-info (user/get-my-info)]
   	(common/layout
-      (login-info my-info)
       [:h1 "Edit my info"]
       [:form#me {:action "/me" :method "post"}
         (user-table my-info true)
-        [:input {:type "submit" :value "Submit" :class "btn"}]])
+        [:input.btn.btn-primary {:type "submit" :value "Submit"}]])
     (response/redirect "/login")))
 
 ; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
@@ -112,7 +99,6 @@
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
     (common/layout
-      (login-info)
       [:h1 (:name member-info)]
       (user-table member-info false))))
 
@@ -120,14 +106,13 @@
   (let [my-info user/get-my-info]
     (common/layout
       [:h1 "Our Team"]
-      (for [person (user/find-all-users)]
-        [:div
-          [:p (str person)]
-          [:h2 [:a {:href (:link person)} (:name person)]]
-          [:img {:src (:picture person) :width 200 :height 200}]
-          [:p  (:role person)]
-          [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
-          [:p  (md-to-html-string (:bio person))]
-        ]
-      )
+      [:ul.thumbnails
+        (for [person (user/find-all-users)]
+          [:li.span4
+            [:div.thumbnail
+              [:img {:src (:picture person)}]
+              [:h3 [:a {:href (:link person)} (:name person)]]
+              [:h4  (:role person)]
+              [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
+              [:p  (md-to-html-string (:bio person))]]])]
     )))
