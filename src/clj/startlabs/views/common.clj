@@ -53,15 +53,17 @@
                      "/bootstrap/css/bootstrap-responsive.min.css")]
 
       [:body
-        [:div#wrapper.container
-          [:ul.nav.nav-pills
-            (for [[page location] routes]
-              [:li [:a {:href location} (str/capitalize (name page))]])
+        [:div#nav
+          [:div.container
+            [:ul.nav.nav-pills
+              (for [[page location] routes]
+                [:li [:a {:href location} (str/capitalize (name page))]])
 
-            (login-info)]
+            (login-info)]]]
 
+        [:div#content.container
           (if message
-            [:div#message.alert 
+            [:div#message.alert
               [:button {:type "button" :class "close" :data-dismiss "alert"} "x"]
               [:p message]])
 

@@ -16,7 +16,7 @@
 
 (defpage "/" []
   (common/layout
-    [:div#content]))
+    [:h1 "Welcome"]))
 
 (defpage "/login" []
   (response/redirect (user/get-login-url)))

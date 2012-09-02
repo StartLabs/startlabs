@@ -1,0 +1,60 @@
+body {
+  background: url('/img/bg.jpg') repeat fixed;
+}
+
+@green: #819d22;
+@darkgreen: darken(@green, 10%);
+
+#nav {
+  background: fade(@green, 85%);
+  border-top: 2px solid darkgreen;
+  padding-top: 16px;
+  font-size: 20px;
+
+  .nav > li {
+    margin-right: 16px;
+
+    &.dropdown {
+      margin-right: 0px;
+    }
+  }
+
+  .nav > li > a {
+    color: #fff;
+    padding: 12px 16px;
+    .caret {
+      border-top-color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    &:hover {
+      background: #fff;
+      color: @green;
+      .caret {
+        border-top-color: @green;
+        border-bottom-color: @green;
+      }
+    }
+  }
+
+  .dropdown.open > a {
+    background: darkgreen;
+  }
+
+  .dropdown-menu a {
+    padding: 6px 20px;
+
+    &:hover {
+      background: darkgreen;
+    }
+  }
+}
+
+#content {
+  background: fade(#fff, 95%);
+  padding: 32px;
+}
+
+.thumbnail {
+  background: #fff;
+}
