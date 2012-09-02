@@ -104,14 +104,23 @@
       [:h1 (:name member-info)]
       (user-table member-info false))))
 
+(defpartial browse-jobs []
+  [:div#browse.tab-pane.active
+    [:h1 "Browse Startup Jobs"]])
+
+(defpartial submit-job []
+  [:div#submit.tab-pane
+    [:h1 "Submit a Job"]])
+
 (defpage "/jobs" []
   (common/layout (ring-request)
-    [:div.btn-group.pull-right
-      [:button.btn "Browse Available"]
-      [:button.btn "Submit a Job"]]
-    [:h1 "Jobs"]
-    [:div
-      [:p "Work at a startup. Get money. Get paid."]]))
+    [:div.btn-group.pull-right {:data-toggle "buttons-radio"}
+      [:a.btn.active {:href "#browse" :data-toggle "tab"} "Browse Available"]
+      [:a.btn {:href "#submit" :data-toggle "tab"} "Submit a Job"]]
+
+    [:div.tab-content
+      (browse-jobs)
+      (submit-job)]))
 
 (defpage "/about" []
   (common/layout (ring-request)
