@@ -16,10 +16,10 @@
 
 (defpartial login-info-p [info]
   (if info
-    [:div#login-info
+    [:div#login-info.pull-right
       [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:name info)] 
           " ("    [:a {:href "/me"} "edit profile"] ")"]
-      [:a#logout {:href "/logout"} "Logout"]]
+      [:a#logout.pull-right {:href "/logout"} "Logout"]]
     [:a {:href "/login"} "Login"]))
 
 (defn login-info
@@ -45,7 +45,7 @@
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
 (defpartial user-table [info-map editable?]
-  [:table
+  [:table.table
     (for [key editable-attrs]
       (let [key-str  (name key)
             key-word (str/capitalize (str/replace key-str "_" " "))
@@ -57,17 +57,18 @@
             (if editable?
               [:div
                 [inp-elem {:id key-str :name key-str :type "text" :value value} 
-                  (if (= inp-elem :textarea) value)]
-                [:div {:id (str key-str "-preview")}]]
+                  (if (= inp-elem :textarea) value)]]
               [:span 
                 (if (= key :bio)
                   (md-to-html-string value)
-                  value)])
-            (if (= key :picture)
-              [:div
-                (if editable? [:a#new-picture {:href "#"} "Upload Picture"])
-                [:img#preview {:src value :width 50 :height 50}]])
-          ]]))])
+                  value)])]
+          [:td
+            [:div {:id (str key-str "-preview")}
+              (if (= key :picture)
+                [:div
+                  (if editable? [:a#new-picture {:href "#"} "Upload Picture"])
+                  [:img#preview {:src value :width 50 :height 50}]])]]
+          ]))])
 
 (defpage [:get ["/me"]] []
   (if-let [my-info (user/get-my-info)]

@@ -38,7 +38,10 @@
         (if message
           [:div#message message])
 
-       [:div#wrapper content]
+       [:div#wrapper.container-fluid
+        [:div.row-fluid
+          [:div.span8.offset2
+            content]]]
 
        (include-js "https://api.filepicker.io/v0/filepicker.js"
                    "/markdown.js"
