@@ -20,11 +20,18 @@
 
 (defpartial login-info []
   (if-let [info (user/get-my-info)]
-    [:div#login-info.pull-right
-      [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:given_name info)] 
-          " ("    [:a {:href "/me"} "edit profile"] ")"]
-      [:a#logout.pull-right {:href "/logout"} "Logout"]]
-    [:a {:href "/login"} "Login"]))
+    [:li.dropdown.pull-right
+      [:a.dropdown-toggle {:data-toggle "dropdown" :href "#"}
+        (:name info)
+        [:b.caret]
+      ]
+      [:ul.dropdown-menu
+        [:li [:a {:href (str "/team/" (user/username info))} "My Info"]]
+        [:li [:a {:href "/me"} "Edit Profile"]]
+        [:li.divider]
+        [:li [:a {:href "/logout"} "Logout"]]
+      ]]
+    [:li.pull-right [:a {:href "/login"} "Login"]]))
 
 ; could autopopulate routes from defpages that are nested only one layer deep.
 (def routes [[:home "/"] [:jobs "/jobs"] [:about "/about"] [:team "/team"]])
@@ -47,11 +54,11 @@
 
       [:body
         [:div#wrapper.container
-          (login-info)
-
           [:ul.nav.nav-pills
             (for [[page location] routes]
-              [:li [:a {:href location} (str/capitalize (name page))]])]
+              [:li [:a {:href location} (str/capitalize (name page))]])
+
+            (login-info)]
 
           (if message
             [:div#message.alert 

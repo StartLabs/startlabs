@@ -18993,7 +18993,8 @@ startlabs.main.swap_picture_preview = function() {
   return jayq.core.attr.call(null, jayq.core.$.call(null, "#preview"), "src", jayq.core.val.call(null, jayq.core.$.call(null, "#picture")))
 };
 startlabs.main.update_bio_preview = function() {
-  return jayq.core.inner.call(null, jayq.core.$.call(null, "#bio-preview"), markdown.mdToHtml.call(null, jayq.core.$.call(null, "#bio").val()))
+  var a = jayq.core.$.call(null, "#bio");
+  return cljs.core.empty_QMARK_.call(null, a) ? null : jayq.core.inner.call(null, jayq.core.$.call(null, "#bio-preview"), markdown.mdToHtml.call(null, a.val()))
 };
 startlabs.main.main = function() {
   cljs.core.truth_(startlabs.main.location_hash) && startlabs.main.handle_hash_change.call(null);

@@ -39,10 +39,12 @@
   (jq/attr ($ "#preview") "src" (jq/val ($ "#picture"))))
 
 (defn update-bio-preview []
-  (jq/inner ($ "#bio-preview") 
-    (->> ($ "#bio")
-      .val
-      markdown/mdToHtml)))
+  (let [$bio ($ "#bio")]
+    (if (not (empty? $bio))
+      (jq/inner ($ "#bio-preview") 
+        (->> $bio
+          .val
+          markdown/mdToHtml)))))
 
 (defn main []
   (if location-hash (handle-hash-change))
