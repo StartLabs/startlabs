@@ -1,13 +1,13 @@
 (ns startlabs.models.user
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]]
-        [environ.core :only [env]])
+        [environ.core :only [env]]
+        [startlabs.util :only [stringify-values]])
   (:require [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
             [noir.session :as session]
-            [startlabs.util :as util])
-  (:import java.net.URI))
+            [startlabs.models.util :as util]))
 
 (def redirect-url   "http://localhost:8000/oauth2callback")
 
@@ -37,30 +37,6 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-
-; the transforming and de/namespacing functions should be their own helper library...
-(defmulti 
-  transform-attr 
-  "Transforms an attribute to the proper database type,
-   dispatching based on the attribute's current type and 
-   the desired datomic type.
-   Example: (transform-attr 'www.google.com' :db.type/uri)
-   will yield <URI 'www.google.com'>"
-  (fn [attr attr-type] [(type attr) attr-type])
-  :default [String :db.type/string])
-
-(defmethod transform-attr [String :db.type/string] [attr _] attr)
-
-(defmethod transform-attr [String :db.type/uri] [attr _]
-  (URI. attr))
-
-(defmethod transform-attr [String :db.type/long] [attr _]
-  (Integer/parseInt attr))
-
-(defmethod transform-attr [String :user/gender] [attr _]
-  (keyword (str "user.gender/" attr)))
-
-
 (def q-user-schema '[:find ?name ?val-type
                      :where [_ :db.install/attribute ?a]
                             [?a :db/ident ?name]
@@ -68,61 +44,19 @@
                         [(re-find #"^:user" ?nom)]
                             [?a :db/valueType ?val-type]])
 
-(defn map-of-entities 
-  "Converts the set of [:attr-name valueType-entid] pairs returned by querying for q-user-schema 
-   into a single map of {:attr-name :valueType-ident ...} pairs"
-  []
-  (let [conn-db (db @conn)
-        schema (q q-user-schema conn-db)]
-    (into {} (for [[k v] schema]
-                {k (ident conn-db v)}))))
-
-(defn transform-tx-values
-  "Takes a map for a pending transaction and transforms the values, 
-   dispatching based on current and desired :db/valueType,
-   e.g. transforms the string 'http://www.google.com'
-   to a proper URI if its corresponding :db/valueType is :db.type/uri.
-   If the type is :db.type/ref, dispatches based on the key instead, eg: :user/gender"
-  [tx-map entity-map]
-  (into {} (for [[k v] tx-map]
-    (let [attr-type (k entity-map)
-          dereferenced-type (if (= attr-type :db.type/ref)
-                              k
-                              attr-type)]
-      {k (transform-attr v dereferenced-type)}))))
-
-(defn namespace-key [the-ns k]
-  (keyword (str (name the-ns) "/" (name k))))
-
-(defn namespace-keys 
-  "Converts the keys of the-map to be prefixed with the-ns/
-  (namespace-keys :user {:locale 'en'}) returns {:user/locale 'en'}"
-  [the-ns the-map]
-  (into {} (for [[k v] the-map] 
-    {(namespace-key the-ns k) v})))
-
-(defn denamespace-keys
-  "The inverse of namespace-keys. Do not have to specify the-ns"
-  [the-map]
-  (into {} (for [[k v] the-map] 
-    {(keyword (last (str/split (name k) #"/")))
-     v})))
-
-(defn namespace-and-transform [user-data]
-  (let [entity-map        (map-of-entities)
-        tranny-user-data  (transform-tx-values (namespace-keys :user user-data) 
-                                               entity-map)
+(defn namespace-and-transform [tx-data]
+  (let [entity-map        (util/map-of-entities q-user-schema)
+        tranny-user-data  (util/transform-tx-values (util/namespace-keys :user tx-data) 
+                                                    entity-map)
+        ; only add attributes that are present in the schema
         clean-user-data   (into {} (map (fn [[k v]] (if (k entity-map) {k v})) tranny-user-data))]
     clean-user-data))
-
-(defn temp-identify [user-map]
-  (assoc user-map :db/id (d/tempid :db.part/user)))
 
 (defn txify-user-data 
   "Convert a map representation of the userinfo response from google into a database transaction"
   [user-data]
   (let [clean-user-data   (namespace-and-transform user-data)
-        tx-map            (temp-identify clean-user-data)]
+        tx-map            (util/temp-identify clean-user-data)]
     [tx-map]))
 
 (defn create-user [access-token user-id]
@@ -135,7 +69,7 @@
 (defn user-with-attr
   ([k v] (user-with-attr k v (db @conn)))
   ([k v conn-db]
-    (let [namespaced-key (namespace-key :user k)]
+    (let [namespaced-key (util/namespace-key :user k)]
       (ffirst (q [:find '?u
                   :in '$ '?v
                   :where ['?u namespaced-key '?v]] conn-db v)))))
@@ -146,15 +80,12 @@
 (defn user-with-email [& args]
   (apply user-with-attr :email args))
 
-(defn entity-map-with-nil-vals []
-  (zipmap (keys (map-of-entities)) (repeat nil)))
-
 (defn user-map-for-user
   "Takes as input a single datomic user-id (the output of ffirsting query)"
   [user]
   (let [user-entity (d/entity (db @conn) user)]
-    (denamespace-keys (conj (entity-map-with-nil-vals)
-                            (into {} user-entity)))))
+    (util/denamespace-keys (conj (util/entity-map-with-nil-vals q-user-schema)
+                                 (into {} user-entity)))))
 
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id.
@@ -176,7 +107,7 @@
 
 (defn find-all-users []
   (let [users (q '[:find ?user :where [?user :user/id _]] (db @conn))]
-    (map #(util/stringify-values (user-map-for-user (first %))) users)))
+    (map #(stringify-values (user-map-for-user (first %))) users)))
 
 (defn username [person-info]
   (first (str/split (:email person-info) #"@")))
@@ -203,7 +134,7 @@
         user-id      (session/get :user_id)]
     (if (and access-token user-id)
       (try
-        (util/stringify-values (find-or-create-user access-token user-id))
+        (stringify-values (find-or-create-user access-token user-id))
         (catch Exception e
           (do
             (session/clear!)
