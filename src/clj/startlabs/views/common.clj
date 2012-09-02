@@ -21,10 +21,13 @@
 (defpartial login-info []
   (if-let [info (user/get-my-info)]
     [:div#login-info.pull-right
-      [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:name info)] 
+      [:p "Hey, " [:a {:href (str "/team/" (user/username info))} (:given_name info)] 
           " ("    [:a {:href "/me"} "edit profile"] ")"]
       [:a#logout.pull-right {:href "/logout"} "Logout"]]
     [:a {:href "/login"} "Login"]))
+
+; could autopopulate routes from defpages that are nested only one layer deep.
+(def routes [[:home "/"] [:jobs "/jobs"] [:about "/about"] [:team "/team"]])
 
 (defpartial layout [& content]
   (let [message (session/flash-get :message)]
@@ -43,15 +46,19 @@
                      "/bootstrap/css/bootstrap-responsive.min.css")]
 
       [:body
-        (if message
-          [:div#message message])
+        [:div#wrapper.container
+          (login-info)
 
-       [:div#wrapper.container-fluid
-        [:div.row-fluid
-          [:div.span8.offset2
-            (login-info)
+          [:ul.nav.nav-pills
+            (for [[page location] routes]
+              [:li [:a {:href location} (str/capitalize (name page))]])]
 
-            content]]]
+          (if message
+            [:div#message.alert 
+              [:button {:type "button" :class "close" :data-dismiss "alert"} "x"]
+              [:p message]])
+
+          content]
 
        (include-js "https://api.filepicker.io/v0/filepicker.js"
                    "/markdown.js"

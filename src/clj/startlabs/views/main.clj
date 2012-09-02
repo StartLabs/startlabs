@@ -41,9 +41,9 @@
               inp-elem (if (= key :bio) :textarea :input)]
           [:tr
             [:td.span3 [:label {:for key-str} key-word]]
-            [:td.span5
+            [:td.span4
               (if editable?
-                [inp-elem {:id key-str :class "span12" :name key-str 
+                [inp-elem {:id key-str :class "span4" :name key-str 
                            :type "text" :value value :rows 4} 
                   (if (= inp-elem :textarea) value)]
                 [:span
@@ -64,7 +64,7 @@
       [:h1 "Edit my info"]
       [:form#me {:action "/me" :method "post"}
         (user-table my-info true)
-        [:input.btn.btn-primary {:type "submit" :value "Submit"}]])
+        [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
     (response/redirect "/login")))
 
 ; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
@@ -102,17 +102,32 @@
       [:h1 (:name member-info)]
       (user-table member-info false))))
 
+(defpage "/jobs" []
+  (common/layout
+    [:h1 "Jobs"]
+    [:div
+      [:p "Work at a startup. Get money. Get paid."]]))
+
+(defpage "/about" []
+  (common/layout
+    [:h1 "About Us"]
+    [:div
+      [:p "We love you."]]))
+
+(defpage "/company" [] (response/redirect "/about"))
+
 (defpage "/team" []
-  (let [my-info user/get-my-info]
-    (common/layout
-      [:h1 "Our Team"]
-      [:ul.thumbnails
-        (for [person (user/find-all-users)]
-          [:li.span4
-            [:div.thumbnail
-              [:img {:src (:picture person)}]
-              [:h3 [:a {:href (:link person)} (:name person)]]
-              [:h4  (:role person)]
-              [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
-              [:p  (md-to-html-string (:bio person))]]])]
-    )))
+  (common/layout
+    [:h1 "Our Team"]
+    [:div.row
+      [:div.span12
+        [:ul.thumbnails
+          (for [person (repeat 7 (first (user/find-all-users)))]
+            [:li.span3
+              [:div.thumbnail
+                [:img {:src (:picture person)}]
+                [:h3 [:a {:href (:link person)} (:name person)]]
+                [:h4  (:role person)]
+                [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
+                [:p  (md-to-html-string (:bio person))]]])]]]
+  ))
