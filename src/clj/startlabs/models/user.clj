@@ -167,7 +167,7 @@
         @(create-user access-token user-id) ; dereferencing forces the transaction to return
         (find-or-create-user access-token user-id) ; now we should be able to find the user
         (catch Exception e ; transaction may fail, returning an ExecutionException
-          (session/flash-put! :message (str "Trouble connecting to the database: " e))))
+          (session/flash-put! :message [:error (str "Trouble connecting to the database: " e)])))
       ; else return the user's data from the db
       (user-map-for-user user))))
 
@@ -189,9 +189,9 @@
           tranny-facts  (namespace-and-transform new-fact-map)
           idented-facts (assoc tranny-facts :db/id user)]
       (d/transact @conn (list idented-facts))
-      (session/flash-put! :message (str "Updated info successfully!")))
+      (session/flash-put! :message [:success (str "Updated info successfully!")]))
     (catch Exception e
-      (session/flash-put! :message (str "Trouble updating user: " e)))))
+      (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
 
 (defn update-my-info [new-fact-map]
   (let [user-id (session/get :user_id)]

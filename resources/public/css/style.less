@@ -9,7 +9,8 @@ body {
   background: fade(@green, 85%);
   border-top: 2px solid darkgreen;
   padding-top: 16px;
-  font-size: 20px;
+  font: 20px "Josefin Slab", 'Helvetica', 'Arial', sans-serif;
+  font-weight: bold;
 
   .nav > li {
     margin-right: 16px;
@@ -27,7 +28,7 @@ body {
       border-bottom-color: #fff;
     }
 
-    &:hover {
+    &:hover, &.active {
       background: #fff;
       color: @green;
       .caret {

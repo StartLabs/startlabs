@@ -36,8 +36,8 @@
 ; could autopopulate routes from defpages that are nested only one layer deep.
 (def routes [[:home "/"] [:jobs "/jobs"] [:about "/about"] [:team "/team"]])
 
-(defpartial layout [& content]
-  (let [message (session/flash-get :message)]
+(defpartial layout [request & content]
+  (let [[message-type message] (session/flash-get :message)]
     (html5
       [:head
         [:title "startlabs"]
@@ -53,18 +53,20 @@
                      "/bootstrap/css/bootstrap-responsive.min.css")]
 
       [:body
-        [:div#nav
-          [:div.container
+        [:div#nav [:div.container
+          (let [current-uri (:uri request)]
             [:ul.nav.nav-pills
               (for [[page location] routes]
-                [:li [:a {:href location} (str/capitalize (name page))]])
+                [:li [:a {:href location :class (if (= current-uri location) "active")} 
+                  (str/capitalize (name page))]])
 
-            (login-info)]]]
+              (login-info)])]]
 
         [:div#content.container
           (if message
-            [:div#message.alert
+            [:div#message {:class (str "alert alert-" (name message-type))}
               [:button {:type "button" :class "close" :data-dismiss "alert"} "x"]
+              [:h3 (str/capitalize (name message-type))]
               [:p message]])
 
           content]

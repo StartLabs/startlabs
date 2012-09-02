@@ -9,13 +9,14 @@
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
         [noir.core :only [defpage defpartial]]
+        [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
         [clojure.java.io :only [input-stream]]
         [environ.core :only [env]]
         [markdown :only [md-to-html-string]]))
 
 (defpage "/" []
-  (common/layout
+  (common/layout (ring-request)
     [:h1 "Welcome"]))
 
 (defpage "/login" []
@@ -26,8 +27,9 @@
   (response/redirect "/"))
 
 (defpage "/oauth2callback" []
-  (common/layout
-    [:div#loading "Fetching credentials..."]))
+  (common/layout (ring-request)
+    [:div#loading 
+      [:h1 "Fetching credentials..."]]))
 
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
@@ -60,7 +62,7 @@
 
 (defpage [:get ["/me"]] []
   (if-let [my-info (user/get-my-info)]
-  	(common/layout
+  	(common/layout (ring-request)
       [:h1 "Edit my info"]
       [:form#me {:action "/me" :method "post"}
         (user-table my-info true)
@@ -90,7 +92,7 @@
           (try
             (user/update-my-info (assoc new-facts :picture (save-file-to-s3 picture-url file-name)))
             (catch Exception e
-              (session/flash-put! :message "Unable to grab the specified picture"))))
+              (session/flash-put! :message [:success "Unable to grab the specified picture"]))))
         (user/update-my-info new-facts))))
 
     (response/redirect "/me"))
@@ -98,18 +100,21 @@
 (defpage [:get ["/team/:name" :name #"\w+"]] {:keys [name]}
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
-    (common/layout
+    (common/layout (ring-request)
       [:h1 (:name member-info)]
       (user-table member-info false))))
 
 (defpage "/jobs" []
-  (common/layout
+  (common/layout (ring-request)
+    [:div.btn-group.pull-right
+      [:button.btn "Browse Available"]
+      [:button.btn "Submit a Job"]]
     [:h1 "Jobs"]
     [:div
       [:p "Work at a startup. Get money. Get paid."]]))
 
 (defpage "/about" []
-  (common/layout
+  (common/layout (ring-request)
     [:h1 "About Us"]
     [:div
       [:p "We love you."]]))
@@ -117,7 +122,7 @@
 (defpage "/company" [] (response/redirect "/about"))
 
 (defpage "/team" []
-  (common/layout
+  (common/layout (ring-request)
     [:h1 "Our Team"]
     [:div.row
       [:div.span12
