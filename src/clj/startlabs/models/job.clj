@@ -9,8 +9,8 @@
             [startlabs.models.util :as util])
   (:import java.net.URI))
 
-(def ns-matches-job '[[(ns-matches ?nom)
-                      [(re-matches #"^:job" ?nom)]]])
+(def ns-matches-job '[[(ns-matches ?ns)
+                      [(= "job" ?ns)]]])
 
 (defn job-fields []
   (util/map-of-entities ns-matches-job))

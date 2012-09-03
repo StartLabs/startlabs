@@ -32,6 +32,9 @@
   (common/layout (ring-request)
     [:h1#loading "Fetching credentials..."]))
 
+(defn phrasify [key-str]
+  (str/capitalize (str/replace key-str "_" " ")))
+
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
 (defpartial user-table [info-map editable?]
@@ -39,7 +42,7 @@
     [:tbody
       (for [key editable-attrs]
         (let [key-str  (name key)
-              key-word (str/capitalize (str/replace key-str "_" " "))
+              key-word (phrasify key-str)
               value    (key info-map)
               inp-elem (if (= key :bio) :textarea :input)]
           [:tr
@@ -103,12 +106,20 @@
     ;; search descriptions and company names
     [:h1 "Browse Startup Jobs"]])
 
+(defpartial form-from-schema [schema excluded-attrs]
+  [:form.form-horizontal
+    (for [[field type] schema]
+      (if (not (contains? excluded-attrs field))
+        (let [field-name (name field)]
+          [:div.control-group
+            [:label.control-label {:for field} (phrasify field-name)]
+            [:div.controls
+              [:input {:type "text" :id field :name field}]]])))])
+
 (defpartial submit-job []
   [:div#submit.tab-pane
     [:h1 "Submit a Job"]
-    [:p (str (job/job-fields))]
-    (for [field (job/job-fields)]
-      [:p (str field)])])
+    (form-from-schema (job/job-fields) ["confirmed?"])])
 
 (defpage "/jobs" []
   (common/layout (ring-request)
