@@ -104,6 +104,7 @@
   [:div#browse.tab-pane.active
     ;; sort by date and location.
     ;; search descriptions and company names
+    [:h1 "Browse Startup Jobs"]
   ])
 
 (defmulti input-for-field (fn [field type docs] (keyword (name type))) :default :string)
@@ -136,16 +137,18 @@
 
 (defpartial submit-job []
   [:div#submit.tab-pane
+    [:h1 "Submit a Job"]
 
     [:form.row-fluid
       [:div.span6
-        [:div.well "In order to submit a job on your company's behalf, your
-                  email address domain must match your company's website."]
+        [:div.well "In order to submit a job, your email address and 
+                    company website domain must match."]
         (fields-from-schema (job/job-fields) [:position :company :location 
                                               :website :start_date :end_date 
                                               :description :contact_info :email])]
 
       [:div#job-preview.span6
+        ; generate this in js
         [:div.thumbnail
           [:h2 "Square Inc"]
       ]]
@@ -156,8 +159,7 @@
     [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
       [:a.btn.active {:href "#browse" :data-toggle "tab"} "Browse Available"]
       [:a.btn {:href "#submit" :data-toggle "tab"} "Submit a Job"]]
-
-    [:h1 "Submit a Job"]
+    [:div.clearfix]
 
     [:div.tab-content
       (browse-jobs)
