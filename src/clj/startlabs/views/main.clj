@@ -106,20 +106,36 @@
     ;; search descriptions and company names
     [:h1 "Browse Startup Jobs"]])
 
-(defpartial form-from-schema [schema excluded-attrs]
-  [:form.form-horizontal
-    (for [[field type] schema]
-      (if (not (contains? excluded-attrs field))
-        (let [field-name (name field)]
-          [:div.control-group
-            [:label.control-label {:for field} (phrasify field-name)]
-            [:div.controls
-              [:input {:type "text" :id field :name field}]]])))])
+(defmulti input-for-field (fn [field type] (keyword (name type))) :default :string)
+
+(defmethod input-for-field :string [field type]
+  (let [input-type (if (= field :description) :textarea :input)]
+    [input-type {:type "text" :id field :name field :rows 4}]))
+
+(defmethod input-for-field :instant [field type]
+  (let [date-format "mm/dd/yyyy"]
+    [:input.datepicker {:type "text" :data-date-format date-format 
+                        :id field :placeholder date-format}]))
+
+(defpartial fields-from-schema [schema ordered-keys]
+  (for [field ordered-keys]
+    (let [field-name (name field)
+          field-kw (keyword (str "job/" (name field)))
+          type  (field-kw schema)]
+      [:div.control-group
+        [:label.control-label {:for field} (phrasify field-name)]
+        [:div.controls
+          ; dispatch input based on type
+          (input-for-field field type)]])))
 
 (defpartial submit-job []
   [:div#submit.tab-pane
     [:h1 "Submit a Job"]
-    (form-from-schema (job/job-fields) ["confirmed?"])])
+    [:form.form-horizontal
+      (fields-from-schema (job/job-fields) [:position :company :location 
+                                            :website :start_date :end_date 
+                                            :description :contact_info :email])
+      [:input.btn.btn-primary {:type "submit"}]]])
 
 (defpage "/jobs" []
   (common/layout (ring-request)

@@ -19009,6 +19009,7 @@ startlabs.main.main = function() {
   });
   jayq.core.bind.call(null, jayq.core.$.call(null, "#picture"), "\ufdd0'keyup", startlabs.main.swap_picture_preview);
   jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", startlabs.main.update_bio_preview);
+  jayq.core.$.call(null, ".datepicker").datepicker();
   return startlabs.main.update_bio_preview.call(null)
 };
 jayq.core.document_ready.call(null, function() {

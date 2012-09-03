@@ -59,6 +59,9 @@
 
   (jq/bind ($ "#picture") :keyup swap-picture-preview)
   (jq/bind ($ "#bio") :keyup update-bio-preview)
+
+  (.datepicker ($ ".datepicker"))
+
   (update-bio-preview))
 
 (jm/ready

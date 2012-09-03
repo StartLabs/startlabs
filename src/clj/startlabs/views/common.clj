@@ -71,9 +71,9 @@
 
           content]
 
-       (include-js "https://api.filepicker.io/v0/filepicker.js"
-                   "/markdown.js"
+       (include-js "/markdown.js"
                    "/jquery.js"
+                   "/bootstrap/js/bootstrap.min.js"
+                   "https://api.filepicker.io/v0/filepicker.js"
                    "/client.js"
-                   "/less-1.3.0.min.js"
-                   "/bootstrap/js/bootstrap.min.js")])))
+                   "/less-1.3.0.min.js")])))
