@@ -110,12 +110,11 @@
 
 (defmethod input-for-field :string [field type docs]
   (let [input-type (if (= field :description) :textarea :input)]
-    [input-type {:type "text" :id field :name field :rows 4 
-                 :class "span4" :placeholder docs}]))
+    [input-type {:type "text" :id field :name field :rows 4 :placeholder docs :class "span12"}]))
 
 (defmethod input-for-field :instant [field type docs]
   (let [date-format "mm/dd/yyyy"]
-    [:input.datepicker.span2 {:type "text" :data-date-format date-format 
+    [:input.datepicker {:type "text" :data-date-format date-format 
                         :id field :placeholder date-format}]))
 
 (defpartial fields-from-schema [schema ordered-keys]
@@ -126,26 +125,30 @@
               field-kw    (mu/namespace-key :job (name field))
               [type docs] (field-kw schema)]
           [:tr
-            [:td.span2 [:label {:for field} (phrasify field-name)]]
+            [:td [:label {:for field} (phrasify field-name)]]
             [:td
               ; dispatch input based on type
               (input-for-field field type docs)]]))
       [:tr
-        [:td.span2]
+        [:td]
         [:td
-          [:input.btn.btn-primary.span2 {:type "submit"}]]]]])
+          [:input.btn.btn-primary {:type "submit"}]]]]])
 
 (defpartial submit-job []
   [:div#submit.tab-pane
-    [:div#job-preview.span5.pull-right
-      [:div.thumbnail
-        [:h2 "Square Inc"]
-      ]]
 
-    [:form.pull-left
-      (fields-from-schema (job/job-fields) [:position :company :location 
-                                            :website :start_date :end_date 
-                                            :description :contact_info :email])
+    [:form.row-fluid
+      [:div.span6
+        [:div.well "In order to submit a job on your company's behalf, your
+                  email address domain must match your company's website."]
+        (fields-from-schema (job/job-fields) [:position :company :location 
+                                              :website :start_date :end_date 
+                                              :description :contact_info :email])]
+
+      [:div#job-preview.span6
+        [:div.thumbnail
+          [:h2 "Square Inc"]
+      ]]
     ]])
 
 (defpage "/jobs" []
