@@ -158,8 +158,7 @@
   :db/ident :job/description,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
-  :db/doc "Requirements, application deadline, etc.
-           Markdown supported.",
+  :db/doc "Requirements, application deadline, etc. Supports Markdown.",
   :db/fulltext true,
   :db.install/_attribute :db.part/db}
 
@@ -174,14 +173,13 @@
   :db/ident :job/email,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
-  :db/doc "Email address for the confirmation link.
-           Must match company website.",
+  :db/doc "Email address for the confirmation link",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
   :db/ident :job/confirmed?,
   :db/valueType :db.type/boolean,
   :db/cardinality :db.cardinality/one,
-  :db/doc "Indicates whether the job was confirmed.",
+  :db/doc "Indicates whether the job was confirmed",
   :db.install/_attribute :db.part/db}
 ]

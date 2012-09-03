@@ -75,13 +75,14 @@
 
 ; note: you must pass a function: ns-matches, which evaluates the namespace for a match
 (def q-schema-attrs
-  '[:find ?name ?val-type
+  '[:find ?name ?val-type ?doc
     :in $ %
     :where [_ :db.install/attribute ?a]
            [?a :db/ident ?name]
            [(namespace ?name) ?ns]
+           [ns-matches ?ns]
            [?a :db/valueType ?val-type]
-           [ns-matches ?ns]])
+           [?a :db/doc ?doc]])
 
 (defn map-of-entities
   "Converts the set of [:attr-name valueType-entid] pairs returned by the query
@@ -91,6 +92,14 @@
         schema  (q q-schema-attrs conn-db inputs)]
     (into {} (for [[k v] schema]
                 {k (ident conn-db v)}))))
+
+(defn map-of-entity-tuples
+  "Like map of entities, but returns a tuple containing the valueType and docstring"
+  [inputs]
+  (let [conn-db (db @conn)
+        schema (q q-schema-attrs conn-db inputs)]
+    (into {} (for [[k & vs] schema]
+                {k (cons (ident conn-db (first vs)) (rest vs))}))))
 
 (defn temp-identify [tx-map]
   (assoc tx-map :db/id (d/tempid :db.part/user)))

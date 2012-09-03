@@ -13,4 +13,4 @@
                       [(= "job" ?ns)]]])
 
 (defn job-fields []
-  (util/map-of-entities ns-matches-job))
+  (util/map-of-entity-tuples ns-matches-job))

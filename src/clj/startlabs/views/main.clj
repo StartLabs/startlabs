@@ -2,17 +2,17 @@
   (:require [startlabs.views.common :as common]
             [startlabs.models.user :as user]
             [startlabs.models.job :as job]
-            [startlabs.util :as util]
             [noir.session :as session]
             [noir.response :as response]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [startlabs.models.util :as mu])
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
         [noir.core :only [defpage defpartial]]
         [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
         [markdown :only [md-to-html-string]]
-        [startlabs.models.util :only [save-file-to-s3]]))
+        [startlabs.util :only [map-diff]]))
 
 (defpage "/" []
   (common/layout (ring-request)
@@ -76,13 +76,13 @@
 ; right now, a user could hypothetically add additional post params...
 (defpage [:post "/me"] params
   (let [my-info (user/get-my-info)
-        new-facts (util/map-diff params my-info)]
+        new-facts (map-diff params my-info)]
     (if (not (empty? new-facts))
       ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
       (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
         (let  [file-name   (user/username my-info)]
           (try
-            (user/update-my-info (assoc new-facts :picture (save-file-to-s3 picture-url file-name)))
+            (user/update-my-info (assoc new-facts :picture (mu/save-file-to-s3 picture-url file-name)))
             (catch Exception e
               (session/flash-put! :message [:success "Unable to grab the specified picture"]))))
         (user/update-my-info new-facts))))
@@ -104,44 +104,57 @@
   [:div#browse.tab-pane.active
     ;; sort by date and location.
     ;; search descriptions and company names
-    [:h1 "Browse Startup Jobs"]])
+  ])
 
-(defmulti input-for-field (fn [field type] (keyword (name type))) :default :string)
+(defmulti input-for-field (fn [field type docs] (keyword (name type))) :default :string)
 
-(defmethod input-for-field :string [field type]
+(defmethod input-for-field :string [field type docs]
   (let [input-type (if (= field :description) :textarea :input)]
-    [input-type {:type "text" :id field :name field :rows 4}]))
+    [input-type {:type "text" :id field :name field :rows 4 
+                 :class "span4" :placeholder docs}]))
 
-(defmethod input-for-field :instant [field type]
+(defmethod input-for-field :instant [field type docs]
   (let [date-format "mm/dd/yyyy"]
-    [:input.datepicker {:type "text" :data-date-format date-format 
+    [:input.datepicker.span2 {:type "text" :data-date-format date-format 
                         :id field :placeholder date-format}]))
 
 (defpartial fields-from-schema [schema ordered-keys]
-  (for [field ordered-keys]
-    (let [field-name (name field)
-          field-kw (keyword (str "job/" (name field)))
-          type  (field-kw schema)]
-      [:div.control-group
-        [:label.control-label {:for field} (phrasify field-name)]
-        [:div.controls
-          ; dispatch input based on type
-          (input-for-field field type)]])))
+  [:table.table
+    [:tbody
+      (for [field ordered-keys]
+        (let [field-name  (name field)
+              field-kw    (mu/namespace-key :job (name field))
+              [type docs] (field-kw schema)]
+          [:tr
+            [:td.span2 [:label {:for field} (phrasify field-name)]]
+            [:td
+              ; dispatch input based on type
+              (input-for-field field type docs)]]))
+      [:tr
+        [:td.span2]
+        [:td
+          [:input.btn.btn-primary.span2 {:type "submit"}]]]]])
 
 (defpartial submit-job []
   [:div#submit.tab-pane
-    [:h1 "Submit a Job"]
-    [:form.form-horizontal
+    [:div#job-preview.span5.pull-right
+      [:div.thumbnail
+        [:h2 "Square Inc"]
+      ]]
+
+    [:form.pull-left
       (fields-from-schema (job/job-fields) [:position :company :location 
                                             :website :start_date :end_date 
                                             :description :contact_info :email])
-      [:input.btn.btn-primary {:type "submit"}]]])
+    ]])
 
 (defpage "/jobs" []
   (common/layout (ring-request)
     [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
       [:a.btn.active {:href "#browse" :data-toggle "tab"} "Browse Available"]
       [:a.btn {:href "#submit" :data-toggle "tab"} "Submit a Job"]]
+
+    [:h1 "Submit a Job"]
 
     [:div.tab-content
       (browse-jobs)
