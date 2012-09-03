@@ -1,23 +1,25 @@
 (ns startlabs.views.main
   (:require [startlabs.views.common :as common]
             [startlabs.models.user :as user]
+            [startlabs.models.job :as job]
             [startlabs.util :as util]
             [noir.session :as session]
             [noir.response :as response]
-            [clojure.string :as str]
-            [aws.sdk.s3 :as s3])
+            [clojure.string :as str])
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
         [noir.core :only [defpage defpartial]]
         [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
-        [clojure.java.io :only [input-stream]]
-        [environ.core :only [env]]
-        [markdown :only [md-to-html-string]]))
+        [markdown :only [md-to-html-string]]
+        [startlabs.models.util :only [save-file-to-s3]]))
 
 (defpage "/" []
   (common/layout (ring-request)
     [:h1 "Welcome"]))
+
+
+;; account-related routes
 
 (defpage "/login" []
   (response/redirect (user/get-login-url)))
@@ -28,8 +30,7 @@
 
 (defpage "/oauth2callback" []
   (common/layout (ring-request)
-    [:div#loading 
-      [:h1 "Fetching credentials..."]]))
+    [:h1#loading "Fetching credentials..."]))
 
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
@@ -69,18 +70,6 @@
         [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
     (response/redirect "/login")))
 
-; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
-(defn save-file-to-s3 
-  "takes a file from a temporary url, downloads it, and saves to s3, returning
-   the url of the file on s3."
-  [temp-url file-name]
-  (let [aws-creds   {:access-key (env :aws-key) :secret-key (env :aws-secret)}
-        bucket-name "startlabs"]
-    (with-open [picture-file (input-stream temp-url)]
-      (s3/put-object aws-creds bucket-name file-name picture-file)
-      (s3/update-object-acl aws-creds bucket-name file-name (s3/grant :all-users :read))
-      (str "https://s3.amazonaws.com/" bucket-name "/" file-name))))
-
 ; right now, a user could hypothetically add additional post params...
 (defpage [:post "/me"] params
   (let [my-info (user/get-my-info)
@@ -104,6 +93,10 @@
       [:h1 (:name member-info)]
       (user-table member-info false))))
 
+
+
+;; jobs
+
 (defpartial browse-jobs []
   [:div#browse.tab-pane.active
     ;; sort by date and location.
@@ -112,17 +105,24 @@
 
 (defpartial submit-job []
   [:div#submit.tab-pane
-    [:h1 "Submit a Job"]])
+    [:h1 "Submit a Job"]
+    [:p (str (job/job-fields))]
+    (for [field (job/job-fields)]
+      [:p (str field)])])
 
 (defpage "/jobs" []
   (common/layout (ring-request)
-    [:div.btn-group.pull-right {:data-toggle "buttons-radio"}
+    [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
       [:a.btn.active {:href "#browse" :data-toggle "tab"} "Browse Available"]
       [:a.btn {:href "#submit" :data-toggle "tab"} "Submit a Job"]]
 
     [:div.tab-content
       (browse-jobs)
       (submit-job)]))
+
+
+
+;; easy stuff
 
 (defpage "/about" []
   (common/layout (ring-request)
@@ -145,5 +145,6 @@
                 [:h3 [:a {:href (:link person)} (:name person)]]
                 [:h4  (:role person)]
                 [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
-                [:p  (md-to-html-string (:bio person))]]])]]]
+                [:p  (md-to-html-string (:bio person))]]]
+          )]]]
   ))

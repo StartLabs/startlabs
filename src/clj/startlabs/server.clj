@@ -19,7 +19,7 @@
         token-map)
       (do
         (session/clear!)
-        (session/flash-put! :message "Invalid login. Make sure you're using your email@startlabs.org.")
+        (session/flash-put! :message [:error "Invalid login. Make sure you're using your email@startlabs.org."])
         "Invalid login"))))
 
 (server/load-views-ns 'startlabs.views)

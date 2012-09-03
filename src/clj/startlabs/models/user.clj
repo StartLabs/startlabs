@@ -37,15 +37,11 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-(def q-user-schema '[:find ?name ?val-type
-                     :where [_ :db.install/attribute ?a]
-                            [?a :db/ident ?name]
-                            [(str ?name) ?nom]
-                        [(re-find #"^:user" ?nom)]
-                            [?a :db/valueType ?val-type]])
+(def ns-matches-user '[[(ns-matches ?ns)
+                        [(= "user" ?ns)]]])
 
 (defn namespace-and-transform [tx-data]
-  (let [entity-map        (util/map-of-entities q-user-schema)
+  (let [entity-map        (util/map-of-entities ns-matches-user)
         tranny-user-data  (util/transform-tx-values (util/namespace-keys :user tx-data) 
                                                     entity-map)
         ; only add attributes that are present in the schema
@@ -84,7 +80,7 @@
   "Takes as input a single datomic user-id (the output of ffirsting query)"
   [user]
   (let [user-entity (d/entity (db @conn) user)]
-    (util/denamespace-keys (conj (util/entity-map-with-nil-vals q-user-schema)
+    (util/denamespace-keys (conj (util/entity-map-with-nil-vals ns-matches-user)
                                  (into {} user-entity)))))
 
 (defn find-or-create-user

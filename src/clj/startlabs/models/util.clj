@@ -1,8 +1,23 @@
 (ns startlabs.models.util
   (:use [datomic.api :only [q db ident] :as d]
-        [startlabs.models.database :only [conn]])
+        [startlabs.models.database :only [conn]]
+        [environ.core :only [env]]
+        [clojure.java.io :only [input-stream]]
+        [aws.sdk.s3 :as s3])
   (:require [clojure.string :as str])
   (:import java.net.URI))
+
+; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
+(defn save-file-to-s3 
+  "takes a file from a temporary url, downloads it, and saves to s3, returning
+   the url of the file on s3."
+  [temp-url file-name]
+  (let [aws-creds   {:access-key (env :aws-key) :secret-key (env :aws-secret)}
+        bucket-name "startlabs"]
+    (with-open [picture-file (input-stream temp-url)]
+      (s3/put-object aws-creds bucket-name file-name picture-file)
+      (s3/update-object-acl aws-creds bucket-name file-name (s3/grant :all-users :read))
+      (str "https://s3.amazonaws.com/" bucket-name "/" file-name))))
 
 ; the transforming and de/namespacing functions should be their own helper library...
 (defmulti 
@@ -58,17 +73,28 @@
     {(keyword (last (str/split (name k) #"/")))
      v})))
 
-(defn map-of-entities 
+; note: you must pass a function: ns-matches, which evaluates the namespace for a match
+(def q-schema-attrs
+  '[:find ?name ?val-type
+    :in $ %
+    :where [_ :db.install/attribute ?a]
+           [?a :db/ident ?name]
+           [(namespace ?name) ?ns]
+           [?a :db/valueType ?val-type]
+           [ns-matches ?ns]])
+
+(defn map-of-entities
   "Converts the set of [:attr-name valueType-entid] pairs returned by the query
    into a single map of {:attr-name :valueType-ident ...} pairs"
-  [query]
+  [inputs]
   (let [conn-db (db @conn)
-        schema  (q query conn-db)]
+        schema  (q q-schema-attrs conn-db inputs)]
     (into {} (for [[k v] schema]
                 {k (ident conn-db v)}))))
 
 (defn temp-identify [tx-map]
   (assoc tx-map :db/id (d/tempid :db.part/user)))
 
-(defn entity-map-with-nil-vals [query]
-  (zipmap (keys (map-of-entities query)) (repeat nil)))
+(defn entity-map-with-nil-vals [inputs]
+  (zipmap (keys (map-of-entities inputs)) (repeat nil)))
+
