@@ -12,7 +12,8 @@
         [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
         [markdown :only [md-to-html-string]]
-        [startlabs.util :only [map-diff]]))
+        [startlabs.util :only [map-diff]]
+        [startlabs.views.job :only [job-card]]))
 
 (defpage "/" []
   (common/layout (ring-request)
@@ -111,7 +112,7 @@
 
 (defmethod input-for-field :string [field type docs]
   (let [input-type (if (= field :description) :textarea :input)]
-    [input-type {:type "text" :id field :name field :rows 4 :placeholder docs :class "span12"}]))
+    [input-type {:type "text" :id field :name field :rows 6 :placeholder docs :class "span12"}]))
 
 (defmethod input-for-field :instant [field type docs]
   (let [date-format "mm/dd/yyyy"]
@@ -147,11 +148,11 @@
                                               :website :start_date :end_date 
                                               :description :contact_info :email])]
 
-      [:div#job-preview.span6
+      [:div#job-preview.span6.clearfix
         ; generate this in js
-        [:div.thumbnail
-          [:h2 "Square Inc"]
-      ]]
+        (job-card {:position "Frontend Engineering Intern" :company "Square Inc" :location "San Francisco, CA"
+                   :website "http://www.squareup.com" :start_date "May 30, 2012" :end_date "August 30, 2012"
+                   :description "People, location, hard problems, great perks." :contact_info "jobs@squareup.com"})]
     ]])
 
 (defpage "/jobs" []
