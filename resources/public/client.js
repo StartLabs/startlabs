@@ -12677,30 +12677,30 @@ singult.core.unify = function() {
   return b
 }();
 var startlabs = {views:{}};
-startlabs.views.job = {};
-startlabs.views.job.is_email_QMARK_ = function(a) {
+startlabs.views.jobx = {};
+startlabs.views.jobx.is_email_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i, a)
 };
-startlabs.views.job.html = singult.core.render;
-startlabs.views.job.markdownify = markdown.mdToHtml;
-startlabs.views.job.is_phone_QMARK_ = function(a) {
+startlabs.views.jobx.html = singult.core.render;
+startlabs.views.jobx.markdownify = markdown.mdToHtml;
+startlabs.views.jobx.is_phone_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /^[\d-\.\(\)\s]{7,15}$/, a)
 };
-startlabs.views.job.linkify = function(a) {
+startlabs.views.jobx.linkify = function(a) {
   return[cljs.core.str(function() {
     var b = cljs.core.apply, c = cljs.core.PersistentVector.fromArray([a], !0);
-    return cljs.core.truth_(b.call(null, startlabs.views.job.is_email_QMARK_, c)) ? "mailto:" : cljs.core.truth_(b.call(null, startlabs.views.job.is_phone_QMARK_, c)) ? "tel://" : null
+    return cljs.core.truth_(b.call(null, startlabs.views.jobx.is_email_QMARK_, c)) ? "mailto:" : cljs.core.truth_(b.call(null, startlabs.views.jobx.is_phone_QMARK_, c)) ? "tel://" : null
   }()), cljs.core.str(a)].join("")
 };
-startlabs.views.job.job_card = function(a) {
-  return startlabs.views.job.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
+startlabs.views.jobx.job_card = function(a) {
+  return startlabs.views.jobx.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
     var b = (new cljs.core.Keyword("\ufdd0'website")).call(null, a);
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 
-  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div", startlabs.views.job.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.well", "Contact: ", 
+  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.well", "Contact: ", 
   cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
-    return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.job.linkify.call(null, b)}), b], !0)
+    return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0))
 };
 goog.disposable = {};
@@ -18444,6 +18444,32 @@ fetch.core.xhr = function() {
   b.cljs$lang$arity$variadic = a;
   return b
 }();
+startlabs.views.job = {};
+startlabs.views.job.is_email_QMARK_ = function(a) {
+  return cljs.core.re_matches.call(null, /[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i, a)
+};
+startlabs.views.job.html = singult.core.render;
+startlabs.views.job.markdownify = markdown.mdToHtml;
+startlabs.views.job.is_phone_QMARK_ = function(a) {
+  return cljs.core.re_matches.call(null, /^[\d-\.\(\)\s]{7,15}$/, a)
+};
+startlabs.views.job.linkify = function(a) {
+  return[cljs.core.str(function() {
+    var b = cljs.core.apply, c = cljs.core.PersistentVector.fromArray([a], !0);
+    return cljs.core.truth_(b.call(null, startlabs.views.job.is_email_QMARK_, c)) ? "mailto:" : cljs.core.truth_(b.call(null, startlabs.views.job.is_phone_QMARK_, c)) ? "tel://" : null
+  }()), cljs.core.str(a)].join("")
+};
+startlabs.views.job.job_card = function(a) {
+  return startlabs.views.job.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
+    var b = (new cljs.core.Keyword("\ufdd0'website")).call(null, a);
+    return cljs.core.truth_(b) ? b : "#"
+  }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 
+  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div", startlabs.views.job.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.well", "Contact: ", 
+  cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
+    var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
+    return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.job.linkify.call(null, b)}), b], !0)
+  }()], !0)], !0)], !0))
+};
 fetch.remotes = {};
 fetch.remotes.remote_uri = "/_fetch";
 fetch.remotes.remote_callback = function(a, b, c) {
@@ -19053,7 +19079,7 @@ startlabs.main.main = function() {
   jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", startlabs.main.update_bio_preview);
   jayq.core.$.call(null, ".datepicker").datepicker();
   var a = jayq.core.$.call(null, "#job-form input, #job-form textarea"), b = function() {
-    return jayq.core.$.call(null, "#job-preview").html(startlabs.views.job.job_card.call(null, startlabs.main.form_to_map.call(null, jayq.core.$.call(null, "#job-form"))))
+    return jayq.core.$.call(null, "#job-preview").html(startlabs.views.jobx.job_card.call(null, startlabs.main.form_to_map.call(null, jayq.core.$.call(null, "#job-form"))))
   };
   jayq.core.bind.call(null, a, "\ufdd0'keyup", b);
   jayq.core.bind.call(null, a, "\ufdd0'blur", b);

@@ -6,15 +6,18 @@
             [noir.response :as response]
             [noir.validation :as vali]
             [clojure.string :as str]
-            [startlabs.models.util :as mu])
+            [startlabs.models.util :as mu]
+            [clj-time.format :as t])
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
         [noir.core :only [defpage defpartial render]]
         [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
         [markdown :only [md-to-html-string]]
+        [clj-time.coerce :only [to-long]]
         [startlabs.util :only [map-diff cond-class]]
-        [startlabs.views.job :only [job-card]]))
+        [startlabs.views.jobx :only [job-card]])
+  (:import java.net.URI))
 
 (defpage "/" []
   (common/layout (ring-request)
@@ -106,6 +109,9 @@
 
 ;; jobs
 
+(def job-date-format "MM/dd/YYYY")
+(def job-date-formatter (t/formatter job-date-format))
+
 (def ordered-job-keys
   [:company :position :location :website :start_date :end_date 
    :description :contact_info :email])
@@ -120,7 +126,7 @@
       (if (= input-type :textarea) v)]))
 
 (defmethod input-for-field :instant [field type docs v]
-  (let [date-format "mm/dd/yyyy"]
+  (let [date-format (str/lower-case job-date-format)]
     [:input.datepicker {:type "text" :data-date-format date-format :value v
                         :id field :name field :placeholder date-format}]))
 
@@ -149,8 +155,9 @@
 
 (def sample-job-fields
   {:position "Frontend Engineering Intern" :company "Square Inc" :location "San Francisco, CA"
-   :website "http://www.squareup.com" :start_date "May 30, 2012" :end_date "August 30, 2012"
-   :description "People, location, hard problems, great perks." :contact_info "jobs@squareup.com"})
+   :website "http://www.squareup.com" :start_date "May 30, 2013" :end_date "August 30, 2013"
+   :description "Smart people tackling difficult problems at a great location with *nice perks*. \n\nMust have **4+ years** of programming experience.\n\n We prefer candidates who have created or contributed to large open-source projects." 
+   :contact_info "jobs@squareup.com"})
 
 (defpartial submit-job [has-params? params]
   [:div#submit {:class (cond-class "tab-pane" [has-params? "active"])}
@@ -164,7 +171,7 @@
 
       [:div#job-preview.span6.clearfix
         ; generate this in js
-        (job-card sample-job-fields)]
+        (job-card (if has-params? params sample-job-fields))]
     ]])
 
 (defpartial browse-jobs [has-params?]
@@ -192,16 +199,48 @@
   (vali/rule 
     (vali/has-value? v) [k "This field cannot be empty."]))
 
+(defn parse-job-date [the-date]
+  (try (t/parse job-date-formatter the-date) 
+    (catch Exception e false)))
+
 (defn valid-job? [job-params]
-  (dorun (map empty-rule job-params))
-  (not (apply vali/errors? ordered-job-keys)))
+  (let [site-uri    (URI. (:website job-params))
+        replace-www (fn [x] (str/replace x "www."  ""))
+        site-host (-?> site-uri
+                       .getHost
+                       replace-www)]
+    (dorun (map empty-rule job-params))
+
+    (vali/rule (not (nil? site-host))
+      [:website "Must be a valid website." site-host])
+
+    (vali/rule (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
+      [:email "Your email address must match the company website."])
+
+    (doseq [date [:start_date :end_date]]
+      (vali/rule 
+        (parse-job-date (date job-params))
+        [date "Invalid date."]))
+
+    ; make sure the end date comes after the start
+    (vali/rule
+      (let [[start end] (map #(parse-job-date (% job-params)) [:start_date :end_date])]
+        (and (and start end) 
+             (= -1 (apply compare (map to-long [start end])))))
+        [:end_date "The end date must come after the start date."])
+
+    (not (apply vali/errors? ordered-job-keys))))
 
 (defpage [:post "/jobs"] {:as params}
   (if (valid-job? params)
-    (common/layout (ring-request)
-      [:h1 "Job submitted."]
-      [:p "Check your email for a confirmation link."])
-    (render "/jobs" params)
+    (do
+      (session/clear!)
+      (common/layout (ring-request)
+        [:h1 "Job submitted."]
+        [:p "Check your email for a confirmation link."]))
+    (do
+      (session/flash-put! :message [:error "Please correct the form and resubmit."])
+      (render "/jobs" params))
   ))
 
 

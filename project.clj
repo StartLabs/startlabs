@@ -20,6 +20,7 @@
                   [environ "0.3.0"]
                   [clj-aws-s3 "0.3.2"]
                   [markdown-clj "0.9.8"]
+                  [clj-time "0.4.4"]
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.1"]

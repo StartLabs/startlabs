@@ -1,7 +1,7 @@
 (ns startlabs.main
   (:use [singult.core :only [render]]
         [jayq.core :only [$]]
-        [startlabs.views.job :only [job-card]])
+        [startlabs.views.jobx :only [job-card]])
   (:require [clojure.string :as str]
             [fetch.remotes :as remotes]
             [clojure.browser.repl :as repl]
