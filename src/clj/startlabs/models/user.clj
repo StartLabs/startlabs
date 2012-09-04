@@ -40,26 +40,11 @@
 (def ns-matches-user '[[(ns-matches ?ns)
                         [(= "user" ?ns)]]])
 
-(defn namespace-and-transform [tx-data]
-  (let [entity-map        (util/map-of-entities ns-matches-user)
-        tranny-user-data  (util/transform-tx-values (util/namespace-keys :user tx-data) 
-                                                    entity-map)
-        ; only add attributes that are present in the schema
-        clean-user-data   (into {} (map (fn [[k v]] (if (k entity-map) {k v})) tranny-user-data))]
-    clean-user-data))
-
-(defn txify-user-data 
-  "Convert a map representation of the userinfo response from google into a database transaction"
-  [user-data]
-  (let [clean-user-data   (namespace-and-transform user-data)
-        tx-map            (util/temp-identify clean-user-data)]
-    [tx-map]))
-
 (defn create-user [access-token user-id]
   "Need to make this more flexible: should handle the case of new fields"
   (let [userinfo-url (str googleapis-url "userinfo")
         user-data    (get-request-with-token userinfo-url access-token)
-        tx-data      (txify-user-data user-data)]
+        tx-data      (util/txify-new-entity :user user-data ns-matches-user)]
     (d/transact @conn tx-data)))
 
 (defn user-with-attr
@@ -113,7 +98,7 @@
   [user-id new-fact-map]
   (try
     (let [user          (user-with-id user-id)
-          tranny-facts  (namespace-and-transform new-fact-map)
+          tranny-facts  (util/namespace-and-transform :user new-fact-map ns-matches-user)
           idented-facts (assoc tranny-facts :db/id user)]
       (d/transact @conn (list idented-facts))
       (session/flash-put! :message [:success (str "Updated info successfully!")]))

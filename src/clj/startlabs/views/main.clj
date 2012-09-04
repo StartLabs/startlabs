@@ -235,6 +235,7 @@
   (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
     (if (valid-job? trimmed-params)
       (do
+        
         (response/redirect "/jobs/success"))
       (do
         (session/flash-put! :message [:error "Please correct the form and resubmit."])

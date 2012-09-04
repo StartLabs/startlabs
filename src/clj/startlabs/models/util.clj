@@ -107,3 +107,28 @@
 (defn entity-map-with-nil-vals [inputs]
   (zipmap (keys (map-of-entities inputs)) (repeat nil)))
 
+
+(defn namespace-and-transform 
+  "Prepends the-ns to each key in the tx-data map. Also strips out any keys not present
+   in the schema, querying with inputs (primarily used to narrow down the schema namespace)."
+  [the-ns tx-data inputs]
+  (let [entity-map          (map-of-entities inputs)
+        tranny-entity-data  (transform-tx-values (namespace-keys the-ns tx-data) 
+                                                  entity-map)
+        ; only add attributes that are present in the schema
+        clean-entity-data   (into {} (map (fn [[k v]] 
+                              (if (k entity-map) {k v})) tranny-entity-data))]
+    clean-entity-data))
+
+(defn txify-new-entity
+  "Converts a map representation of an entity into a database transaction, with the-ns
+   prepended to each key."
+  [the-ns entity-data inputs]
+  (let [clean-entity-data (namespace-and-transform the-ns entity-data inputs)
+        tx-map            (temp-identify clean-entity-data)]
+    [tx-map]))
+
+
+
+
+
