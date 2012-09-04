@@ -110,32 +110,37 @@
   [:company :position :location :website :start_date :end_date 
    :description :contact_info :email])
 
-(defmulti input-for-field (fn [field type docs] (keyword (name type))) :default :string)
+(defmulti input-for-field (fn [field type docs v] 
+  (keyword (name type))) :default :string)
 
-(defmethod input-for-field :string [field type docs]
+(defmethod input-for-field :string [field type docs v]
   (let [input-type (if (= field :description) :textarea :input)]
-    [input-type {:type "text" :id field :name field :rows 6 :placeholder docs :class "span12"}]))
+    [input-type {:type "text" :id field :name field :value v
+                 :rows 6 :placeholder docs :class "span12"}
+      (if (= input-type :textarea) v)]))
 
-(defmethod input-for-field :instant [field type docs]
+(defmethod input-for-field :instant [field type docs v]
   (let [date-format "mm/dd/yyyy"]
-    [:input.datepicker {:type "text" :data-date-format date-format 
+    [:input.datepicker {:type "text" :data-date-format date-format :value v
                         :id field :name field :placeholder date-format}]))
 
 (defpartial error-item [[first-error]]
   [:span.help-block first-error])
 
-(defpartial fields-from-schema [schema ordered-keys]
+(defpartial fields-from-schema [schema ordered-keys params]
   [:table.table
     [:tbody
       (for [field ordered-keys]
         (let [field-name  (name field)
               field-kw    (mu/namespace-key :job (name field))
-              [type docs] (field-kw schema)]
-          [:tr
+              [type docs] (field-kw schema)
+              error?      (vali/on-error field (fn [_] true))
+              v           (or (field params) "")]
+          [:tr {:class (if error? "error")}
             [:td [:label {:for field} (phrasify field-name)]]
             [:td
               ; dispatch input based on type
-              (input-for-field field type docs)
+              (input-for-field field type docs v)
               (vali/on-error field error-item)]]))
       [:tr
         [:td]
@@ -147,18 +152,15 @@
    :website "http://www.squareup.com" :start_date "May 30, 2012" :end_date "August 30, 2012"
    :description "People, location, hard problems, great perks." :contact_info "jobs@squareup.com"})
 
-(defpartial submit-job [has-params? & params]
+(defpartial submit-job [has-params? params]
   [:div#submit {:class (cond-class "tab-pane" [has-params? "active"])}
-    [:p params]
     [:h1 "Submit a Job"]
 
     [:form#job-form.row-fluid {:method "post" :action "/jobs"}
       [:div.span6
         [:div.well "In order to submit a job, your email address and 
                     company website domain must match."]
-        (fields-from-schema (job/job-fields) [:company :position :location 
-                                              :website :start_date :end_date 
-                                              :description :contact_info :email])]
+        (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
       [:div#job-preview.span6.clearfix
         ; generate this in js
@@ -175,7 +177,6 @@
 (defpage [:get "/jobs"] {:as params}
   (let [has-params? (not (empty? params))]
     (common/layout (ring-request)
-      [:p params]
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
         [:a {:class (cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"} 
           "Browse Available"]
@@ -187,17 +188,18 @@
         (browse-jobs has-params?)
         (submit-job has-params? params)])))
 
+(defn empty-rule [[k v]]
+  (vali/rule 
+    (vali/has-value? v) [k "This field cannot be empty."]))
+
 (defn valid-job? [job-params]
-  (for [[k v] job-params]
-    (vali/rule (vali/has-value? v)
-      [k "This field cannot be empty."]))
-  (not (apply vali/errors? (keys job-params))))
+  (dorun (map empty-rule job-params))
+  (not (apply vali/errors? ordered-job-keys)))
 
 (defpage [:post "/jobs"] {:as params}
   (if (valid-job? params)
     (common/layout (ring-request)
       [:h1 "Job submitted."]
-      [:p (str params)]
       [:p "Check your email for a confirmation link."])
     (render "/jobs" params)
   ))
