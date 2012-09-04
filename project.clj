@@ -24,14 +24,12 @@
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.1"]
+                  [com.keminglabs/singult "0.1.4"]
                   [fetch "0.1.0-alpha2"]
                   [jayq "0.1.0-alpha4"]
-                  [crate "0.2.0-alpha4"]
                 ]
 
-  :source-paths ["src/clj" "src/cljs" 
-                 ;cljx generated code
-                 ".generated/clj" ".generated/cljs"]
+  :source-paths ["src/clj" ".generated/clj"]
 
   :cljsbuild {:builds [
                        {:source-path "src/cljs"
@@ -46,7 +44,7 @@
                    :rules cljx.rules/clj-rules}
                    ;cljs
                   {:source-paths ["src/cljx"]
-                   :output-path ".generated/cljs"
+                   :output-path "src/cljs" ; careful! cannot name cljx and cljs the same
                    :extension "cljs"
                    :include-meta true
                    :rules cljx.rules/cljs-rules}]}

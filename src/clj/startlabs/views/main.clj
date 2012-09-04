@@ -117,7 +117,7 @@
 (defmethod input-for-field :instant [field type docs]
   (let [date-format "mm/dd/yyyy"]
     [:input.datepicker {:type "text" :data-date-format date-format 
-                        :id field :placeholder date-format}]))
+                        :id field :name field :placeholder date-format}]))
 
 (defpartial fields-from-schema [schema ordered-keys]
   [:table.table
@@ -136,23 +136,26 @@
         [:td
           [:input.btn.btn-primary {:type "submit"}]]]]])
 
+(def sample-job-fields
+  {:position "Frontend Engineering Intern" :company "Square Inc" :location "San Francisco, CA"
+   :website "http://www.squareup.com" :start_date "May 30, 2012" :end_date "August 30, 2012"
+   :description "People, location, hard problems, great perks." :contact_info "jobs@squareup.com"})
+
 (defpartial submit-job []
   [:div#submit.tab-pane
     [:h1 "Submit a Job"]
 
-    [:form.row-fluid
+    [:form#job-form.row-fluid
       [:div.span6
         [:div.well "In order to submit a job, your email address and 
                     company website domain must match."]
-        (fields-from-schema (job/job-fields) [:position :company :location 
+        (fields-from-schema (job/job-fields) [:company :position :location 
                                               :website :start_date :end_date 
                                               :description :contact_info :email])]
 
       [:div#job-preview.span6.clearfix
         ; generate this in js
-        (job-card {:position "Frontend Engineering Intern" :company "Square Inc" :location "San Francisco, CA"
-                   :website "http://www.squareup.com" :start_date "May 30, 2012" :end_date "August 30, 2012"
-                   :description "People, location, hard problems, great perks." :contact_info "jobs@squareup.com"})]
+        (job-card sample-job-fields)]
     ]])
 
 (defpage "/jobs" []
@@ -176,6 +179,7 @@
     [:div
       [:p "We love you."]]))
 
+;; Redirect. Dead links = evil
 (defpage "/company" [] (response/redirect "/about"))
 
 (defpage "/team" []
@@ -184,7 +188,7 @@
     [:div.row
       [:div.span12
         [:ul.thumbnails
-          (for [person (repeat 7 (first (user/find-all-users)))]
+          (for [person (repeat 5 (first (user/find-all-users)))]
             [:li.span3
               [:div.thumbnail
                 [:img {:src (:picture person)}]

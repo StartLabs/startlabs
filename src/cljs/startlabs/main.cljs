@@ -1,6 +1,7 @@
 (ns startlabs.main
   (:use [singult.core :only [render]]
-        [jayq.core :only [$]])
+        [jayq.core :only [$]]
+        [startlabs.views.job :only [job-card]])
   (:require [goog.string :as str]
             [fetch.remotes :as remotes]
             [clojure.browser.repl :as repl]
@@ -46,6 +47,10 @@
           .val
           markdown/mdToHtml)))))
 
+(defn form-to-map [$form]
+  (into {} (for [field (.serializeArray $form)]
+    { (keyword (.-name field)) (.-value field)})))
+
 (defn main []
   (if location-hash (handle-hash-change))
   (set! (.-onhashchange js/window) handle-hash-change)
@@ -61,6 +66,13 @@
   (jq/bind ($ "#bio") :keyup update-bio-preview)
 
   (.datepicker ($ ".datepicker"))
+
+  (let [$elems ($ "#job-form input, #job-form textarea")]
+    (letfn [(update-job-card [e]
+              (.html ($ "#job-preview")
+                     (job-card (form-to-map ($ "#job-form")))))]
+      (jq/bind $elems :keyup update-job-card)
+      (jq/bind $elems :blur update-job-card)))
 
   (update-bio-preview))
 
