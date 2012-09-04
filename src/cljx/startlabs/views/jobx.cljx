@@ -44,7 +44,7 @@
         [:p.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
         [:p.span6 [:i.icon.icon-map-marker] (:location job-info)]]
       [:div.row-fluid
-        [:div (markdownify (:description job-info))]
+        [:div.description (markdownify (:description job-info))]
 
         [:p.well
           "Contact: "

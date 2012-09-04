@@ -70,7 +70,10 @@
   (let [$elems ($ "#job-form input, #job-form textarea")]
     (letfn [(update-job-card [e]
               (.html ($ "#job-preview")
-                     (job-card (form-to-map ($ "#job-form")))))]
+                     (job-card (form-to-map ($ "#job-form"))))
+              ; singult is escaping the generated markdown :(
+              (.html ($ "#job-preview .description") 
+                     (markdown/mdToHtml (.val ($ "#description")))))]
       (jq/bind $elems :keyup update-job-card)
       (jq/bind $elems :blur update-job-card)))
 

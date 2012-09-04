@@ -12697,8 +12697,8 @@ startlabs.views.jobx.job_card = function(a) {
     var b = (new cljs.core.Keyword("\ufdd0'website")).call(null, a);
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 
-  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.well", "Contact: ", 
-  cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
+  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'p.well", 
+  "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0))
@@ -19079,7 +19079,8 @@ startlabs.main.main = function() {
   jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", startlabs.main.update_bio_preview);
   jayq.core.$.call(null, ".datepicker").datepicker();
   var a = jayq.core.$.call(null, "#job-form input, #job-form textarea"), b = function() {
-    return jayq.core.$.call(null, "#job-preview").html(startlabs.views.jobx.job_card.call(null, startlabs.main.form_to_map.call(null, jayq.core.$.call(null, "#job-form"))))
+    jayq.core.$.call(null, "#job-preview").html(startlabs.views.jobx.job_card.call(null, startlabs.main.form_to_map.call(null, jayq.core.$.call(null, "#job-form"))));
+    return jayq.core.$.call(null, "#job-preview .description").html(markdown.mdToHtml.call(null, jayq.core.$.call(null, "#description").val()))
   };
   jayq.core.bind.call(null, a, "\ufdd0'keyup", b);
   jayq.core.bind.call(null, a, "\ufdd0'blur", b);
