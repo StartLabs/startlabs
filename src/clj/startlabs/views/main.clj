@@ -235,15 +235,16 @@
   (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
     (if (valid-job? trimmed-params)
       (do
-        (session/flash-put! :message [:success "Nicely Done!"])
-        (common/layout (ring-request)
-          [:h1 "Submission Complete"]
-          [:p "Please, check your email for a confirmation link."]))
+        (response/redirect "/jobs/success"))
       (do
         (session/flash-put! :message [:error "Please correct the form and resubmit."])
         (render "/jobs" trimmed-params))
     )))
 
+(defpage "/jobs/success" []
+  (common/layout (ring-request)
+          [:h1 "Submission Received"]
+          [:p "Please, check your email for a confirmation link."]))
 
 ;; easy stuff
 
