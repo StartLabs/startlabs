@@ -12,7 +12,6 @@
                   
                   ;clj other
                   [noir "1.3.0-beta10"]
-                  [lib-noir "0.2.0-alpha2"]
                   [clj-http "0.5.2"]
                   [oauth-clj "0.0.5"]
                   [com.datomic/datomic-free "0.8.3470" 

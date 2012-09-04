@@ -4,15 +4,16 @@
             [startlabs.models.job :as job]
             [noir.session :as session]
             [noir.response :as response]
+            [noir.validation :as vali]
             [clojure.string :as str]
             [startlabs.models.util :as mu])
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
-        [noir.core :only [defpage defpartial]]
+        [noir.core :only [defpage defpartial render]]
         [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
         [markdown :only [md-to-html-string]]
-        [startlabs.util :only [map-diff]]
+        [startlabs.util :only [map-diff cond-class]]
         [startlabs.views.job :only [job-card]]))
 
 (defpage "/" []
@@ -120,6 +121,9 @@
     [:input.datepicker {:type "text" :data-date-format date-format 
                         :id field :name field :placeholder date-format}]))
 
+(defpartial error-item [[first-error]]
+  [:span.help-block first-error])
+
 (defpartial fields-from-schema [schema ordered-keys]
   [:table.table
     [:tbody
@@ -131,7 +135,8 @@
             [:td [:label {:for field} (phrasify field-name)]]
             [:td
               ; dispatch input based on type
-              (input-for-field field type docs)]]))
+              (input-for-field field type docs)
+              (vali/on-error field error-item)]]))
       [:tr
         [:td]
         [:td
@@ -142,11 +147,12 @@
    :website "http://www.squareup.com" :start_date "May 30, 2012" :end_date "August 30, 2012"
    :description "People, location, hard problems, great perks." :contact_info "jobs@squareup.com"})
 
-(defpartial submit-job []
-  [:div#submit.tab-pane
+(defpartial submit-job [has-params? & params]
+  [:div#submit {:class (cond-class "tab-pane" [has-params? "active"])}
+    [:p params]
     [:h1 "Submit a Job"]
 
-    [:form#job-form.row-fluid
+    [:form#job-form.row-fluid {:method "post" :action "/jobs"}
       [:div.span6
         [:div.well "In order to submit a job, your email address and 
                     company website domain must match."]
@@ -159,17 +165,42 @@
         (job-card sample-job-fields)]
     ]])
 
-(defpage "/jobs" []
-  (common/layout (ring-request)
-    [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
-      [:a.btn.active {:href "#browse" :data-toggle "tab"} "Browse Available"]
-      [:a.btn {:href "#submit" :data-toggle "tab"} "Submit a Job"]]
-    [:div.clearfix]
+(defpartial browse-jobs [has-params?]
+  [:div#browse {:class (cond-class "tab-pane" [(not has-params?) "active"])}
+    ;; sort by date and location.
+    ;; search descriptions and company names
+    [:h1 "Browse Startup Jobs"]
+  ])
 
-    [:div.tab-content
-      (browse-jobs)
-      (submit-job)]))
+(defpage [:get "/jobs"] {:as params}
+  (let [has-params? (not (empty? params))]
+    (common/layout (ring-request)
+      [:p params]
+      [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
+        [:a {:class (cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"} 
+          "Browse Available"]
+        [:a {:class (cond-class "btn" [has-params? "active"]) :href "#submit" :data-toggle "tab"}
+          "Submit a Job"]]
+      [:div.clearfix]
 
+      [:div.tab-content
+        (browse-jobs has-params?)
+        (submit-job has-params? params)])))
+
+(defn valid-job? [job-params]
+  (for [[k v] job-params]
+    (vali/rule (vali/has-value? v)
+      [k "This field cannot be empty."]))
+  (not (apply vali/errors? (keys job-params))))
+
+(defpage [:post "/jobs"] {:as params}
+  (if (valid-job? params)
+    (common/layout (ring-request)
+      [:h1 "Job submitted."]
+      [:p (str params)]
+      [:p "Check your email for a confirmation link."])
+    (render "/jobs" params)
+  ))
 
 
 ;; easy stuff
