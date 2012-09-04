@@ -175,6 +175,11 @@
     ;; sort by date and location.
     ;; search descriptions and company names
     [:h1 "Browse Startup Jobs"]
+
+    [:div.row-fluid
+      [:div#map.span6]
+
+      [:div#job-list.span8]]
   ])
 
 (defpage [:get "/jobs"] {:as params}

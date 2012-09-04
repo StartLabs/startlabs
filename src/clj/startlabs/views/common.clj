@@ -50,7 +50,8 @@
                                 ["Ultra"])}]
 
         (include-css "/bootstrap/css/bootstrap.min.css"
-                     "/bootstrap/css/bootstrap-responsive.min.css")]
+                     "/bootstrap/css/bootstrap-responsive.min.css"
+                     "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")]
 
       [:body
         [:div#nav [:div.container
@@ -75,6 +76,7 @@
                    "/jquery.js"
                    "/bootstrap/js/bootstrap.min.js"
                    "https://api.filepicker.io/v0/filepicker.js"
+                   "http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"
                    "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
                    "/client.js"
                    "/less-1.3.0.min.js")])))

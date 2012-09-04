@@ -1718,7 +1718,7 @@ cljs.core._invoke = function() {
       throw cljs.core.missing_protocol.call(null, "IFn.-invoke", a);
     }
     return G.call(null, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q, r, t, s, u, z)
-  }, a = function(a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O, P, Q) {
+  }, a = function(a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P, Q, R) {
     switch(arguments.length) {
       case 1:
         return b.call(this, a);
@@ -1751,17 +1751,17 @@ cljs.core._invoke = function() {
       case 15:
         return q.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K);
       case 16:
-        return r.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L);
+        return r.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M);
       case 17:
-        return s.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M);
+        return s.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N);
       case 18:
-        return u.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N);
+        return u.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O);
       case 19:
-        return t.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O);
+        return t.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P);
       case 20:
-        return z.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O, P);
+        return z.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P, Q);
       case 21:
-        return G.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O, P, Q)
+        return G.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P, Q, R)
     }
     throw"Invalid arity: " + arguments.length;
   };
@@ -16895,8 +16895,15 @@ jayq.core.prevent = function(a) {
 };
 startlabs.maps = {};
 startlabs.maps.cloudmade_key = "fe134333250f494fb51ac8903b83c9fb";
+startlabs.maps.tile_layer_url = [cljs.core.str("http://{s}.tile.cloudmade.com/"), cljs.core.str(startlabs.maps.cloudmade_key), cljs.core.str("/997/256/{z}/{x}/{y}.png")].join("");
+startlabs.maps.L = L;
+startlabs.maps.geocode = function() {
+  return null
+};
 startlabs.maps.setup_maps = function() {
-  return console.log("MAPPIN")
+  var a = startlabs.maps.L.map("map").setView([42, -92], 3);
+  console.log("MAPPIN");
+  return startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(a)
 };
 startlabs.main = {};
 startlabs.main.location_hash = location.hash;
