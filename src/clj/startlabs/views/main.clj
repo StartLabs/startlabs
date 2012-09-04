@@ -6,8 +6,7 @@
             [noir.response :as response]
             [noir.validation :as vali]
             [clojure.string :as str]
-            [startlabs.models.util :as mu]
-            [clj-time.format :as t])
+            [startlabs.models.util :as mu])
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
         [noir.core :only [defpage defpartial render]]
@@ -109,9 +108,6 @@
 
 ;; jobs
 
-(def job-date-format "MM/dd/YYYY")
-(def job-date-formatter (t/formatter job-date-format))
-
 (def ordered-job-keys
   [:company :position :location :website :start_date :end_date 
    :description :contact_info :email])
@@ -126,7 +122,7 @@
       (if (= input-type :textarea) v)]))
 
 (defmethod input-for-field :instant [field type docs v]
-  (let [date-format (str/lower-case job-date-format)]
+  (let [date-format (str/lower-case mu/default-date-format)]
     [:input.datepicker {:type "text" :data-date-format date-format :value v
                         :id field :name field :placeholder date-format}]))
 
@@ -199,10 +195,6 @@
   (vali/rule 
     (vali/has-value? v) [k "This field cannot be empty."]))
 
-(defn parse-job-date [the-date]
-  (try (t/parse job-date-formatter the-date) 
-    (catch Exception e false)))
-
 (defn valid-job? [job-params]
   (let [site-uri    (URI. (:website job-params))
         replace-www (fn [x] (str/replace x "www."  ""))
@@ -219,12 +211,12 @@
 
     (doseq [date [:start_date :end_date]]
       (vali/rule 
-        (parse-job-date (date job-params))
+        (mu/parse-date (date job-params))
         [date "Invalid date."]))
 
     ; make sure the end date comes after the start
     (vali/rule
-      (let [[start end] (map #(parse-job-date (% job-params)) [:start_date :end_date])]
+      (let [[start end] (map #(mu/parse-date (% job-params)) [:start_date :end_date])]
         (and (and start end) 
              (= -1 (apply compare (map to-long [start end])))))
         [:end_date "The end date must come after the start date."])
@@ -235,7 +227,7 @@
   (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
     (if (valid-job? trimmed-params)
       (do
-        
+
         (response/redirect "/jobs/success"))
       (do
         (session/flash-put! :message [:error "Please correct the form and resubmit."])

@@ -3,6 +3,7 @@
         [startlabs.models.database :only [conn]]
         [environ.core :only [env]]
         [clojure.java.io :only [input-stream]]
+        [clj-time.format :as t]
         [aws.sdk.s3 :as s3])
   (:require [clojure.string :as str])
   (:import java.net.URI))
@@ -18,6 +19,16 @@
       (s3/put-object aws-creds bucket-name file-name picture-file)
       (s3/update-object-acl aws-creds bucket-name file-name (s3/grant :all-users :read))
       (str "https://s3.amazonaws.com/" bucket-name "/" file-name))))
+
+
+(def default-date-format "MM/dd/YYYY")
+(def default-date-formatter (t/formatter default-date-format))
+
+(defn parse-date 
+  "Returns the parsed date if valid, otherwise returns false"
+  [the-date]
+  (try (t/parse default-date-formatter the-date) 
+    (catch Exception e false)))
 
 ; the transforming and de/namespacing functions should be their own helper library...
 (defmulti 
