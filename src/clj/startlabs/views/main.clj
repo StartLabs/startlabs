@@ -232,16 +232,17 @@
     (not (apply vali/errors? ordered-job-keys))))
 
 (defpage [:post "/jobs"] {:as params}
-  (if (valid-job? params)
-    (do
-      (session/clear!)
-      (common/layout (ring-request)
-        [:h1 "Job submitted."]
-        [:p "Check your email for a confirmation link."]))
-    (do
-      (session/flash-put! :message [:error "Please correct the form and resubmit."])
-      (render "/jobs" params))
-  ))
+  (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
+    (if (valid-job? trimmed-params)
+      (do
+        (session/clear!)
+        (common/layout (ring-request)
+          [:h1 "Job submitted."]
+          [:p "Check your email for a confirmation link."]))
+      (do
+        (session/flash-put! :message [:error "Please correct the form and resubmit."])
+        (render "/jobs" trimmed-params))
+    )))
 
 
 ;; easy stuff
