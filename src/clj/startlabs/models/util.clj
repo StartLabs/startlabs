@@ -2,10 +2,10 @@
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]]
         [environ.core :only [env]]
-        [clojure.java.io :only [input-stream]]
-        [clj-time.format :as t]
-        [aws.sdk.s3 :as s3])
-  (:require [clojure.string :as str])
+        [clojure.java.io :only [input-stream]])
+  (:require [clojure.string :as str]
+            [clj-time.format :as t]
+            [aws.sdk.s3 :as s3])
   (:import java.net.URI))
 
 ; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
@@ -38,7 +38,7 @@
    the desired datomic type.
    Example: (transform-attr 'www.google.com' :db.type/uri)
    will yield <URI 'www.google.com'>"
-  (fn [attr attr-type] [(type attr) attr-type])
+  (fn [attr db-type] [(type attr) db-type])
   :default [String :db.type/string])
 
 (defmethod transform-attr [String :db.type/string] [attr _] attr)
@@ -49,8 +49,20 @@
 (defmethod transform-attr [String :db.type/long] [attr _]
   (Integer/parseInt attr))
 
+(defmethod transform-attr [String :db.type/instant] [attr _]
+  (parse-date attr))
+
+(defmethod transform-attr [String :db.type/boolean] [attr _]
+  (if (= (str/lower-case attr) "true") 
+    true 
+    false))
+
+; Special case for startlabs. 
+; Maybe could rely on convention in the general case?
+; Any refs of the form :a/b could be transformed to (str "a.b/" attr)
 (defmethod transform-attr [String :user/gender] [attr _]
   (keyword (str "user.gender/" attr)))
+
 
 
 (defn transform-tx-values
