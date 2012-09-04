@@ -226,13 +226,16 @@
 (defpage [:post "/jobs"] {:as params}
   (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
     (if (valid-job? trimmed-params)
-      (do
+      (try
+        @(job/create-job trimmed-params)
+        (response/redirect "/jobs/success")
+        (catch Exception e
+          (session/flash-put! :message [:error (str "Trouble connecting to the database:" e)])
+          (render "/jobs" trimmed-params)))
 
-        (response/redirect "/jobs/success"))
-      (do
+      (do ;invalid job, flash an error message
         (session/flash-put! :message [:error "Please correct the form and resubmit."])
-        (render "/jobs" trimmed-params))
-    )))
+        (render "/jobs" trimmed-params)))))
 
 (defpage "/jobs/success" []
   (common/layout (ring-request)

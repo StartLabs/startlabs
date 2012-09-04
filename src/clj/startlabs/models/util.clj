@@ -2,7 +2,8 @@
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]]
         [environ.core :only [env]]
-        [clojure.java.io :only [input-stream]])
+        [clojure.java.io :only [input-stream]]
+        [clj-time.coerce :only [to-date]])
   (:require [clojure.string :as str]
             [clj-time.format :as t]
             [aws.sdk.s3 :as s3])
@@ -50,7 +51,7 @@
   (Integer/parseInt attr))
 
 (defmethod transform-attr [String :db.type/instant] [attr _]
-  (parse-date attr))
+  (to-date (parse-date attr)))
 
 (defmethod transform-attr [String :db.type/boolean] [attr _]
   (if (= (str/lower-case attr) "true") 

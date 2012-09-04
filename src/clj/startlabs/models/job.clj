@@ -14,3 +14,8 @@
 
 (defn job-fields []
   (util/map-of-entity-tuples ns-matches-job))
+
+(defn create-job [job-map]
+  ; might need to conj :confirmed? false
+  (let [tx-data (util/txify-new-entity :job job-map ns-matches-job)]
+    (d/transact @conn tx-data)))
