@@ -18,7 +18,6 @@
         (doseq [k [:user_id :email]] (session/put! k (k token-map)))
         token-map)
       (do
-        (session/clear!)
         (session/flash-put! :message [:error "Invalid login. Make sure you're using your email@startlabs.org."])
         "Invalid login"))))
 

@@ -12693,7 +12693,7 @@ startlabs.views.jobx.linkify = function(a) {
   }()), cljs.core.str(a)].join("")
 };
 startlabs.views.jobx.job_card = function(a) {
-  return startlabs.views.jobx.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
+  return startlabs.views.jobx.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail.job-info", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
     var b = (new cljs.core.Keyword("\ufdd0'website")).call(null, a);
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'p.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 

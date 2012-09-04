@@ -235,7 +235,6 @@
   (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
     (if (valid-job? trimmed-params)
       (do
-        (session/clear!)
         (common/layout (ring-request)
           [:h1 "Job submitted."]
           [:p "Check your email for a confirmation link."]))

@@ -36,7 +36,7 @@
 
 (defn job-card [job-info]
   (html
-    [:div.thumbnail
+    [:div.thumbnail.job-info
       [:h2 [:a {:href (or (:website job-info) "#")} (:company job-info) ":"]
         [:small " " (:position job-info)]]
       [:div.row-fluid
