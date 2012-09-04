@@ -75,5 +75,6 @@
                    "/jquery.js"
                    "/bootstrap/js/bootstrap.min.js"
                    "https://api.filepicker.io/v0/filepicker.js"
+                   "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
                    "/client.js"
                    "/less-1.3.0.min.js")])))

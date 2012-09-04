@@ -1,10 +1,10 @@
 (ns startlabs.main
   (:use [singult.core :only [render]]
         [jayq.core :only [$]]
-        [startlabs.views.jobx :only [job-card]])
+        [startlabs.views.jobx :only [job-card]]
+        [startlabs.maps :only [setup-maps]])
   (:require [clojure.string :as str]
             [fetch.remotes :as remotes]
-            [clojure.browser.repl :as repl]
             [jayq.core :as jq]
             [jayq.util :as util])
   (:require-macros [fetch.macros :as fm]
@@ -47,24 +47,27 @@
           .val
           markdown/mdToHtml)))))
 
-(defn form-to-map [$form]
-  (into {} (for [field (.serializeArray $form)]
-    { (keyword (.-name field)) (str/trim (.-value field))})))
-
-(defn main []
-  (if location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change)
-
+(defn setup-team []
+  ;filepicker
   (.setKey js/filepicker "AuL8SYGe7TXG-aEqBK1S1z")
+
   (jq/bind ($ "#new-picture") :click (fn [e]
     (.preventDefault e)
     (.getFile js/filepicker "image/*" (fn [url metadata]
       (jq/attr ($ "#picture") "value" url)
       (swap-picture-preview)))))
 
+  ; picture and bio live previews
   (jq/bind ($ "#picture") :keyup swap-picture-preview)
   (jq/bind ($ "#bio") :keyup update-bio-preview)
 
+  (update-bio-preview))
+
+(defn form-to-map [$form]
+  (into {} (for [field (.serializeArray $form)]
+    { (keyword (.-name field)) (str/trim (.-value field))})))
+
+(defn setup-job-submit []
   (.datepicker ($ ".datepicker"))
 
   (let [$elems ($ "#job-form input, #job-form textarea")]
@@ -75,11 +78,17 @@
               (.html ($ "#job-preview .description") 
                      (markdown/mdToHtml (.val ($ "#description")))))]
       (jq/bind $elems :keyup update-job-card)
-      (jq/bind $elems :blur update-job-card)))
+      (jq/bind $elems :blur update-job-card))))
 
-  (update-bio-preview))
+(defn main []
+  (if location-hash (handle-hash-change))
+  (set! (.-onhashchange js/window) handle-hash-change)
+
+  (setup-team)
+  (setup-job-submit))
 
 (jm/ready
   (.log js/console "Hello world!")
-  (main))
+  (main)
+  (setup-maps))
 
