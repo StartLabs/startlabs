@@ -2,7 +2,7 @@
   (:use [singult.core :only [render]]
         [jayq.core :only [$]]
         [startlabs.views.job :only [job-card]])
-  (:require [goog.string :as str]
+  (:require [clojure.string :as str]
             [fetch.remotes :as remotes]
             [clojure.browser.repl :as repl]
             [jayq.core :as jq]
@@ -49,7 +49,7 @@
 
 (defn form-to-map [$form]
   (into {} (for [field (.serializeArray $form)]
-    { (keyword (.-name field)) (.-value field)})))
+    { (keyword (.-name field)) (str/trim (.-value field))})))
 
 (defn main []
   (if location-hash (handle-hash-change))

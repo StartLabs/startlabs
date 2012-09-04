@@ -23,3 +23,15 @@
 (defn nil-empty-str-values [m]
   (into {} (map (fn [[k v]] 
     {k (if (= v "") nil v)}) m)))
+
+(defn cond-class 
+  "Returns a string of class names separated by spaces.
+   default is returned regardless of the conditions.
+   Conditions is a sequence of [condition value] pairs,
+   for which the class 'value' is returned if the condition is met.
+   Eg: (cond-class \"pizza\" [true \"bagels\"] [false \"spinach\"])
+   would return: \"pizza bagels\""
+  [default & conditions]
+  (apply str default
+    (for [[condition value] conditions]
+      (if condition (str " " value)))))

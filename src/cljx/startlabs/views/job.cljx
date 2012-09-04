@@ -1,6 +1,7 @@
 ^:clj (ns startlabs.views.job
         (:use [hiccup.core :only [html]]
-              [noir.validation :only [is-email?]]))
+              [noir.validation :only [is-email?]]
+              [markdown :only [md-to-html-string]]))
 
 ^:cljs (ns startlabs.views.job
           (:require [singult.core :as s]))
@@ -13,6 +14,26 @@
 ; would use crate, but it's unmaintained and spits out errors :(
 ^:cljs  (def html s/render)
 
+^:clj  (def markdownify md-to-html-string)
+^:cljs (def markdownify markdown/mdToHtml)
+
+(defn is-phone? 
+  "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots."
+  [v]
+  (re-matches #"^[\d-\.\(\)\s]{7,15}$" v))
+
+(defn linkify 
+  "Converts an email address, telephone number, or url into a proper link
+   to be used as the href attribute in an HTML anchor."
+  [text]
+  (str 
+    (condp apply [text]
+      is-email? "mailto:"
+      is-phone? "tel://"
+      nil)
+
+    text))
+
 (defn job-card [job-info]
   (html
     [:div.thumbnail
@@ -23,11 +44,12 @@
         [:p.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
         [:p.span6 [:i.icon.icon-map-marker] (:location job-info)]]
       [:div.row-fluid
-        ; need to markdownify
-        [:p (:description job-info)]
+        [:div (markdownify (:description job-info))]
+
         [:p.well
           "Contact: "
           [:i.icon.icon-envelope]
           (let [contact-info (:contact_info job-info)]
-            [:a {:href (str (if (is-email? contact-info) "mailto:") contact-info)} 
+            ; need to handle phone numbers
+            [:a {:href (linkify contact-info)} 
               contact-info])]]]))

@@ -123,7 +123,8 @@
 (defn update-my-info [new-fact-map]
   (let [user-id (session/get :user_id)]
     (if user-id
-      (update-user user-id new-fact-map))))
+      (update-user user-id new-fact-map)
+      (session/flash-put! :message [:error "Please log back in"]))))
 
 (defn get-my-info []
   (let [access-token (session/get :access-token)

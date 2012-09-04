@@ -74,21 +74,25 @@
         [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
     (response/redirect "/login")))
 
-; right now, a user could hypothetically add additional post params...
+; This is really bad: datomic is not returning the schema for bio, role, and studying.
 (defpage [:post "/me"] params
-  (let [my-info (user/get-my-info)
-        new-facts (map-diff params my-info)]
-    (if (not (empty? new-facts))
-      ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
-      (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
-        (let  [file-name   (user/username my-info)]
-          (try
-            (user/update-my-info (assoc new-facts :picture (mu/save-file-to-s3 picture-url file-name)))
-            (catch Exception e
-              (session/flash-put! :message [:success "Unable to grab the specified picture"]))))
-        (user/update-my-info new-facts))))
+  (try
+    (let [my-info (user/get-my-info)
+          new-facts (map-diff params my-info)]
+      (if (not (empty? new-facts))
+        ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
+        (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
+          (let  [file-name   (user/username my-info)]
+            (try
+              (user/update-my-info (assoc new-facts :picture (mu/save-file-to-s3 picture-url file-name)))
+              (catch Exception e
+                (session/flash-put! :message [:error "Unable to grab the specified picture"]))))
+          (user/update-my-info new-facts))))
+    (catch Exception e
+      (session/flash-put! :message [:error e])))
 
-    (response/redirect "/me"))
+  (response/redirect "/me"))
+
 
 (defpage [:get ["/team/:name" :name #"\w+"]] {:keys [name]}
   (let [email       (str name "@startlabs.org")
@@ -101,12 +105,9 @@
 
 ;; jobs
 
-(defpartial browse-jobs []
-  [:div#browse.tab-pane.active
-    ;; sort by date and location.
-    ;; search descriptions and company names
-    [:h1 "Browse Startup Jobs"]
-  ])
+(def ordered-job-keys
+  [:company :position :location :website :start_date :end_date 
+   :description :contact_info :email])
 
 (defmulti input-for-field (fn [field type docs] (keyword (name type))) :default :string)
 
