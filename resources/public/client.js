@@ -16896,14 +16896,36 @@ jayq.core.prevent = function(a) {
 startlabs.maps = {};
 startlabs.maps.cloudmade_key = "fe134333250f494fb51ac8903b83c9fb";
 startlabs.maps.tile_layer_url = [cljs.core.str("http://{s}.tile.cloudmade.com/"), cljs.core.str(startlabs.maps.cloudmade_key), cljs.core.str("/997/256/{z}/{x}/{y}.png")].join("");
+startlabs.maps.CM = CM;
 startlabs.maps.L = L;
-startlabs.maps.geocode = function() {
-  return null
+startlabs.maps.lmap = null;
+startlabs.maps.geocoder = new CM.Geocoder(startlabs.maps.cloudmade_key);
+startlabs.maps.latlng = function(a, b) {
+  return new L.LatLng(a, b)
+};
+startlabs.maps.latlng_bounds = function(a, b) {
+  return new L.LatLngBounds(a, b)
+};
+startlabs.maps.add_marker_callback = function(a) {
+  var a = cljs.core.js__GT_clj.call(null, a, "\ufdd0'keywordize-keys", !0), b = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, a), c = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+    return cljs.core.nth.call(null, b.call(null, 0), a)
+  }, cljs.core.PersistentVector.fromArray([0, 1], !0))), d = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+    return cljs.core.nth.call(null, b.call(null, 1), a)
+  }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
+  console.log(a);
+  console.log((new cljs.core.Keyword("\ufdd0'bounds")).call(null, a));
+  console.log(c);
+  return startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, c, d))
+};
+startlabs.maps.geocode = function(a, b) {
+  return startlabs.maps.geocoder.getLocations(a, b)
 };
 startlabs.maps.setup_maps = function() {
-  var a = startlabs.maps.L.map("map").setView([42, -92], 3);
+  startlabs.maps.lmap = startlabs.maps.L.map("map");
+  startlabs.maps.lmap.setView([42, -92], 3);
   console.log("MAPPIN");
-  return startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(a)
+  startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(startlabs.maps.lmap);
+  return startlabs.maps.geocode.call(null, "New York, USA", startlabs.maps.add_marker_callback)
 };
 startlabs.main = {};
 startlabs.main.location_hash = location.hash;
