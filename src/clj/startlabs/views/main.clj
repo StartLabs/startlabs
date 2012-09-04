@@ -177,9 +177,10 @@
     [:h1 "Browse Startup Jobs"]
 
     [:div.row-fluid
-      [:div#map.span6]
+      [:div#map-toggles.span5 {:data-spy "affix"}
+        [:div#map]]
 
-      [:div#job-list.span8]]
+      [:div#job-list.span7]]
   ])
 
 (defpage [:get "/jobs"] {:as params}
