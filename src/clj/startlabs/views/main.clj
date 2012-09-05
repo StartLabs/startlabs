@@ -179,13 +179,19 @@
     [:h1 "Browse Startup Jobs"]
 
     [:div#map-box.row-fluid
-      [:div.thumbnail
-        [:div#map]]]
+      [:div#map.thumbnail]
+      [:div.navbar
+        [:div.navbar-inner
+          [:form.navbar-search.pull-left
+            [:input.search-query.input-xlarge {:type "text" :placeholder "Search"}]]
+          [:ul.nav
+            [:li [:a {:href "#"} "Hide Map"]]]
+      ]]]
 
     [:div.row-fluid
       [:ul#job-list.thumbnails
         (for [job (job/find-upcoming-jobs)]
-          [:li.span6
+          [:li.span4
             (job-card job)])
       ]]
   ])
