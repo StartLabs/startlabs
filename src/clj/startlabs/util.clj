@@ -1,8 +1,13 @@
-(ns startlabs.util)
+(ns startlabs.util
+  (:require [startlabs.models.util :as mu]
+            [clj-time.format :as t])
+  (:use [clj-time.coerce :only [from-date]])
+  (:import java.util.Date))
 
 (defn stringify-value [val]
-  (if (keyword? val)
-    (name val)
+  (condp = (type val)
+    clojure.lang.Keyword (name val)
+    Date    (t/unparse mu/default-date-formatter (from-date val))
     (str val)))
 
 (defn stringify-values [m]

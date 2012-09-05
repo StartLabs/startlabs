@@ -178,11 +178,15 @@
     ;; search descriptions and company names
     [:h1 "Browse Startup Jobs"]
 
-    [:div.row-fluid
-      [:div#map-toggles.span5 {:data-spy "affix"}
-        [:div#map]]
+    [:div#map-toggles.row-fluid
+      [:div#map.thumbnail]]
 
-      [:div#job-list.span7]]
+    [:div.row-fluid
+      [:ul#job-list.thumbnails
+        (for [job (job/find-upcoming-jobs)]
+          [:li.span4
+            (job-card job)])
+      ]]
   ])
 
 (defpage [:get "/jobs"] {:as params}
