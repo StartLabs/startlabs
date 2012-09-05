@@ -61,13 +61,6 @@
 (defn user-with-email [& args]
   (apply user-with-attr :email args))
 
-(defn user-map-for-user
-  "Takes as input a single datomic user-id (the output of ffirsting query)"
-  [user]
-  (let [user-entity (d/entity (db @conn) user)]
-    (util/denamespace-keys (conj (util/entity-map-with-nil-vals ns-matches-user)
-                                 (into {} user-entity)))))
-
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id.
    Returns a hash-map of the user's data, with the user/ namespace stripped out."
@@ -81,14 +74,16 @@
         (catch Exception e ; transaction may fail, returning an ExecutionException
           (session/flash-put! :message [:error (str "Trouble connecting to the database: " e)])))
       ; else return the user's data from the db
-      (user-map-for-user user))))
+      (util/map-for-datom user ns-matches-user))))
 
 (defn find-user-with-email [email]
-  (user-map-for-user (user-with-email email)))
+  (util/map-for-datom (user-with-email email) ns-matches-user))
 
 (defn find-all-users []
-  (let [users (q '[:find ?user :where [?user :user/id _]] (db @conn))]
-    (map #(stringify-values (user-map-for-user (first %))) users)))
+  (let [users     (q '[:find ?user :where [?user :user/id _]] (db @conn))
+        user-ids  (map first users)
+        user-maps (util/maps-for-datoms user-ids ns-matches-user)]
+    (map stringify-values user-maps)))
 
 (defn username [person-info]
   (first (str/split (:email person-info) #"@")))

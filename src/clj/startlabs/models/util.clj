@@ -153,6 +153,21 @@
     [tx-map]))
 
 
+(defn map-for-datom
+  "Takes as input a single datomic entity id (the output of ffirsting query)"
+  ([datom-id inputs]
+    (map-for-datom datom-id inputs (entity-map-with-nil-vals inputs)))
 
+  ([datom-id inputs ent-map]
+    ; we don't actually use inputs here
+    (let [datom-entity (d/entity (db @conn) datom-id)]
+      (denamespace-keys (conj ent-map
+                              (into {} datom-entity))))))
+
+(defn maps-for-datoms
+  "Expects that all datoms have the same schema"
+  [datom-ids inputs]
+  (let [ent-map (entity-map-with-nil-vals inputs)]
+    (for [id datom-ids] (map-for-datom id inputs ent-map))))
 
 
