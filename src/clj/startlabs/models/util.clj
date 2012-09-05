@@ -121,7 +121,7 @@
   "Like map of entities, but returns a tuple containing the valueType and docstring"
   [desired-ns]
   (let [conn-db (db @conn)
-        schema (q q-schema-attrs conn-db desired-ns)]
+        schema (q q-schema-attrs conn-db (name desired-ns))]
     (into {} (for [[k & vs] schema]
                 {k (cons (ident conn-db (first vs)) (rest vs))}))))
 
