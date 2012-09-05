@@ -75,6 +75,7 @@
        (include-js "/markdown.js"
                    "/jquery.js"
                    "/bootstrap/js/bootstrap.min.js"
+                   "/jquery.masonry.min.js"
                    "https://api.filepicker.io/v0/filepicker.js"
                    "http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"
                    "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"

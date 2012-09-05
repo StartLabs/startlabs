@@ -191,7 +191,7 @@
     [:div.row-fluid
       [:ul#job-list.thumbnails
         (for [job (job/find-upcoming-jobs)]
-          [:li.span4
+          [:li.job-brick
             (job-card job)])
       ]]
   ])

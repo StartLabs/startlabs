@@ -1,3 +1,6 @@
 [submodule "bootstrap"]
 	path = bootstrap
 	url = https://github.com/sherbondy/bootstrap.git
+[submodule "resources/masonry"]
+	path = resources/masonry
+	url = https://github.com/desandro/masonry.git

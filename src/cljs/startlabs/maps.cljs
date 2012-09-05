@@ -56,6 +56,11 @@
   (def markers (L/LayerGroup.))
   (.addTo markers lmap)
 
+  (.masonry ($ "#job-list") (clj->js {
+    :itemSelector ".job-brick"
+    :columnWidth 390
+  }))
+
   (.log js/console "MAPPIN")
   (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 18})) lmap)
 
