@@ -100,43 +100,43 @@
 ; note: you must pass a function: ns-matches, which evaluates the namespace for a match
 (def q-schema-attrs
   '[:find ?name ?val-type ?doc
-    :in $ %
+    :in $ ?desired-ns
     :where [_ :db.install/attribute ?a]
            [?a :db/ident ?name]
            [(namespace ?name) ?ns]
-           [ns-matches ?ns]
+           [(= ?desired-ns ?ns)]
            [?a :db/valueType ?val-type]
            [?a :db/doc ?doc]])
 
 (defn map-of-entities
   "Converts the set of [:attr-name valueType-entid] pairs returned by the query
    into a single map of {:attr-name :valueType-ident ...} pairs"
-  [inputs]
+  [desired-ns]
   (let [conn-db (db @conn)
-        schema  (q q-schema-attrs conn-db inputs)]
+        schema  (q q-schema-attrs conn-db (name desired-ns))]
     (into {} (for [[k v] schema]
                 {k (ident conn-db v)}))))
 
 (defn map-of-entity-tuples
   "Like map of entities, but returns a tuple containing the valueType and docstring"
-  [inputs]
+  [desired-ns]
   (let [conn-db (db @conn)
-        schema (q q-schema-attrs conn-db inputs)]
+        schema (q q-schema-attrs conn-db desired-ns)]
     (into {} (for [[k & vs] schema]
                 {k (cons (ident conn-db (first vs)) (rest vs))}))))
 
 (defn temp-identify [tx-map]
   (assoc tx-map :db/id (d/tempid :db.part/user)))
 
-(defn entity-map-with-nil-vals [inputs]
-  (zipmap (keys (map-of-entities inputs)) (repeat nil)))
+(defn entity-map-with-nil-vals [desired-ns]
+  (zipmap (keys (map-of-entities desired-ns)) (repeat nil)))
 
 
 (defn namespace-and-transform 
   "Prepends the-ns to each key in the tx-data map. Also strips out any keys not present
-   in the schema, querying with inputs (primarily used to narrow down the schema namespace)."
-  [the-ns tx-data inputs]
-  (let [entity-map          (map-of-entities inputs)
+   in the schema (derived from the-ns)."
+  [the-ns tx-data]
+  (let [entity-map          (map-of-entities the-ns)
         tranny-entity-data  (transform-tx-values (namespace-keys the-ns tx-data) 
                                                   entity-map)
         ; only add attributes that are present in the schema
@@ -147,18 +147,18 @@
 (defn txify-new-entity
   "Converts a map representation of an entity into a database transaction, with the-ns
    prepended to each key."
-  [the-ns entity-data inputs]
-  (let [clean-entity-data (namespace-and-transform the-ns entity-data inputs)
+  [the-ns entity-data]
+  (let [clean-entity-data (namespace-and-transform the-ns entity-data)
         tx-map            (temp-identify clean-entity-data)]
     [tx-map]))
 
 
 (defn map-for-datom
   "Takes as input a single datomic entity id (the output of ffirsting query)"
-  ([datom-id inputs]
-    (map-for-datom datom-id inputs (entity-map-with-nil-vals inputs)))
+  ([datom-id desired-ns]
+    (map-for-datom datom-id desired-ns (entity-map-with-nil-vals desired-ns)))
 
-  ([datom-id inputs ent-map]
+  ([datom-id desired-ns ent-map]
     ; we don't actually use inputs here
     (let [datom-entity (d/entity (db @conn) datom-id)]
       (denamespace-keys (conj ent-map
@@ -166,8 +166,8 @@
 
 (defn maps-for-datoms
   "Expects that all datoms have the same schema"
-  [datom-ids inputs]
-  (let [ent-map (entity-map-with-nil-vals inputs)]
-    (for [id datom-ids] (map-for-datom id inputs ent-map))))
+  [datom-ids desired-ns]
+  (let [ent-map (entity-map-with-nil-vals desired-ns)]
+    (for [id datom-ids] (map-for-datom id desired-ns ent-map))))
 
 

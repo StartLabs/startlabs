@@ -1,3 +1,9 @@
+;; NOTE: Make sure to include documentation for EVERY attribute.
+;; The application relies heavily on querying its own schema to
+;; populate forms and create maps from schema. These queries
+;; request the :db/doc value and will fail to return attributes
+;; that lack docs.
+
 [
   ;; user
   
@@ -62,14 +68,14 @@
   :db/ident :user/picture,
   :db/valueType :db.type/uri,
   :db/cardinality :db.cardinality/one,
-  :db/doc
-  "Example value: https://lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
+  :db/doc "Example value: https://lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
   :db/ident :user/bio,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
+  :db/doc "Biographical information about a user."
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -91,6 +97,7 @@
   :db/valueType :db.type/string,
   :db/fulltext true,
   :db/cardinality :db.cardinality/one,
+  :db/doc "Team member role at StartLabs, e.g. webmaster"
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -98,6 +105,7 @@
   :db/valueType :db.type/string,
   :db/fulltext true,
   :db/cardinality :db.cardinality/one,
+  :db/doc "E.g. Computer Science"
   :db.install/_attribute :db.part/db}
 
    ;; user/gender enum values
@@ -117,6 +125,7 @@
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Frontend Engineering Intern",
+  :db/fulltext true,
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -124,6 +133,7 @@
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Square Inc.",
+  :db/fulltext true,
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -131,6 +141,7 @@
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "City, State (unabbreviated)",
+  :db/fulltext true,
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],

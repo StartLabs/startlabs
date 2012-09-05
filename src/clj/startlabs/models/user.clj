@@ -37,23 +37,20 @@
         response-body (get-request-with-token tokeninfo-url access-token)]
     response-body))
 
-(def ns-matches-user '[[(ns-matches ?ns)
-                        [(= "user" ?ns)]]])
-
 (defn create-user [access-token user-id]
   "Need to make this more flexible: should handle the case of new fields"
   (let [userinfo-url (str googleapis-url "userinfo")
         user-data    (get-request-with-token userinfo-url access-token)
-        tx-data      (util/txify-new-entity :user user-data ns-matches-user)]
+        tx-data      (util/txify-new-entity :user user-data)]
     (d/transact @conn tx-data)))
 
 (defn user-with-attr
   ([k v] (user-with-attr k v (db @conn)))
   ([k v conn-db]
     (let [namespaced-key (util/namespace-key :user k)]
-      (ffirst (q [:find '?u
-                  :in '$ '?v
-                  :where ['?u namespaced-key '?v]] conn-db v)))))
+      (ffirst (q '[:find ?u
+                   :in $ ?v ?ns-key
+                   :where [?u ?ns-key ?v]] conn-db v namespaced-key)))))
 
 (defn user-with-id [& args]
   (apply user-with-attr :id args))
@@ -74,15 +71,15 @@
         (catch Exception e ; transaction may fail, returning an ExecutionException
           (session/flash-put! :message [:error (str "Trouble connecting to the database: " e)])))
       ; else return the user's data from the db
-      (util/map-for-datom user ns-matches-user))))
+      (util/map-for-datom user :user))))
 
 (defn find-user-with-email [email]
-  (util/map-for-datom (user-with-email email) ns-matches-user))
+  (util/map-for-datom (user-with-email email) :user))
 
 (defn find-all-users []
   (let [users     (q '[:find ?user :where [?user :user/id _]] (db @conn))
         user-ids  (map first users)
-        user-maps (util/maps-for-datoms user-ids ns-matches-user)]
+        user-maps (util/maps-for-datoms user-ids :user)]
     (map stringify-values user-maps)))
 
 (defn username [person-info]
@@ -93,7 +90,7 @@
   [user-id new-fact-map]
   (try
     (let [user          (user-with-id user-id)
-          tranny-facts  (util/namespace-and-transform :user new-fact-map ns-matches-user)
+          tranny-facts  (util/namespace-and-transform :user new-fact-map)
           idented-facts (assoc tranny-facts :db/id user)]
       (d/transact @conn (list idented-facts))
       (session/flash-put! :message [:success (str "Updated info successfully!")]))

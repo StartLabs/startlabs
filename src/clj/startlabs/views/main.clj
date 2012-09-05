@@ -101,8 +101,10 @@
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
     (common/layout (ring-request)
-      [:h1 (:name member-info)]
-      (user-table member-info false))))
+      [:h1 (or (:name member-info) "User Does Not Exist")]
+      (if (some #(not (nil? %)) (vals member-info))
+        (user-table member-info false)
+        [:p "We could not find a user with the email address: " email]))))
 
 
 
