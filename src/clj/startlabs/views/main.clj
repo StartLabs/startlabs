@@ -178,13 +178,14 @@
     ;; search descriptions and company names
     [:h1 "Browse Startup Jobs"]
 
-    [:div#map-toggles.row-fluid
-      [:div#map.thumbnail]]
+    [:div#map-box.row-fluid
+      [:div.thumbnail
+        [:div#map]]]
 
     [:div.row-fluid
       [:ul#job-list.thumbnails
         (for [job (job/find-upcoming-jobs)]
-          [:li.span4
+          [:li.span6
             (job-card job)])
       ]]
   ])

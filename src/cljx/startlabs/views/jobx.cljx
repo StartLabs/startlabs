@@ -39,14 +39,14 @@
     [:div.thumbnail.job-info
       [:h2 [:a {:href (or (:website job-info) "#")} (:company job-info) ":"]
         [:small " " (:position job-info)]]
-      [:div.row-fluid
+      [:div.row-fluid.dateloc
         ; need to format dates
-        [:p.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
-        [:p.span6 [:i.icon.icon-map-marker] (:location job-info)]]
+        [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
+        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
       [:div.row-fluid
         [:div.description (markdownify (:description job-info))]
 
-        [:p.well
+        [:div.well.well-small
           "Contact: "
           [:i.icon.icon-envelope]
           (let [contact-info (:contact_info job-info)]
