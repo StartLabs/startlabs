@@ -17,6 +17,7 @@
 (def L js/L)
 
 (def ^:dynamic lmap nil)
+(def ^:dynamic markers nil)
 
 (def geocoder (CM/Geocoder. cloudmade-key))
 
@@ -29,24 +30,21 @@
 (defn marker [[lat lng] & opts]
   (.marker L (array lat lng) (clj->js (apply array-map opts))))
 
-(defn add-marker-callback [response]
-  (let [response-map (js->clj response :keywordize-keys true)
-        bounds       (:bounds response-map)
-        south-west   (apply latlng (map #(nth (bounds 0) %) [0 1]))
-        north-east   (apply latlng (map #(nth (bounds 1) %) [0 1]))]
-    (.log js/console response-map)
-    (.log js/console (:bounds response-map))
-    (.log js/console south-west)
-    (.fitBounds lmap (latlng-bounds south-west north-east))
+(defn add-marker-callback [zoom?]
+  (fn [response]
+    (let [response-map (js->clj response :keywordize-keys true)
+          bounds       (:bounds response-map)
+          south-west   (apply latlng (map #(nth (bounds 0) %) [0 1]))
+          north-east   (apply latlng (map #(nth (bounds 1) %) [0 1]))]
 
-    (let [feature (first (:features response-map))]
-      (.log js/console (str "A FEATURE: " feature))
-      (let [coords (:coordinates (:centroid feature))]
-        (.addTo (marker coords :title (:name (:properties feature))) lmap)
-        (.log js/console (str "ADDED MARKER AT COORDS: " coords))
-        ))
+      (if zoom?
+        (.fitBounds lmap (latlng-bounds south-west north-east)))
 
-    ))
+      (let [feature (first (:features response-map))
+            coords (:coordinates (:centroid feature))]
+        (.addLayer markers (marker coords :title (:name (:properties feature)))))
+
+  )))
 
 (defn geocode [place callback]
   (.getLocations geocoder place callback))
@@ -55,9 +53,12 @@
   (def lmap (.map L "map"))
   (.setView lmap (array 42 -92) 3)
 
+  (def markers (L/LayerGroup.))
+  (.addTo markers lmap)
+
   (.log js/console "MAPPIN")
   (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 18})) lmap)
 
-  (geocode "Brooklyn, New York" add-marker-callback)
+  (geocode "Brooklyn, New York" (add-marker-callback false))
 
 )

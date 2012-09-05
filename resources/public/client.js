@@ -16899,6 +16899,7 @@ startlabs.maps.tile_layer_url = [cljs.core.str("http://{s}.tile.cloudmade.com/")
 startlabs.maps.CM = CM;
 startlabs.maps.L = L;
 startlabs.maps.lmap = null;
+startlabs.maps.markers = null;
 startlabs.maps.geocoder = new CM.Geocoder(startlabs.maps.cloudmade_key);
 startlabs.maps.latlng = function(a, b) {
   return new L.LatLng(a, b)
@@ -16924,20 +16925,17 @@ startlabs.maps.marker = function() {
   return b
 }();
 startlabs.maps.add_marker_callback = function(a) {
-  var a = cljs.core.js__GT_clj.call(null, a, "\ufdd0'keywordize-keys", !0), b = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, a), c = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
-    return cljs.core.nth.call(null, b.call(null, 0), a)
-  }, cljs.core.PersistentVector.fromArray([0, 1], !0))), d = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
-    return cljs.core.nth.call(null, b.call(null, 1), a)
-  }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
-  console.log(a);
-  console.log((new cljs.core.Keyword("\ufdd0'bounds")).call(null, a));
-  console.log(c);
-  startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, c, d));
-  a = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, a));
-  console.log([cljs.core.str("A FEATURE: "), cljs.core.str(a)].join(""));
-  c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, a));
-  startlabs.maps.marker.call(null, c, "\ufdd0'title", (new cljs.core.Keyword("\ufdd0'name")).call(null, (new cljs.core.Keyword("\ufdd0'properties")).call(null, a))).addTo(startlabs.maps.lmap);
-  return console.log([cljs.core.str("ADDED MARKER AT COORDS: "), cljs.core.str(c)].join(""))
+  return function(b) {
+    var b = cljs.core.js__GT_clj.call(null, b, "\ufdd0'keywordize-keys", !0), c = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, b), d = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+      return cljs.core.nth.call(null, c.call(null, 0), a)
+    }, cljs.core.PersistentVector.fromArray([0, 1], !0))), e = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+      return cljs.core.nth.call(null, c.call(null, 1), a)
+    }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
+    cljs.core.truth_(a) && startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, d, e));
+    b = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, b));
+    d = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, b));
+    return startlabs.maps.markers.addLayer(startlabs.maps.marker.call(null, d, "\ufdd0'title", (new cljs.core.Keyword("\ufdd0'name")).call(null, (new cljs.core.Keyword("\ufdd0'properties")).call(null, b))))
+  }
 };
 startlabs.maps.geocode = function(a, b) {
   return startlabs.maps.geocoder.getLocations(a, b)
@@ -16945,9 +16943,11 @@ startlabs.maps.geocode = function(a, b) {
 startlabs.maps.setup_maps = function() {
   startlabs.maps.lmap = startlabs.maps.L.map("map");
   startlabs.maps.lmap.setView([42, -92], 3);
+  startlabs.maps.markers = new L.LayerGroup;
+  startlabs.maps.markers.addTo(startlabs.maps.lmap);
   console.log("MAPPIN");
   startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(startlabs.maps.lmap);
-  return startlabs.maps.geocode.call(null, "Brooklyn, New York", startlabs.maps.add_marker_callback)
+  return startlabs.maps.geocode.call(null, "Brooklyn, New York", startlabs.maps.add_marker_callback.call(null, !1))
 };
 startlabs.main = {};
 startlabs.main.location_hash = location.hash;
