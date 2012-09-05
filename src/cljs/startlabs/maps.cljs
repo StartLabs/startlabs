@@ -26,6 +26,9 @@
 (defn latlng-bounds [sw ne]
   (L/LatLngBounds. sw ne))
 
+(defn marker [[lat lng] & opts]
+  (.marker L (array lat lng) (clj->js (apply array-map opts))))
+
 (defn add-marker-callback [response]
   (let [response-map (js->clj response :keywordize-keys true)
         bounds       (:bounds response-map)
@@ -35,6 +38,13 @@
     (.log js/console (:bounds response-map))
     (.log js/console south-west)
     (.fitBounds lmap (latlng-bounds south-west north-east))
+
+    (let [feature (first (:features response-map))]
+      (.log js/console (str "A FEATURE: " feature))
+      (let [coords (:coordinates (:centroid feature))]
+        (.addTo (marker coords :title (:name (:properties feature))) lmap)
+        (.log js/console (str "ADDED MARKER AT COORDS: " coords))
+        ))
 
     ))
 
@@ -48,6 +58,6 @@
   (.log js/console "MAPPIN")
   (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 18})) lmap)
 
-  (geocode "New York, USA" add-marker-callback)
+  (geocode "Brooklyn, New York" add-marker-callback)
 
 )

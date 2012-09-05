@@ -16906,6 +16906,23 @@ startlabs.maps.latlng = function(a, b) {
 startlabs.maps.latlng_bounds = function(a, b) {
   return new L.LatLngBounds(a, b)
 };
+startlabs.maps.marker = function() {
+  var a = function(a, b) {
+    var e = cljs.core.nth.call(null, a, 0, null), f = cljs.core.nth.call(null, a, 1, null);
+    return startlabs.maps.L.marker([e, f], jayq.util.clj__GT_js.call(null, cljs.core.apply.call(null, cljs.core.array_map, b)))
+  }, b = function(b, d) {
+    var e = null;
+    goog.isDef(d) && (e = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0));
+    return a.call(this, b, e)
+  };
+  b.cljs$lang$maxFixedArity = 1;
+  b.cljs$lang$applyTo = function(b) {
+    var d = cljs.core.first(b), b = cljs.core.rest(b);
+    return a(d, b)
+  };
+  b.cljs$lang$arity$variadic = a;
+  return b
+}();
 startlabs.maps.add_marker_callback = function(a) {
   var a = cljs.core.js__GT_clj.call(null, a, "\ufdd0'keywordize-keys", !0), b = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, a), c = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
     return cljs.core.nth.call(null, b.call(null, 0), a)
@@ -16915,7 +16932,12 @@ startlabs.maps.add_marker_callback = function(a) {
   console.log(a);
   console.log((new cljs.core.Keyword("\ufdd0'bounds")).call(null, a));
   console.log(c);
-  return startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, c, d))
+  startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, c, d));
+  a = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, a));
+  console.log([cljs.core.str("A FEATURE: "), cljs.core.str(a)].join(""));
+  c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, a));
+  startlabs.maps.marker.call(null, c, "\ufdd0'title", (new cljs.core.Keyword("\ufdd0'name")).call(null, (new cljs.core.Keyword("\ufdd0'properties")).call(null, a))).addTo(startlabs.maps.lmap);
+  return console.log([cljs.core.str("ADDED MARKER AT COORDS: "), cljs.core.str(c)].join(""))
 };
 startlabs.maps.geocode = function(a, b) {
   return startlabs.maps.geocoder.getLocations(a, b)
@@ -16925,7 +16947,7 @@ startlabs.maps.setup_maps = function() {
   startlabs.maps.lmap.setView([42, -92], 3);
   console.log("MAPPIN");
   startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(startlabs.maps.lmap);
-  return startlabs.maps.geocode.call(null, "New York, USA", startlabs.maps.add_marker_callback)
+  return startlabs.maps.geocode.call(null, "Brooklyn, New York", startlabs.maps.add_marker_callback)
 };
 startlabs.main = {};
 startlabs.main.location_hash = location.hash;
