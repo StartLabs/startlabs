@@ -1,20 +1,44 @@
 (ns startlabs.views.jobs
-  (:require [startlabs.views.common :as common]
-            [startlabs.models.job :as job]
+  (:require [clojure.string :as str]
             [noir.session :as session]
             [noir.response :as response]
             [noir.validation :as vali]
-            [clojure.string :as str]
-            [startlabs.models.util :as mu])
+            [postal.core :as postal]
+            [startlabs.models.util :as mu]
+            [startlabs.views.common :as common]
+            [startlabs.models.job :as job])
   (:use [clojure.core.incubator]
         [clojure.tools.logging :only [info]]
+        [clj-time.coerce :only [to-long]]
+        [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
         [noir.request :only [ring-request]]
-        [clj-time.coerce :only [to-long]]
-        [startlabs.util :only [cond-class]]
-        [startlabs.views.jobx :only [job-card]]))
+        [startlabs.util :only [cond-class trim-vals]]
+        [startlabs.views.jobx :only [job-card]])
+  (:import java.net.URI))
 
 ;; jobs
+
+(defpartial job-email-body [job-map]
+  (let [conf-link (str (common/home-uri) (url-for confirm-job {:id (:id job-map)}))]
+    [:div
+      [:p "Hey there,"]
+      [:p "Thanks for submitting to the StartLabs jobs list."]
+      [:p "To confirm your listing, " [:strong (:position job-map)] ", please visit this link:"]
+      [:p [:a {:href conf-link} conf-link]]
+      [:p "If this email was sent in error, feel free to ignore it or contact our webmaster:"
+          [:a {:href "mailto:webmaster@startlabs.org"} "webmaster@startlabs.org"]]]))
+
+(defn send-confirmation-email [job-map]
+  (postal/send-message ^{:host (env :email-host)
+                         :user (env :email-user)
+                         :pass (env :email-pass)
+                         :ssl  :yes}
+    {:from    "jobs@startlabs.org"
+     :to      (:email job-map)
+     :subject "Confirm your StartLabs Job Listing"
+     :body [{:type    "text/html; charset=utf-8"
+             :content (job-email-body job-map)}]}))
 
 (def ordered-job-keys
   [:company :position :location :website :start_date :end_date 
@@ -149,11 +173,11 @@
     (not (apply vali/errors? ordered-job-keys))))
 
 (defpage [:post "/jobs"] {:as params}
-  (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
+  (let [trimmed-params (trim-vals params)]
     (if (valid-job? trimmed-params)
       (try
         (let [job-info  (job/create-job trimmed-params)
-              email-res (job/send-confirmation-email job-info)]
+              email-res (send-confirmation-email job-info)]
           (if (= (:error email-res) :SUCCESS)
             (do
               (info (str "the real job info: " job-info))
@@ -180,13 +204,3 @@
   (common/layout (ring-request)
     [:h1 "Thanks for Confirming"]
     [:p  "Your listing should now be posted."]))
-
-(defpartial job-email-body [job-map]
-  (let [conf-link (str (common/home-uri) (url-for confirm-job {:id (:id job-map)}))]
-    [:div
-      [:p "Hey there,"]
-      [:p "Thanks for submitting to the StartLabs jobs list."]
-      [:p "To confirm your listing, " [:strong (:position job-map)] ", please visit this link:"]
-      [:p [:a {:href conf-link} conf-link]]
-      [:p "If this email was sent in error, feel free to ignore it or contact our webmaster:"
-          [:a {:href "mailto:webmaster@startlabs.org"} "webmaster@startlabs.org"]]]))

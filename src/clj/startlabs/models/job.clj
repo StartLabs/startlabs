@@ -1,31 +1,17 @@
 (ns startlabs.models.job
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]]
-        [startlabs.util :only [stringify-values]]
-        [startlabs.views :only [job-email-body]]
-        [environ.core :only [env]])
+        [startlabs.util :only [stringify-values]])
   (:require [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
             [noir.session :as session]
             [startlabs.models.util :as util]
-            [postal.core :as postal]
             [hiccup.core :as h])
   (:import java.net.URI))
 
 (defn job-fields []
   (util/map-of-entity-tuples :job))
-
-(defn send-confirmation-email [job-map]
-  (postal/send-message ^{:host (env :email-host)
-                         :user (env :email-user)
-                         :pass (env :email-pass)
-                         :ssl  :yes}
-    {:from    "jobs@startlabs.org"
-     :to      (:email job-map)
-     :subject "Confirm your StartLabs Job Listing"
-     :body [{:type    "text/html; charset=utf-8"
-             :content (job-email-body job-map)}]}))
 
 ;; modify this to @() deref, then resolve tempid to real id, then retun map with real id conj'd.
 (defn create-job [job-map]

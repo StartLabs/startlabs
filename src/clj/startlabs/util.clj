@@ -1,6 +1,7 @@
 (ns startlabs.util
   (:require [startlabs.models.util :as mu]
-            [clj-time.format :as t])
+            [clj-time.format :as t]
+            [clojure.string :as str])
   (:use [clj-time.coerce :only [from-date]])
   (:import java.util.Date))
 
@@ -13,6 +14,9 @@
 (defn stringify-values [m]
   (into {} (map (fn [[k v]] 
     {k (stringify-value v)}) m)))
+
+(defn trim-vals [m]
+  (into {} (map (fn [[k v]] {k (str/trim v)})) m))
 
 (defn map-diff 
   "Returns a map of the key/value pairs in m1 

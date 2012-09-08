@@ -1,9 +1,10 @@
 (ns startlabs.views.common
-  (:use [noir.core :only [defpartial]]
-        [hiccup.page :only [include-css include-js html5]])
   (:require [noir.session :as session]
             [clojure.string :as str]
-            [startlabs.models.user :as user]))
+            [startlabs.models.user :as user])
+  (:use [noir.core :only [defpartial]]
+        [hiccup.page :only [include-css include-js html5]]
+        [environ.core :only [env]]))
 
 (defn font
   ([name] (font name nil))
@@ -38,7 +39,7 @@
       ]]
     [:li.pull-right [:a {:href "/login"} "Login"]]))
 
-(defn home-uri
+(defn home-uri []
   (if (env :dev)
     "http://localhost:8000"
     "http://www.startlabs.org"))

@@ -26,7 +26,7 @@
 
 (defn -main [& m]
   (let [mode (keyword (or (first m) :dev))
-        port (Integer. (get (System/getenv) "PORT" "8000"))]
+        port (Integer. (or (env :port) "8000"))]
     (db/do-default-setup)
     (server/start port {:mode mode
                         :ns 'startlabs})))
