@@ -11,7 +11,8 @@
 (defremote token-info [access-token]
   (let [token-map    (user/get-token-info access-token)
         valid-token? (= (:audience token-map) (env :oauth-client-id))
-        lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org") (:verified_email token-map))]
+        lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org")
+                          (:verified_email token-map))]
     (if (and valid-token? lab-member?)
       (do
         (session/put! :access-token access-token)

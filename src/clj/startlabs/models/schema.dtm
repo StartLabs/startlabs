@@ -121,6 +121,14 @@
   ;; jobs
 
  {:db/id #db/id[:db.part/db],
+  :db/ident :job/id,
+  :db/unique :db.unique/identity,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "A unique identifier for jobs.",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
   :db/ident :job/position,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,

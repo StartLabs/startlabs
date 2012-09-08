@@ -31,6 +31,9 @@
   (try (t/parse default-date-formatter the-date) 
     (catch Exception e false)))
 
+(defn uuid []
+  (str (java.util.UUID/randomUUID)))
+
 ; the transforming and de/namespacing functions should be their own helper library...
 (defmulti 
   transform-attr 
@@ -130,7 +133,6 @@
 
 (defn entity-map-with-nil-vals [desired-ns]
   (zipmap (keys (map-of-entities desired-ns)) (repeat nil)))
-
 
 (defn namespace-and-transform 
   "Prepends the-ns to each key in the tx-data map. Also strips out any keys not present

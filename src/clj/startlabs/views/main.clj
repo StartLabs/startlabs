@@ -9,6 +9,7 @@
             [startlabs.models.util :as mu])
   (:use [clojure.core.incubator]
         [clojure.math.numeric-tower]
+        [clojure.tools.logging :only [info]]
         [noir.core :only [defpage defpartial render]]
         [noir.request :only [ring-request]]
         [hiccup.core :only [html]]
@@ -246,8 +247,17 @@
   (let [trimmed-params (into {} (map (fn [[k v]] {k (str/trim v)}) params))]
     (if (valid-job? trimmed-params)
       (try
-        @(job/create-job trimmed-params)
-        (response/redirect "/jobs/success")
+        (let [job-info  (job/create-job trimmed-params)
+              email-res (job/send-confirmation-email job-info)]
+          (if (= (:error email-res) :SUCCESS)
+            (do
+              (info (str "the real job info: " job-info))
+              (response/redirect "/jobs/success"))
+            (do
+              (session/flash-put! 
+                :message [:error "Trouble sending confirmation email:" (:message email-res)])
+              (render "/jobs" trimmed-params))))
+        
         (catch Exception e
           (session/flash-put! :message [:error (str "Trouble connecting to the database:" e)])
           (render "/jobs" trimmed-params)))
