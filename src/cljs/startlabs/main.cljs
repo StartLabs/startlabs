@@ -23,17 +23,18 @@
         keyvals (map-indexed (fn [idx val] (if (even? idx) (keyword val) val)) split-hash)]
     (apply hash-map keyvals)))
 
-
+; haven't got redirect uri working yet
 (defn handle-hash-change [& e]
   (let [hash-vals (mapify-hash)
         access-token (:access_token hash-vals)
-        expiration (:expires_in hash-vals)]
+        expiration   (:expires_in hash-vals)
+        redirect-uri (or (:state hash-vals) "/")]
     (if access-token
       (do
         (jq/text ($ "#loading") "Verifying credentials...")
         (fm/remote (token-info access-token) [result]
           (.log js/console (util/clj->js result))
-          (set! (.-location js/window) "/")
+          (set! (.-location js/window) redirect-uri)
         )))))
 
 (defn swap-picture-preview []

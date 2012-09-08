@@ -173,3 +173,9 @@
     (for [id datom-ids] (map-for-datom id desired-ns ent-map))))
 
 
+(defn elem-with-attr
+  ([k v] (elem-with-attr k v (db @conn)))
+  ([k v conn-db]
+    (ffirst (q '[:find ?e
+                 :in $ ?v ?ns-key
+                 :where [?e ?ns-key ?v]] conn-db v k))))

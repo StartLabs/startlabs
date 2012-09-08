@@ -12,7 +12,6 @@
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
-        [noir.request :only [ring-request]]
         [startlabs.util :only [cond-class trim-vals]]
         [startlabs.views.jobx :only [job-card]])
   (:import java.net.URI))
@@ -84,7 +83,9 @@
 (def sample-job-fields
   {:position "Frontend Engineering Intern" :company "Square Inc" :location "San Francisco, CA"
    :website "http://www.squareup.com" :start_date "May 30, 2013" :end_date "August 30, 2013"
-   :description "Smart people tackling difficult problems at a great location with *nice perks*. \n\nMust have **4+ years** of programming experience.\n\n We prefer candidates who have created or contributed to large open-source projects." 
+   :description "Smart people tackling difficult problems at a great location with *nice perks*.
+\n\nMust have **4+ years** of programming experience.
+\n\n We prefer candidates who have created or contributed to large open-source projects." 
    :contact_info "jobs@squareup.com"})
 
 (defpartial submit-job [has-params? params]
@@ -128,7 +129,7 @@
 
 (defpage [:get "/jobs"] {:as params}
   (let [has-params? (not (empty? params))]
-    (common/layout (ring-request)
+    (common/layout
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
         [:a {:class (cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"} 
           "Browse Available"]
@@ -180,7 +181,6 @@
               email-res (send-confirmation-email job-info)]
           (if (= (:error email-res) :SUCCESS)
             (do
-              (info (str "the real job info: " job-info))
               (response/redirect "/jobs/success"))
             (do
               (session/flash-put! 
@@ -196,11 +196,17 @@
         (render "/jobs" trimmed-params)))))
 
 (defpage "/jobs/success" []
-  (common/layout (ring-request)
+  (common/layout
     [:h1 "Submission Received"]
     [:p "Please, check your email for a confirmation link."]))
 
 (defpage confirm-job "/jobs/:id/confirm" {:keys [id]}
-  (common/layout (ring-request)
-    [:h1 "Thanks for Confirming"]
-    [:p  "Your listing should now be posted."]))
+  (common/layout
+    (if (job/confirm-job id)
+      [:div
+        [:h1 "Thanks for Confirming"]
+        [:p  "Your listing should now be posted."]]
+      [:div
+        [:h1 "Something went wrong."]
+        [:p  "Sorry for the inconvenience. Please contact the "
+          [:a {:href "mailto:webmaster@startlabs.org"} "webmaster"] "."]])))

@@ -16962,9 +16962,13 @@ startlabs.main.handle_hash_change = function() {
   var a = function() {
     var a = startlabs.main.mapify_hash.call(null), b = (new cljs.core.Keyword("\ufdd0'access_token")).call(null, a);
     (new cljs.core.Keyword("\ufdd0'expires_in")).call(null, a);
+    var e = function() {
+      var b = (new cljs.core.Keyword("\ufdd0'state")).call(null, a);
+      return cljs.core.truth_(b) ? b : "/"
+    }();
     return cljs.core.truth_(b) ? (jayq.core.text.call(null, jayq.core.$.call(null, "#loading"), "Verifying credentials..."), fetch.remotes.remote_callback.call(null, "token-info", cljs.core.PersistentVector.fromArray([b], !0), function(a) {
       console.log(jayq.util.clj__GT_js.call(null, a));
-      return window.location = "/"
+      return window.location = e
     })) : null
   }, b = function(b) {
     var d = null;

@@ -15,15 +15,17 @@
 ;; account-related routes
 
 (defpage "/login" []
-  (response/redirect (user/get-login-url)))
+  (let [referer (:referer (ring-request))]
+    (response/redirect (user/get-login-url referer))))
 
 (defpage "/logout" []
   (session/clear!)
   (response/redirect "/"))
 
 (defpage "/oauth2callback" []
-  (common/layout (ring-request)
-    [:h1#loading "Fetching credentials..."]))
+  (let [referer (:referer (ring-request))]
+    (common/layout
+      [:h1#loading "Fetching credentials..."])))
 
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
@@ -56,7 +58,7 @@
 
 (defpage [:get ["/me"]] []
   (if-let [my-info (user/get-my-info)]
-    (common/layout (ring-request)
+    (common/layout
       [:h1 "Edit my info"]
       [:form#me {:action "/me" :method "post"}
         (user-table my-info true)
@@ -86,7 +88,7 @@
 (defpage [:get ["/team/:name" :name #"\w+"]] {:keys [name]}
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
-    (common/layout (ring-request)
+    (common/layout
       [:h1 (or (:name member-info) "User Does Not Exist")]
       (if (some #(not (nil? %)) (vals member-info))
         (user-table member-info false)
@@ -94,7 +96,7 @@
 
 
 (defpage "/team" []
-  (common/layout (ring-request)
+  (common/layout
     [:h1 "Our Team"]
     [:div.row
       [:div.span12

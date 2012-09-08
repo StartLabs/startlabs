@@ -3,6 +3,7 @@
             [clojure.string :as str]
             [startlabs.models.user :as user])
   (:use [noir.core :only [defpartial]]
+        [noir.request :only [ring-request]]
         [hiccup.page :only [include-css include-js html5]]
         [environ.core :only [env]]))
 
@@ -47,8 +48,9 @@
 ; could autopopulate routes from defpages that are nested only one layer deep.
 (def routes [[:home "/"] [:jobs "/jobs"] [:about "/about"] [:team "/team"]])
 
-(defpartial layout [request & content]
-  (let [[message-type message] (session/flash-get :message)]
+(defpartial layout [& content]
+  (let [[message-type message] (session/flash-get :message)
+        request (ring-request)]
     (html5
       [:head
         [:title "startlabs"]

@@ -16,7 +16,7 @@
     {k (stringify-value v)}) m)))
 
 (defn trim-vals [m]
-  (into {} (map (fn [[k v]] {k (str/trim v)})) m))
+  (into {} (map (fn [[k v]] {k (str/trim v)}) m)))
 
 (defn map-diff 
   "Returns a map of the key/value pairs in m1 

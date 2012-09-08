@@ -21,12 +21,13 @@
 (defn joined-scope-strings [scopes origin]
   (str/join " " (scope-strings scopes origin)))
 
-(defn get-login-url []
+(defn get-login-url [referer]
   (let [scopes {:userinfo [:email :profile]}
         scope-origin "https://www.googleapis.com/auth/"]
     (oa/oauth-authorization-url (env :oauth-client-id) redirect-url 
       :scope (joined-scope-strings scopes scope-origin) 
-      :response_type "token")))
+      :response_type "token"
+      :state referer)))
 
 (defn get-request-with-token [url access-token]
   (let [response (client/get url {:query-params {"access_token" access-token} :as :json})]
@@ -44,19 +45,11 @@
         tx-data      (util/txify-new-entity :user user-data)]
     (d/transact @conn tx-data)))
 
-(defn user-with-attr
-  ([k v] (user-with-attr k v (db @conn)))
-  ([k v conn-db]
-    (let [namespaced-key (util/namespace-key :user k)]
-      (ffirst (q '[:find ?u
-                   :in $ ?v ?ns-key
-                   :where [?u ?ns-key ?v]] conn-db v namespaced-key)))))
-
 (defn user-with-id [& args]
-  (apply user-with-attr :id args))
+  (apply util/elem-with-attr :user/id args))
 
 (defn user-with-email [& args]
-  (apply user-with-attr :email args))
+  (apply util/elem-with-attr :user/email args))
 
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id.
@@ -85,7 +78,7 @@
 (defn username [person-info]
   (first (str/split (:email person-info) #"@")))
 
-(defn update-user 
+(defn update-user
   "Expects new-fact-map to *not* already be namespaced with user/"
   [user-id new-fact-map]
   (try

@@ -21,8 +21,21 @@
     @(d/transact @conn tx-data)
     job-map-with-id))
 
+(defn job-with-id [job-id]
+  (util/elem-with-attr :job/id job-id))
+
+(defn confirm-job [job-id]
+  (try
+    (let [job (job-with-id job-id)
+          confirm-map {:db/id job :job/confirmed? true}]
+      (d/transact @conn (list confirm-map))
+      true)
+    (catch Exception e
+      (session/flash-put! :message [:error (str "Trouble confirming job: " e)])
+      false)))
+
 (defn find-upcoming-jobs 
-  "returns all jobs whose start dates are after a certain date"
+  "returns all confirmed jobs whose start dates are after a certain date"
   []
   (let [jobs     (q '[:find ?job :where [?job :job/position _]] (db @conn))
         job-ids  (map first jobs)

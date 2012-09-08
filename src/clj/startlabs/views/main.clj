@@ -2,15 +2,14 @@
   (:require [startlabs.views.common :as common]
             [noir.response :as response])
   (:use [noir.core :only [defpage]]
-        [noir.request :only [ring-request]]
         [markdown :only [md-to-html-string]]))
 
 (defpage "/" []
-  (common/layout (ring-request)
+  (common/layout
     [:h1 "Welcome"]))
 
 (defpage "/about" []
-  (common/layout (ring-request)
+  (common/layout
     [:h1 "About Us"]
     [:div
       [:p "We love you."]]))
