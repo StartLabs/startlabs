@@ -14,7 +14,7 @@
                   [noir "1.3.0-beta10"]
                   [clj-http "0.5.2"]
                   [oauth-clj "0.0.5"]
-                  [com.datomic/datomic-free "0.8.3470" 
+                  [com.datomic/datomic-free "0.8.3488" 
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
                   [org.slf4j/slf4j-log4j12 "1.6.4"]
                   [environ "0.3.0"]

@@ -17,7 +17,7 @@
 (defn create-job [job-map]
   ; might need to conj :confirmed? false
   (let [job-map-with-id (conj job-map {:id (util/uuid)})
-        tx-data         (util/txify-new-entity :job job-map)]
+        tx-data         (util/txify-new-entity :job job-map-with-id)]
     @(d/transact @conn tx-data)
     job-map-with-id))
 
