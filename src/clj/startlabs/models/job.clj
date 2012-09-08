@@ -2,6 +2,7 @@
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]]
         [startlabs.util :only [stringify-values]]
+        [startlabs.views :only [job-email-body]]
         [environ.core :only [env]])
   (:require [clojure.string :as str]
             [oauth.google :as oa]
@@ -15,21 +16,6 @@
 (defn job-fields []
   (util/map-of-entity-tuples :job))
 
-(defn startlabs-home []
-  (if (env :dev)
-    "http://localhost:8000/"
-    "http://www.startlabs.org/"))
-
-(defn render-email [job-map]
-  (let [conf-link (str (startlabs-home) "jobs/" (:id job-map) "/confirm")]
-    (h/html
-      [:p "Hey there,"]
-      [:p "Thanks for submitting to the StartLabs jobs list."]
-      [:p "To confirm your listing, " [:strong (:position job-map)] ", please visit this link:"]
-      [:p [:a {:href conf-link} conf-link]]
-      [:p "If this email was sent in error, feel free to ignore it or contact our webmaster:"
-          [:a {:href "mailto:webmaster@startlabs.org"} "webmaster@startlabs.org"]])))
-
 (defn send-confirmation-email [job-map]
   (postal/send-message ^{:host (env :email-host)
                          :user (env :email-user)
@@ -39,7 +25,7 @@
      :to      (:email job-map)
      :subject "Confirm your StartLabs Job Listing"
      :body [{:type    "text/html; charset=utf-8"
-             :content (render-email job-map)}]}))
+             :content (job-email-body job-map)}]}))
 
 ;; modify this to @() deref, then resolve tempid to real id, then retun map with real id conj'd.
 (defn create-job [job-map]

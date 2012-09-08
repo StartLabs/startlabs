@@ -18,6 +18,11 @@
   (str "http://fonts.googleapis.com/css?family="
     (str/join "|" (apply fonts faces))))
 
+(defn phrasify 
+  "Convert an underscore-delimited phrase into capitalized words."
+  [key-str]
+  (str/capitalize (str/replace key-str "_" " ")))
+
 (defpartial login-info []
   (if-let [info (user/get-my-info)]
     [:li.dropdown.pull-right
@@ -32,6 +37,11 @@
         [:li [:a {:href "/logout"} "Logout"]]
       ]]
     [:li.pull-right [:a {:href "/login"} "Login"]]))
+
+(defn home-uri
+  (if (env :dev)
+    "http://localhost:8000"
+    "http://www.startlabs.org"))
 
 ; could autopopulate routes from defpages that are nested only one layer deep.
 (def routes [[:home "/"] [:jobs "/jobs"] [:about "/about"] [:team "/team"]])
