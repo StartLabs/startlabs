@@ -19089,16 +19089,16 @@ startlabs.maps.marker = function() {
   return b
 }();
 startlabs.maps.add_marker_callback = function(a, b) {
-  return function(a) {
-    var a = cljs.core.js__GT_clj.call(null, a, "\ufdd0'keywordize-keys", !0), d = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, a), e = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+  return function(c) {
+    var c = cljs.core.js__GT_clj.call(null, c, "\ufdd0'keywordize-keys", !0), d = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, c), e = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
       return cljs.core.nth.call(null, d.call(null, 0), a)
     }, cljs.core.PersistentVector.fromArray([0, 1], !0))), f = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
       return cljs.core.nth.call(null, d.call(null, 1), a)
     }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
     cljs.core.truth_(b) && startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, e, f));
-    a = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, a));
-    e = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, a));
-    return startlabs.maps.markers.addLayer(startlabs.maps.marker.call(null, e, "\ufdd0'title", (new cljs.core.Keyword("\ufdd0'name")).call(null, (new cljs.core.Keyword("\ufdd0'properties")).call(null, a))))
+    c = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, c));
+    c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, c));
+    return startlabs.maps.markers.addLayer(startlabs.maps.marker.call(null, c, "\ufdd0'title", [cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a)), cljs.core.str(" ("), cljs.core.str((new cljs.core.Keyword("\ufdd0'location")).call(null, a)), cljs.core.str(")")].join("")))
   }
 };
 startlabs.maps.geocode = function(a, b) {

@@ -105,7 +105,7 @@
     ]])
 
 (defpartial browse-jobs [has-params?]
-  (let [all-jobs (job/find-upcoming-jobs)]
+  (let [all-jobs (sort-by #(:company %) (job/find-upcoming-jobs))]
     [:div#browse {:class (cond-class "tab-pane" [(not has-params?) "active"])}
       ;; sort by date and location.
       ;; search descriptions and company names
@@ -122,7 +122,9 @@
         ]]]
 
         [:div.row-fluid
-          (job-list all-jobs)]
+          (if (empty? all-jobs)
+            [:h1 "No jobs posted yet. Come back later!"]
+            (job-list all-jobs))]
 
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]

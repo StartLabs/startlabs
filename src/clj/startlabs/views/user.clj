@@ -101,7 +101,7 @@
     [:div.row
       [:div.span12
         [:ul.thumbnails
-          (for [person (user/find-all-users)]
+          (for [person (sort-by #(:name %) (user/find-all-users))]
             [:li.span3
               [:div.thumbnail
                 [:img {:src (:picture person)}]

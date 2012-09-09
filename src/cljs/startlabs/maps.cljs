@@ -50,7 +50,8 @@
 
       (let [feature (first (:features response-map))
             coords (:coordinates (:centroid feature))]
-        (.addLayer markers (marker coords :title (:name (:properties feature)))))
+        (.addLayer markers (marker coords :title 
+          (str (:company job) ": " (:position job) " (" (:location job) ")"))))
 
   )))
 
