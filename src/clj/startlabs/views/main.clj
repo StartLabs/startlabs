@@ -21,6 +21,7 @@
             [:p "We are creating the next generation of technical entrepreneurs."]]
       [:div.span6
         [:h2 "Upcoming Events"]
+
         [:p "On Monday, October 8th, we'll be hosting " [:strong "Startup Bootcamp"] ", "
             "a free one-day event featuring talks by startup founders."]
         [:p "It's from 9am to 5pm in Kresge Auditorium."]
@@ -28,6 +29,7 @@
         [:div
           [:a.center.bootcamp {:href "http://startupbootcamp.mit.edu"}
             [:img {:src "/img/bootcamp.png" :alt "Startup Bootcamp" :width "240px"}]]]]
+
       ]))
 
 (defpage "/about" []
@@ -46,6 +48,10 @@
       [:p "StartLabs runs “experiments” in order to create people that matter."]
       [:p [:a {:href "http://www.twitter.com/Start_Labs"} "Follow us on Twitter"] 
           " to stay in the loop."]]))
+
+(defpage "/resources" []
+  (common/layout
+    [:h1 "Resources"]))
 
 ;; Redirect. Dead links = evil
 (defpage "/company" [] (response/redirect "/about"))

@@ -46,7 +46,7 @@
     "http://www.startlabs.org"))
 
 ; could autopopulate routes from defpages that are nested only one layer deep.
-(def routes [[:home "/"] [:jobs "/jobs"] [:about "/about"] [:team "/team"]])
+(def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] [:about "/about"] [:team "/team"]])
 
 (defpartial layout [& content]
   (let [[message-type message] (session/flash-get :message)
