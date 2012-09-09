@@ -2,10 +2,10 @@
 ;;
 ;;  src/cljx/startlabs/views/jobx.cljx
 ;;
-^{:cljs true, :line 6} (ns startlabs.views.jobx ^{:line 7} (:require [singult.core :as s]))
-^{:cljs true, :line 10} (defn is-email? [v] ^{:line 11} (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v))
-^{:cljs true, :line 15} (def html s/render)
-^{:cljs true, :line 18} (def markdownify markdown/mdToHtml)
-^{:line 20} (defn is-phone? "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots." [v] ^{:line 23} (re-matches #"^[\d-\.\(\)\s]{7,15}$" v))
-^{:line 25} (defn linkify "Converts an email address, telephone number, or url into a proper link\n   to be used as the href attribute in an HTML anchor." [text] ^{:line 29} (str ^{:line 30} (condp apply [text] is-email? "mailto:" is-phone? "tel://" nil) text))
-^{:line 37} (defn job-card [job-info] ^{:line 38} (html [:div.thumbnail.job-info [:h2 [:a {:href ^{:line 40} (or ^{:line 40} (:website job-info) "#")} ^{:line 40} (:company job-info) ":"] [:small " " ^{:line 41} (:position job-info)]] [:div.row-fluid.dateloc [:div.span6 [:i.icon.icon-calendar] ^{:line 44} (:start_date job-info) " — " ^{:line 44} (:end_date job-info)] [:div.span6 [:i.icon.icon-map-marker] ^{:line 45} (:location job-info)]] [:div.row-fluid [:div.description ^{:line 47} (markdownify ^{:line 47} (:description job-info))] [:div.well.well-small "Contact: " [:i.icon.icon-envelope] ^{:line 52} (let [contact-info ^{:line 52} (:contact_info job-info)] [:a {:href ^{:line 54} (linkify contact-info)} contact-info])]]]))
+^{:cljs true, :line 7} (ns startlabs.views.jobx ^{:line 8} (:require [singult.core :as s]) ^{:line 9} (:use [c2.core :only [unify]]))
+^{:cljs true, :line 12} (defn is-email? [v] ^{:line 13} (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v))
+^{:cljs true, :line 16} (def markdownify markdown/mdToHtml)
+^{:line 18} (defn is-phone? "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots." [v] ^{:line 21} (re-matches #"^[\d-\.\(\)\s]{7,15}$" v))
+^{:line 23} (defn linkify "Converts an email address, telephone number, or url into a proper link\n   to be used as the href attribute in an HTML anchor." [text] ^{:line 27} (str ^{:line 28} (condp apply [text] is-email? "mailto:" is-phone? "tel://" nil) text))
+^{:line 36} (defn job-card [job-info] [:div.thumbnail.job-info [:h2 [:a {:href ^{:line 38} (or ^{:line 38} (:website job-info) "#")} ^{:line 38} (:company job-info) ":"] [:small " " ^{:line 39} (:position job-info)]] [:div.row-fluid.dateloc [:div.span6 [:i.icon.icon-calendar] ^{:line 42} (:start_date job-info) " — " ^{:line 42} (:end_date job-info)] [:div.span6 [:i.icon.icon-map-marker] ^{:line 43} (:location job-info)]] [:div.row-fluid [:div.description ^{:line 45} (markdownify ^{:line 45} (:description job-info))] [:div.well.well-small "Contact: " [:i.icon.icon-envelope] ^{:line 50} (let [contact-info ^{:line 50} (:contact_info job-info)] [:a {:href ^{:line 52} (linkify contact-info)} contact-info])]]])
+^{:line 55} (defn job-list [jobs] [:ul#job-list.thumbnails ^{:line 57} (for [job jobs] [:li.job-brick.span6 ^{:line 59} (job-card job)])])

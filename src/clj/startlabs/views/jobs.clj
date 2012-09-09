@@ -1,5 +1,6 @@
 (ns startlabs.views.jobs
   (:require [clojure.string :as str]
+            [clojure.data.json :as json]
             [noir.session :as session]
             [noir.response :as response]
             [noir.validation :as vali]
@@ -13,7 +14,7 @@
         [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
         [startlabs.util :only [cond-class trim-vals]]
-        [startlabs.views.jobx :only [job-card]])
+        [startlabs.views.jobx :only [job-card job-list]])
   (:import java.net.URI))
 
 ;; jobs
@@ -104,34 +105,34 @@
     ]])
 
 (defpartial browse-jobs [has-params?]
-  [:div#browse {:class (cond-class "tab-pane" [(not has-params?) "active"])}
-    ;; sort by date and location.
-    ;; search descriptions and company names
-    [:h1 "Browse Startup Jobs"]
+  (let [all-jobs (job/find-upcoming-jobs)]
+    [:div#browse {:class (cond-class "tab-pane" [(not has-params?) "active"])}
+      ;; sort by date and location.
+      ;; search descriptions and company names
+      [:h1 "Browse Startup Jobs"]
 
-    [:div#map-box.row-fluid
-      [:div#map.thumbnail]
-      [:div.navbar
-        [:div.navbar-inner
-          [:form.navbar-search.pull-left
-            [:input.search-query.input-xlarge {:type "text" :placeholder "Search"}]]
-          [:ul.nav
-            [:li [:a {:href "#"} "Hide Map"]]]
-      ]]]
+      [:div#map-box.row-fluid
+        [:div#map.thumbnail]
+        [:div.navbar
+          [:div.navbar-inner
+            [:form.navbar-search.pull-left
+              [:input#job-search.search-query.input-xlarge {:type "text" :placeholder "Search"}]]
+            [:ul.nav.pull-right
+              [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
+        ]]]
 
-    [:div.row-fluid
-      [:ul#job-list.thumbnails
-        (for [job (job/find-upcoming-jobs)]
-          [:li.job-brick
-            (job-card job)])
-      ]]
-  ])
+        [:div.row-fluid
+          (job-list all-jobs)]
+
+        [:script#job-data
+          (str "window.job_data = " (json/json-str all-jobs) ";")]
+    ]))
 
 (defpage [:get "/jobs"] {:as params}
   (let [has-params? (not (empty? params))]
     (common/layout
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
-        [:a {:class (cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"} 
+        [:a {:class (cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"}
           "Browse Available"]
         [:a {:class (cond-class "btn" [has-params? "active"]) :href "#submit" :data-toggle "tab"}
           "Submit a Job"]]
@@ -148,9 +149,9 @@
 (defn valid-job? [job-params]
   (let [site-uri    (URI. (:website job-params))
         replace-www (fn [x] (str/replace x "www."  ""))
-        site-host (-?> site-uri
-                       .getHost
-                       replace-www)]
+        site-host   (-?> site-uri
+                         .getHost
+                         replace-www)]
     (dorun (map empty-rule job-params))
 
     (vali/rule (not (nil? site-host))

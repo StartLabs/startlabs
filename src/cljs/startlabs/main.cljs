@@ -1,6 +1,6 @@
 (ns startlabs.main
-  (:use [singult.core :only [render]]
-        [jayq.core :only [$]]
+  (:use [jayq.core :only [$]]
+        [singult.core :only [render]]
         [startlabs.views.jobx :only [job-card]]
         [startlabs.maps :only [setup-maps]])
   (:require [clojure.string :as str]
@@ -74,7 +74,7 @@
   (let [$elems ($ "#job-form input, #job-form textarea")]
     (letfn [(update-job-card [e]
               (.html ($ "#job-preview")
-                     (job-card (form-to-map ($ "#job-form"))))
+                     (render (job-card (form-to-map ($ "#job-form")))))
               ; singult is escaping the generated markdown :(
               (.html ($ "#job-preview .description") 
                      (markdown/mdToHtml (.val ($ "#description")))))]

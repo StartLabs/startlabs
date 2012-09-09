@@ -6,6 +6,7 @@
 
   :dependencies [ ;clj core
                   [org.clojure/clojure "1.4.0"]
+                  [org.clojure/data.json "0.1.3"]
                   [org.clojure/tools.logging "0.2.4"]
                   [org.clojure/core.incubator "0.1.1"] ; for -?> goodness
                   [org.clojure/math.numeric-tower "0.0.1"]
@@ -24,8 +25,8 @@
                   [com.draines/postal "1.8.0"]
 
                   ;cljs
-                  [com.keminglabs/c2 "0.2.1"]
-                  [com.keminglabs/singult "0.1.4"]
+                  [com.keminglabs/c2 "0.2.0"]
+                  [com.keminglabs/singult "0.1.2"]
                   [fetch "0.1.0-alpha2"]
                   [jayq "0.1.0-alpha4"]
                 ]
