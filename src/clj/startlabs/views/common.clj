@@ -54,8 +54,11 @@
     (html5
       [:head
         [:title "startlabs"]
-        ; switch to css before deploying
-        [:link {:rel "stylesheet/less" :type "text/css" :href "/css/style.less"}]
+        ; switch to style.css in production
+        [:link {:rel "stylesheet/less" :type "text/css" 
+                :href (if (env :dev) "/css/style.less"
+                                     "/css/style.css")}]
+
         [:link {:rel "stylesheet" :type "text/css" 
                :href (font-link ["Josefin Sans" [400,700]]
                                 ["Josefin Slab" [400,700]]
