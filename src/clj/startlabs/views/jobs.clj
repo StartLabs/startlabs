@@ -115,7 +115,7 @@
         [:div#map.thumbnail]
         [:div.navbar
           [:div.navbar-inner
-            [:form.navbar-search.pull-left
+            [:form.navbar-search.pull-left {:action "#"}
               [:input#job-search.search-query.input-xlarge {:type "text" :placeholder "Search"}]]
             [:ul.nav.pull-right
               [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]

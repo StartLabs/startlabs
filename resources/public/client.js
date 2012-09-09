@@ -19138,8 +19138,18 @@ startlabs.maps.setup_maps = function() {
     return singult.core.merge_BANG_.call(null, b, cljs.core.deref.call(null, a))
   });
   a;
+  startlabs.maps.jobs_filter = function(a) {
+    return function() {
+      return cljs.core.empty_QMARK_.call(null, a) ? startlabs.maps.job_data : cljs.core.filter.call(null, function(b) {
+        return cljs.core.some.call(null, function(b) {
+          return cljs.core.re_find.call(null, cljs.core.re_pattern.call(null, [cljs.core.str("(?i)"), cljs.core.str(a)].join("")), b)
+        }, cljs.core.map.call(null, b, cljs.core.PersistentVector.fromArray(["\ufdd0'position", "\ufdd0'company", "\ufdd0'location"], !0)))
+      }, startlabs.maps.job_data)
+    }
+  };
   jayq.core.bind.call(null, jayq.core.$.call(null, "#job-search"), "\ufdd0'keyup", function() {
-    return null
+    var a = clojure.string.trim.call(null, jayq.core.val.call(null, jayq.core.$.call(null, this)));
+    return cljs.core.swap_BANG_.call(null, startlabs.maps.filtered_jobs, startlabs.maps.jobs_filter.call(null, a))
   });
   return jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function() {
     return jayq.core.$.call(null, "#map").toggle()

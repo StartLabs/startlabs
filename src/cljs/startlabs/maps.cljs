@@ -87,9 +87,20 @@
   (bind! "#job-list"
     (job-list @filtered-jobs))
 
+  (defn jobs-filter [query]
+    (fn [_]
+      (if (empty? query)
+        job-data
+        (filter (fn [job]
+          (some #(re-find (re-pattern (str "(?i)" query)) %) 
+                (map job [:position :company :location])))
+          job-data))))
+
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter things
-    ))
+    (this-as job-search
+      (let [query (str/trim (jq/val ($ job-search)))]
+        (swap! filtered-jobs (jobs-filter query))))))
 
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.toggle ($ "#map"))))
