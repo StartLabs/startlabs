@@ -84,7 +84,8 @@
 
         (doseq [job n]
           (let [location (:location job)]
-            (geocode location (add-marker-callback job false))))))))
+            (geocode location (add-marker-callback job false))))
+  ))))
 
   (reset! filtered-jobs job-data)
 
