@@ -109,7 +109,7 @@
     (job-list @filtered-jobs))
 
   (jq/bind ($ "#job-search") :keyup (fn [e]
-    ; filter things
+    ; filter jobs as you search
     (this-as job-search
       (let [query (str/trim (jq/val ($ job-search)))]
         (swap! filtered-jobs (jobs-filter query))))))
