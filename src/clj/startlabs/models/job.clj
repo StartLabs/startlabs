@@ -1,5 +1,7 @@
 (ns startlabs.models.job
   (:use [datomic.api :only [q db ident] :as d]
+        [clj-time.core :only [now]]
+        [clj-time.coerce :only [to-long]]
         [startlabs.models.database :only [conn]]
         [startlabs.util :only [stringify-values]])
   (:require [clojure.string :as str]
@@ -34,10 +36,17 @@
       (session/flash-put! :message [:error (str "Trouble confirming job: " e)])
       false)))
 
+(defn after-now 
+  "Determines if the provided date is in the future."
+  [date]
+  (> (to-long date) (to-long (now))))
+
 (defn find-upcoming-jobs 
   "returns all confirmed jobs whose start dates are after a certain date"
   []
-  (let [jobs     (q '[:find ?job :where [?job :job/position _]] (db @conn))
+  (let [jobs     (q '[:find ?job :where [?job :job/confirmed? true]
+                                        [?job :job/start_date ?start]
+                                        [(startlabs.models.job/after-now ?start)]] (db @conn))
         job-ids  (map first jobs)
         job-maps (util/maps-for-datoms job-ids :job)]
     (map stringify-values job-maps)))
