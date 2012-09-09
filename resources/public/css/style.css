@@ -77,7 +77,12 @@ h1.slug strong {
 }
 #content {
   background: rgba(255, 255, 255, 0.95);
-  padding: 32px;
+  padding: 32px 32px 16px;
+}
+footer {
+  margin-top: 32px;
+  text-align: center;
+  clear: both;
 }
 .thumbnail {
   background: #fff;

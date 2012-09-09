@@ -87,7 +87,12 @@
               [:h3 (str/capitalize (name message-type))]
               [:p message]])
 
-          content]
+          content
+
+          [:footer
+            [:p "Follow us on " 
+              [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
+              [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]]
 
        (include-js "/markdown.js"
                    "/jquery.js"
