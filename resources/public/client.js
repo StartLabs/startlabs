@@ -19063,6 +19063,7 @@ startlabs.maps.L = L;
 startlabs.maps.lmap = null;
 startlabs.maps.markers = null;
 startlabs.maps.geocoder = new CM.Geocoder(startlabs.maps.cloudmade_key);
+startlabs.maps.oms = null;
 startlabs.maps.job_data = cljs.core.js__GT_clj.call(null, window.job_data, "\ufdd0'keywordize-keys", !0);
 startlabs.maps.filtered_jobs = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
 startlabs.maps.latlng = function(a, b) {
@@ -19099,9 +19100,11 @@ startlabs.maps.add_marker_callback = function(a, b) {
     c = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, c));
     c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, c));
     c = startlabs.maps.marker.call(null, c, "\ufdd0'title", [cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a)), cljs.core.str(" ("), cljs.core.str((new cljs.core.Keyword("\ufdd0'location")).call(null, a)), cljs.core.str(")")].join(""));
+    c.id = (new cljs.core.Keyword("\ufdd0'id")).call(null, a);
     startlabs.maps.markers.addLayer(c);
-    return c.on("click", function() {
-      return location.hash = (new cljs.core.Keyword("\ufdd0'id")).call(null, a)
+    startlabs.maps.oms.addMarker(c);
+    return startlabs.maps.oms.addListener("click", function(a) {
+      return location.hash = [cljs.core.str("#"), cljs.core.str(a.id)].join("")
     })
   }
 };
@@ -19123,9 +19126,10 @@ startlabs.maps.setup_maps = function() {
   startlabs.maps.markers = new L.LayerGroup;
   startlabs.maps.markers.addTo(startlabs.maps.lmap);
   startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(startlabs.maps.lmap);
+  startlabs.maps.oms = new OverlappingMarkerSpiderfier(startlabs.maps.lmap);
   cljs.core.add_watch.call(null, startlabs.maps.filtered_jobs, "\ufdd0'mapper", function(a, b, e, f) {
     if(cljs.core.not_EQ_.call(null, e, f)) {
-      if(startlabs.maps.markers.clearLayers(), b = cljs.core.seq.call(null, f)) {
+      if(startlabs.maps.markers.clearLayers(), startlabs.maps.oms.clearMarkers(), startlabs.maps.oms.clearListeners("click"), b = cljs.core.seq.call(null, f)) {
         for(a = cljs.core.first.call(null, b);;) {
           if(e = (new cljs.core.Keyword("\ufdd0'location")).call(null, a), startlabs.maps.geocode.call(null, e, startlabs.maps.add_marker_callback.call(null, a, !1)), a = cljs.core.next.call(null, b)) {
             b = a, a = cljs.core.first.call(null, b)

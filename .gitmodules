@@ -4,3 +4,6 @@
 [submodule "resources/masonry"]
 	path = resources/masonry
 	url = https://github.com/desandro/masonry.git
+[submodule "resources/OMS-Leaflet"]
+	path = resources/OMS-Leaflet
+	url = https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet.git

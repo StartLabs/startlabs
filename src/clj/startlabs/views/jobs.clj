@@ -159,7 +159,9 @@
     (vali/rule (not (nil? site-host))
       [:website "Must be a valid website." site-host])
 
-    (vali/rule (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
+    ; also allow submissions from startlabs members
+    (vali/rule (or (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
+                   (re-matches #".*@startlabs.org$" (:email job-params)))
       [:email "Your email address must match the company website."])
 
     (doseq [date [:start_date :end_date]]

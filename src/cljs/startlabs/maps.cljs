@@ -26,6 +26,8 @@
 
 (def geocoder (CM/Geocoder. cloudmade-key))
 
+(def ^:dynamic oms nil)
+
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
 (def filtered-jobs (atom []))
 
@@ -54,10 +56,14 @@
             new-marker (marker coords :title 
                          (str (:company job) ": " (:position job) 
                               " (" (:location job) ")"))]
-        (.addLayer markers new-marker)
 
-        (.on new-marker "click" (fn [e]
-          (set! (.-hash js/location) (:id job)))))
+        (set! (.-id new-marker) (:id job))
+        (.addLayer markers new-marker)
+        (.addMarker oms new-marker)
+
+        (.addListener oms "click" (fn [marker]
+          (set! (.-hash js/location) (str "#" (.-id marker)))))
+        )
 )))
 
 (defn geocode [place callback]
@@ -82,11 +88,15 @@
   ; add tiles to map
   (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 18})) lmap)
 
+  (def oms (js/OverlappingMarkerSpiderfier. lmap))
+
   ; key, reference, old state, new state
   (add-watch filtered-jobs :mapper (fn [k r o n]
     (if (not= o n)
       (do
         (.clearLayers markers)
+        (.clearMarkers oms)
+        (.clearListeners oms "click")
 
         (doseq [job n]
           (let [location (:location job)]

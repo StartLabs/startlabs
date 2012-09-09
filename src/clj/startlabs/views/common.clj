@@ -95,6 +95,7 @@
                    "/jquery.masonry.min.js"
                    "https://api.filepicker.io/v0/filepicker.js"
                    "http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"
+                   "/oms.min.js"
                    "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
                    "/client.js"
                    "/less-1.3.0.min.js")])))
