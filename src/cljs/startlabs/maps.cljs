@@ -36,7 +36,8 @@
   (L/LatLngBounds. sw ne))
 
 (defn marker [[lat lng] & opts]
-  (.marker L (array lat lng) (clj->js (apply array-map opts))))
+  (.marker L (array lat lng) 
+             (clj->js (apply array-map opts))))
 
 (defn add-marker-callback [job zoom?]
   (fn [response]
@@ -48,12 +49,16 @@
       (if zoom?
         (.fitBounds lmap (latlng-bounds south-west north-east)))
 
-      (let [feature (first (:features response-map))
-            coords (:coordinates (:centroid feature))]
-        (.addLayer markers (marker coords :title 
-          (str (:company job) ": " (:position job) " (" (:location job) ")"))))
+      (let [feature    (first (:features response-map))
+            coords     (:coordinates (:centroid feature))
+            new-marker (marker coords :title 
+                         (str (:company job) ": " (:position job) 
+                              " (" (:location job) ")"))]
+        (.addLayer markers new-marker)
 
-  )))
+        (.on new-marker "click" (fn [e]
+          (set! (.-hash js/location) (:id job)))))
+)))
 
 (defn geocode [place callback]
   (.getLocations geocoder place callback))

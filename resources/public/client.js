@@ -15609,7 +15609,7 @@ startlabs.views.jobx.job_list = function(a) {
         for(;;) {
           if(cljs.core.seq.call(null, a)) {
             var e = cljs.core.first.call(null, a);
-            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li.job-brick.span6", startlabs.views.jobx.job_card.call(null, e)], true), c.call(null, cljs.core.rest.call(null, a)))
+            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li.job-brick.span6", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":(new cljs.core.Keyword("\ufdd0'id")).call(null, e)}), startlabs.views.jobx.job_card.call(null, e)], true), c.call(null, cljs.core.rest.call(null, a)))
           }
           return null
         }
@@ -19098,7 +19098,11 @@ startlabs.maps.add_marker_callback = function(a, b) {
     cljs.core.truth_(b) && startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, e, f));
     c = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, c));
     c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, c));
-    return startlabs.maps.markers.addLayer(startlabs.maps.marker.call(null, c, "\ufdd0'title", [cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a)), cljs.core.str(" ("), cljs.core.str((new cljs.core.Keyword("\ufdd0'location")).call(null, a)), cljs.core.str(")")].join("")))
+    c = startlabs.maps.marker.call(null, c, "\ufdd0'title", [cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a)), cljs.core.str(" ("), cljs.core.str((new cljs.core.Keyword("\ufdd0'location")).call(null, a)), cljs.core.str(")")].join(""));
+    startlabs.maps.markers.addLayer(c);
+    return c.on("click", function() {
+      return location.hash = (new cljs.core.Keyword("\ufdd0'id")).call(null, a)
+    })
   }
 };
 startlabs.maps.geocode = function(a, b) {

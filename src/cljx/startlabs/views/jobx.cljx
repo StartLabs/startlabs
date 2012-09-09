@@ -55,5 +55,5 @@
 (defn job-list [jobs]
   [:ul#job-list.thumbnails
     (for [job jobs]
-      [:li.job-brick.span6
+      [:li.job-brick.span6 {:id (:id job)}
         (job-card job)])])
