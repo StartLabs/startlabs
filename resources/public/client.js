@@ -19088,21 +19088,30 @@ startlabs.maps.marker = function() {
   b.cljs$lang$arity$variadic = a;
   return b
 }();
-startlabs.maps.add_marker_callback = function(a) {
-  return function(b) {
-    var b = cljs.core.js__GT_clj.call(null, b, "\ufdd0'keywordize-keys", !0), c = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, b), d = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
-      return cljs.core.nth.call(null, c.call(null, 0), a)
-    }, cljs.core.PersistentVector.fromArray([0, 1], !0))), e = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
-      return cljs.core.nth.call(null, c.call(null, 1), a)
+startlabs.maps.add_marker_callback = function(a, b) {
+  return function(a) {
+    var a = cljs.core.js__GT_clj.call(null, a, "\ufdd0'keywordize-keys", !0), d = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, a), e = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+      return cljs.core.nth.call(null, d.call(null, 0), a)
+    }, cljs.core.PersistentVector.fromArray([0, 1], !0))), f = cljs.core.apply.call(null, startlabs.maps.latlng, cljs.core.map.call(null, function(a) {
+      return cljs.core.nth.call(null, d.call(null, 1), a)
     }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
-    cljs.core.truth_(a) && startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, d, e));
-    b = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, b));
-    d = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, b));
-    return startlabs.maps.markers.addLayer(startlabs.maps.marker.call(null, d, "\ufdd0'title", (new cljs.core.Keyword("\ufdd0'name")).call(null, (new cljs.core.Keyword("\ufdd0'properties")).call(null, b))))
+    cljs.core.truth_(b) && startlabs.maps.lmap.fitBounds(startlabs.maps.latlng_bounds.call(null, e, f));
+    a = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, a));
+    e = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, a));
+    return startlabs.maps.markers.addLayer(startlabs.maps.marker.call(null, e, "\ufdd0'title", (new cljs.core.Keyword("\ufdd0'name")).call(null, (new cljs.core.Keyword("\ufdd0'properties")).call(null, a))))
   }
 };
 startlabs.maps.geocode = function(a, b) {
   return startlabs.maps.geocoder.getLocations(a, b)
+};
+startlabs.maps.jobs_filter = function(a) {
+  return function() {
+    return cljs.core.empty_QMARK_.call(null, a) ? startlabs.maps.job_data : cljs.core.filter.call(null, function(b) {
+      return cljs.core.some.call(null, function(b) {
+        return cljs.core.re_find.call(null, cljs.core.re_pattern.call(null, [cljs.core.str("(?i)"), cljs.core.str(a)].join("")), b)
+      }, cljs.core.map.call(null, b, cljs.core.PersistentVector.fromArray(["\ufdd0'position", "\ufdd0'company", "\ufdd0'location"], !0)))
+    }, startlabs.maps.job_data)
+  }
 };
 startlabs.maps.setup_maps = function() {
   startlabs.maps.lmap = startlabs.maps.L.map("map");
@@ -19111,21 +19120,23 @@ startlabs.maps.setup_maps = function() {
   startlabs.maps.markers.addTo(startlabs.maps.lmap);
   startlabs.maps.L.tileLayer(startlabs.maps.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(startlabs.maps.lmap);
   cljs.core.add_watch.call(null, startlabs.maps.filtered_jobs, "\ufdd0'mapper", function(a, b, e, f) {
-    startlabs.maps.markers.clearLayers();
-    if(b = cljs.core.seq.call(null, f)) {
-      for(a = cljs.core.first.call(null, b);;) {
-        if(a = (new cljs.core.Keyword("\ufdd0'location")).call(null, a), startlabs.maps.geocode.call(null, a, startlabs.maps.add_marker_callback.call(null, !1)), a = cljs.core.next.call(null, b)) {
-          b = a, a = cljs.core.first.call(null, b)
-        }else {
-          return null
+    if(cljs.core.not_EQ_.call(null, e, f)) {
+      if(startlabs.maps.markers.clearLayers(), b = cljs.core.seq.call(null, f)) {
+        for(a = cljs.core.first.call(null, b);;) {
+          if(e = (new cljs.core.Keyword("\ufdd0'location")).call(null, a), startlabs.maps.geocode.call(null, e, startlabs.maps.add_marker_callback.call(null, a, !1)), a = cljs.core.next.call(null, b)) {
+            b = a, a = cljs.core.first.call(null, b)
+          }else {
+            return null
+          }
         }
+      }else {
+        return null
       }
     }else {
       return null
     }
   });
   cljs.core.reset_BANG_.call(null, startlabs.maps.filtered_jobs, startlabs.maps.job_data);
-  console.log(jayq.util.clj__GT_js.call(null, cljs.core.deref.call(null, startlabs.maps.filtered_jobs)));
   var a = function() {
     var a = new reflex.core.ComputedObservable(null, !0, function() {
       return startlabs.views.jobx.job_list.call(null, cljs.core.deref.call(null, startlabs.maps.filtered_jobs))
@@ -19138,15 +19149,6 @@ startlabs.maps.setup_maps = function() {
     return singult.core.merge_BANG_.call(null, b, cljs.core.deref.call(null, a))
   });
   a;
-  startlabs.maps.jobs_filter = function(a) {
-    return function() {
-      return cljs.core.empty_QMARK_.call(null, a) ? startlabs.maps.job_data : cljs.core.filter.call(null, function(b) {
-        return cljs.core.some.call(null, function(b) {
-          return cljs.core.re_find.call(null, cljs.core.re_pattern.call(null, [cljs.core.str("(?i)"), cljs.core.str(a)].join("")), b)
-        }, cljs.core.map.call(null, b, cljs.core.PersistentVector.fromArray(["\ufdd0'position", "\ufdd0'company", "\ufdd0'location"], !0)))
-      }, startlabs.maps.job_data)
-    }
-  };
   jayq.core.bind.call(null, jayq.core.$.call(null, "#job-search"), "\ufdd0'keyup", function() {
     var a = clojure.string.trim.call(null, jayq.core.val.call(null, jayq.core.$.call(null, this)));
     return cljs.core.swap_BANG_.call(null, startlabs.maps.filtered_jobs, startlabs.maps.jobs_filter.call(null, a))

@@ -38,7 +38,7 @@
 (defn marker [[lat lng] & opts]
   (.marker L (array lat lng) (clj->js (apply array-map opts))))
 
-(defn add-marker-callback [zoom?]
+(defn add-marker-callback [job zoom?]
   (fn [response]
     (let [response-map (js->clj response :keywordize-keys true)
           bounds       (:bounds response-map)
@@ -57,6 +57,15 @@
 (defn geocode [place callback]
   (.getLocations geocoder place callback))
 
+(defn jobs-filter [query]
+  (fn [_]
+    (if (empty? query)
+      job-data
+      (filter (fn [job]
+        (some #(re-find (re-pattern (str "(?i)" query)) %) 
+              (map job [:position :company :location])))
+        job-data))))
+
 (defn setup-maps []
   (def lmap (.map L "map"))
   (.setView lmap (array 42 -92) 3)
@@ -67,34 +76,20 @@
   ; add tiles to map
   (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 18})) lmap)
 
-  ; (.masonry ($ "#job-list") (clj->js {
-  ;   :itemSelector ".job-brick"
-  ;   :columnWidth 390
-  ; }))
-
   ; key, reference, old state, new state
   (add-watch filtered-jobs :mapper (fn [k r o n]
-    (.clearLayers markers)
+    (if (not= o n)
+      (do
+        (.clearLayers markers)
 
-    (doseq [job n]
-      (let [location (:location job)]
-        (geocode location (add-marker-callback false))))))
+        (doseq [job n]
+          (let [location (:location job)]
+            (geocode location (add-marker-callback job false))))))))
 
   (reset! filtered-jobs job-data)
 
-  (.log js/console (clj->js @filtered-jobs))
-
   (bind! "#job-list"
     (job-list @filtered-jobs))
-
-  (defn jobs-filter [query]
-    (fn [_]
-      (if (empty? query)
-        job-data
-        (filter (fn [job]
-          (some #(re-find (re-pattern (str "(?i)" query)) %) 
-                (map job [:position :company :location])))
-          job-data))))
 
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter things
