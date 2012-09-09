@@ -68,6 +68,7 @@
 
       [:body
         [:div#nav [:div.container
+          [:a#nav-logo {:href "/"} [:img {:src "/img/logo_small.png" :width "96px"}]]
           (let [current-uri (:uri request)]
             [:ul.nav.nav-pills
               (for [[page location] routes]

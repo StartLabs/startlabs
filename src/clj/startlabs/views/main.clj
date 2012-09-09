@@ -6,13 +6,25 @@
 
 (defpage "/" []
   (common/layout
-    [:h1 "Welcome"]))
+    [:h1.slug "Interested in " [:strong "Startups"] "?"]
+    [:p "You've come to the right place."]))
 
 (defpage "/about" []
   (common/layout
     [:h1 "About Us"]
     [:div
-      [:p "We love you."]]))
+      [:p "StartLabs is a non-profit created out of the ideals of collegiate entrepreneurship."]
+      [:p "The goal of StartLabs is to catalyze student engineers to bring technical innovations 
+           to society through entrepreneurship, specifically by having students:"]
+      [:ol
+        [:li "Start their own companies – transforming ideas and class projects into seed-stage ventures."]
+        [:li "Work in rapidly expanding companies – place students in internships and full-time positions 
+              at promising startups."]]
+
+      [:p "StartLabs runs “experiments” in order to create people that matter."]
+      [:p [:a {:href "http://www.twitter.com/Start_Labs"} "Follow us on Twitter"] 
+          " to stay in the loop."]]))
 
 ;; Redirect. Dead links = evil
 (defpage "/company" [] (response/redirect "/about"))
+(defpage "/partners" [] (response/redirect "/about"))
