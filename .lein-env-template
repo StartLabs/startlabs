@@ -1,0 +1,15 @@
+{
+  :oauth-client-id     "YOUR_GOOGLE_OAUTH_ID"
+  :oauth-client-secret "YOUR_GOOGLE_OAUTH_SECRET"
+  
+  :aws-key    "YOUR_AWS_KEY"
+  :aws-secret "YOUR_AWS_SECRET"
+
+  ;; see https://github.com/drewr/postal
+  :email-host "YOUR_EMAIL_HOST"
+  :email-user "YOUR_EMAIL_ADDRESS"
+  :email-pass "YOUR_EMAIL_PASS"
+
+  :dev  true
+  :port "8000"
+}
