@@ -94,13 +94,16 @@
               [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
               [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]]
 
-       (include-js "/markdown.js"
-                   "/jquery.js"
-                   "/bootstrap/js/bootstrap.min.js"
-                   "/jquery.masonry.min.js"
-                   "https://api.filepicker.io/v0/filepicker.js"
-                   "http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"
-                   "/oms.min.js"
-                   "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
-                   "/client.js"
-                   "/less-1.3.0.min.js")])))
+        (include-js "/markdown.js"
+                    "/jquery.js"
+                    "/bootstrap/js/bootstrap.min.js"
+                    "https://api.filepicker.io/v0/filepicker.js"
+                    "http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"
+                    "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
+                    "/oms.min.js"
+                    "/client.js")
+
+        (if (env :dev)
+          (include-js "/less-1.3.0.min.js"))])))
+
+

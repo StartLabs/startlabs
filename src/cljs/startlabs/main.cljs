@@ -15,6 +15,9 @@
 
 (def location-hash (.-hash js/location))
 
+(defn exists? [$sel]
+  (not= (.-length ($ $sel)) 0))
+
 (defn mapify-hash 
   "convert location.hash into a clojure map"
   []
@@ -89,7 +92,8 @@
   (setup-job-submit))
 
 (jm/ready
-  (.log js/console "Hello world!")
   (main)
-  (setup-maps))
+
+  (if (exists? "#map")
+    (setup-maps)))
 

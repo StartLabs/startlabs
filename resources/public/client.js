@@ -19167,6 +19167,9 @@ startlabs.maps.setup_maps = function() {
 };
 startlabs.main = {};
 startlabs.main.location_hash = location.hash;
+startlabs.main.exists_QMARK_ = function(a) {
+  return cljs.core.not_EQ_.call(null, jayq.core.$.call(null, a).length, 0)
+};
 startlabs.main.mapify_hash = function() {
   var a = startlabs.main.location_hash.slice(1).split(/[=&]/), a = cljs.core.map_indexed.call(null, function(a, c) {
     return cljs.core.even_QMARK_.call(null, a) ? cljs.core.keyword.call(null, c) : c
@@ -19249,7 +19252,6 @@ startlabs.main.main = function() {
   return startlabs.main.setup_job_submit.call(null)
 };
 jayq.core.document_ready.call(null, function() {
-  console.log("Hello world!");
   startlabs.main.main.call(null);
-  return startlabs.maps.setup_maps.call(null)
+  return cljs.core.truth_(startlabs.main.exists_QMARK_.call(null, "#map")) ? startlabs.maps.setup_maps.call(null) : null
 });
