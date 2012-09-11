@@ -149,7 +149,7 @@
         [:div#legal
           [:h1 "Legal"]
           [:p "Legally incorporating is quite simple once you get into it "
-              "– Goodwin Procter, a national law firm has a tool called "
+              "– Goodwin Procter, a national law firm, has a tool called "
               [:a {:href "http://www.goodwinfoundersworkbench.com/"} "Founders Workbench"]
               " that should be able to answer most of your legal questions."]
 
