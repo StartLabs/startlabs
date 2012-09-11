@@ -4,3 +4,6 @@
 [submodule "resources/OMS-Leaflet"]
 	path = resources/OMS-Leaflet
 	url = https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet.git
+[submodule "datomic-free"]
+	path = datomic-free
+	url = https://github.com/sherbondy/datomic-free

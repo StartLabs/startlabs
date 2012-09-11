@@ -13,6 +13,7 @@ pom.xml
 .lein-cljsbuild-repl/
 .lein-env
 .generated
-/datomic-free
-/logs
+logs/
 .DS_Store
+data/
+

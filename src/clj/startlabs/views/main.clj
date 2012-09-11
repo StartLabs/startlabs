@@ -10,20 +10,20 @@
     [:div.row-fluid
       [:div.span6
         [:h2 "You've come to the right place."]
-        [:p [:strong "StartLabs"] " was established by MIT engineering students "
-            "in the summer of 2011 to spread entrepreneurship."
-            "We support and encourage students to:"]
+        [:p [:strong "StartLabs"] " was established by MIT engineering students
+            in the summer of 2011 to spread entrepreneurship.
+            We support and encourage students to:"]
             [:ol
-              [:li "Start their own companies – transforming ideas and class "
-                   "projects into seed-stage ventures."]
-              [:li "Work in rapidly expanding companies – place students in internships "
-                   "and full-time positions at promising startups."]]
+              [:li "Start their own companies – transforming ideas and class
+                    projects into seed-stage ventures."]
+              [:li "Work in rapidly expanding companies – place students in internships
+                    and full-time positions at promising startups."]]
             [:p "We are creating the next generation of technical entrepreneurs."]]
       [:div.span6
         [:h2 "Upcoming Events"]
 
-        [:p "On Monday, October 8th, we'll be hosting " [:strong "Startup Bootcamp"] ", "
-            "a free one-day event featuring talks by startup founders."]
+        [:p "On Monday, October 8th, we'll be hosting " [:strong "Startup Bootcamp"]
+            ", a free one-day event featuring talks by startup founders."]
         [:p "It's from 9am to 5pm in Kresge Auditorium."]
 
         [:div
@@ -36,21 +36,20 @@
   (common/layout
     [:h1 "About Us"]
     [:div
-      [:p "Here's some lousy copy from the old website:"]
       [:p "StartLabs is a non-profit created out of the ideals of collegiate entrepreneurship."]
-      [:p "The goal of StartLabs is to catalyze student engineers to bring technical innovations 
-           to society through entrepreneurship, specifically by having students:"]
+      [:p "The goal of StartLabs is to catalyze engineering students to bring technical innovations 
+           to society through entrepreneurship, specifically by having them:"]
       [:ol
         [:li "Start their own companies – transforming ideas and class projects into seed-stage ventures."]
         [:li "Work in rapidly expanding companies – place students in internships and full-time positions 
               at promising startups."]]
 
-      [:p "StartLabs runs “experiments” in order to create people that matter."]
+      [:p "StartLabs runs “experiments” to create people that matter."]
       [:p [:a {:href "http://www.twitter.com/Start_Labs"} "Follow us on Twitter"] 
           " to stay in the loop."]]))
 
 (defpartial ablank [site url]
-  [:a {:href (str "http://" url) :target "_BLANK"} url])
+  [:a {:href (str "http://" url)} url])
 
 (defpartial ablank-tr [site url]
   [:tr [:td site] [:td (ablank site url)]])
@@ -60,7 +59,7 @@
 
 (defpartial site-twitter [person site twitter]
   [:tr [:td person] 
-       [:td (if site    [:a {:href site :target "_BLANK"} "Site"])]
+       [:td (if site    [:a {:href site} "Site"])]
        [:td (if twitter [:a {:href (str "https://twitter.com/#!/" twitter)} (str "@" twitter)])]])
 
 (defpage "/resources" []
@@ -77,10 +76,10 @@
     [:div.offset3.span8
       [:div#design-marketing
         [:h1 "Design & Marketing"]
-        [:p  "Design and marketing are two very valuable aspects of a founding venture. "
-             "A company must have a product with great design and a plan to market that "
-             "product effectively. Marketing relies on having a well designed product to sell "
-             "and Design relies on having an abled marketing plan to sell it."]
+        [:p "Design and marketing are two very valuable aspects of a founding venture.
+             A company must have a product with great design and a plan to market that
+             product effectively. Marketing relies on having a well designed product to sell
+             and Design relies on having an abled marketing plan to sell it."]
         [:table.table
           [:tbody
             (map #(apply ablank-tr %)
@@ -149,7 +148,7 @@
           [:h1 "Legal"]
           [:p "Legally incorporating is quite simple once you get into it "
               "– Goodwin Procter, a national law firm has a tool called "
-              [:a {:href "http://www.goodwinfoundersworkbench.com/" :target "_BLANK"} "Founders Workbench"]
+              [:a {:href "http://www.goodwinfoundersworkbench.com/"} "Founders Workbench"]
               " that should be able to answer most of your legal questions."]
 
           [:div.clearfix  
@@ -193,36 +192,36 @@
 
           [:div#financing
             [:h1 "Financing"]
-            [:p "At some point your company is going to need money. Yes, it is. "
-                "One way or another. This can be a pretty touchy topic that a lot of "
-                "people have their own ideas on, but to start – take 10 minutes and "
-                "read this summary of "
-                [:a {:href "http://www.paulgraham.com/fundraising.html" :target "_BLANK"}
+            [:p "At some point your company is going to need money. Yes, it is.
+                 One way or another. This can be a pretty touchy topic that a lot of
+                 people have their own ideas on, but to start – take 10 minutes and
+                 read this summary of "
+                [:a {:href "http://www.paulgraham.com/fundraising.html"}
                   "Fundraising"] "by Paul Graham."]
-            [:p "There are a few common ways of financing "
-                "(in order of the amount of money they will invest):"]
+            [:p "There are a few common ways of financing
+                 (in order of the amount of money they will invest):"]
                 [:ul
                   [:li "Friends and Family"]
                   [:li "Angel Investors - such as "
                     [:a {:href "http://blog.jonpierce.com/post/520863618/bostons-best-angel-investors" 
-                         :target "_BLANK"} "Boston's Best Angel Investors"]]
+                        } "Boston's Best Angel Investors"]]
                   [:li "VCs"]]
 
-            [:p "The details of term sheets (the things that you use to issue stock and such) "
-                "are explained quite well by Brad Feld's "
-                [:a {:href "http://www.feld.com/wp/archives/category/term-sheet" :target "_BLANK"}
+            [:p "The details of term sheets (the things that you use to issue stock and such)
+                 are explained quite well by Brad Feld's "
+                [:a {:href "http://www.feld.com/wp/archives/category/term-sheet"}
                   "article"]
-              ". You should also have a good idea of what your financials of your company should "
-              "look like – something else that Brad Feld addresses well in another "
-              [:a {:href "http://www.feld.com/wp/archives/2011/07/financial-literacy.html" :target "_BLANK"}
+              ". You should also have a good idea of what your financials of your company should
+                look like – something else that Brad Feld addresses well in another "
+              [:a {:href "http://www.feld.com/wp/archives/2011/07/financial-literacy.html"}
                 "article"]"."]]
 
           [:div#incubators
             [:h1 "Incubators, Spaces, & Events"]
             [:p [:strong "Greenhorn Connect"] 
-              " is one of the best resources in finding out the when, where, and who of what's "
-              "going on in Boston. They have great blogs, calendars, resources, and job opportunities."
-              [:a {:href "http://www.greenhornconnect.com/" :target "_BLANK"} "Check them out."]]
+              " is one of the best resources in finding out the when, where, and who of what's
+              going on in Boston. They have great blogs, calendars, resources, and job opportunities."
+              [:a {:href "http://www.greenhornconnect.com/"} "Check them out."]]
 
             [:table.table
               [:thead
@@ -230,21 +229,21 @@
 
               [:tbody
                 [:tr
-                  [:td [:a {:href "http://ycombinator.com/apply.html" :target "_BLANK"} "Y-Combinator"]]
+                  [:td [:a {:href "http://ycombinator.com/apply.html"} "Y-Combinator"]]
                   [:td [:p
-                      "YC is one of the most popular incubators in the U.S. "
-                      "It is run by Paul Graham since 2005.  It is located in Mountain View, CA "
-                      "and focuses mainly on web startups."]
+                      "YC is one of the most popular incubators in the U.S.
+                      It is run by Paul Graham since 2005.  It is located in Mountain View, CA
+                      and focuses mainly on web startups."]
                       [:p "Summer and Winter (3 months)"]]
                   [:td "$18K for 7%"]]
 
                 [:tr
                   [:td [:a {:href "http://www.techstars.org/apply/"} "Techstars"]]
-                  [:td [:p "Probably the 2nd most popular incubator in the U.S."
-                       "It is run by David Cohen and has input from Brad Feld, 
-                        with locations all over the country."]
-                        [:p "Boston – Spring, Boulder – Summer, "
-                            "NYC- Summer/Winter, Seattle – Fall"]]
+                  [:td [:p "Probably the 2nd most popular incubator in the U.S.
+                            It is run by David Cohen and has input from Brad Feld, 
+                            with locations all over the country."]
+                        [:p "Boston – Spring, Boulder – Summer,
+                             NYC- Summer/Winter, Seattle – Fall"]]
                   [:td "$18K for 6%"]]
 
                 [:tr
@@ -266,10 +265,10 @@
 
                 [:tr
                   [:td [:a {:href "http://cictr.com/"} "Cambridge Innovation Center (CIC)"]]
-                  [:td [:p "The CIC is a co-working space for startups. "
-                           "It is located right in Kendall square and houses nearly 400 companies. "
-                           "The CIC and it’s venture café are the location for many entrepreneurial "
-                           "events around the Boston area."]]
+                  [:td [:p "The CIC is a co-working space for startups.
+                            It is located right in Kendall square and houses nearly 400 companies.
+                            The CIC and it’s venture café are the location for many entrepreneurial
+                            events around the Boston area."]]
                   [:td "$500/person/month"]]
 
               ]
