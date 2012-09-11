@@ -9,7 +9,10 @@
             [noir.session :as session]
             [startlabs.models.util :as util]))
 
-(def redirect-url   "http://localhost:8000/oauth2callback")
+(def redirect-url  
+  (if (env :dev)
+    "http://localhost:8000/oauth2callback"
+    "http://www.startlabs.org/oauth2callback"))
 
 (def googleapis-url "https://www.googleapis.com/oauth2/v1/")
 
