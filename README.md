@@ -9,18 +9,17 @@ git submodules, so please run:
 
 `git submodule init && git submodule update;`
 
-After cloning this repository for the first time.
+after cloning this repository for the first time.
 
-For persistence, we use the free edition of [Datomic](http://www.datomic.com).
-
-We use the web framework, [Noir](http://webnoir.org/), to make things simple.
+We use the free edition of [Datomic](http://www.datomic.com) as our database.
+The site is written with [Noir](http://webnoir.org/), a simple, high-level Clojure web framework.
 
 If you're not familiar with Clojure, I strongly suggest working through the 
 [tutorials](http://webnoir.org/tutorials) on the Noir website.
 And maybe do some puzzles on [4clojure](http://www.4clojure.com/).
 
 [Leiningen](https://github.com/technomancy/leiningen) is the canonical project 
-manager for Clojure, so make sure to install that before doing anything else.
+manager for Clojure, so make sure to install that before doing anything else (See the link for instructions).
 
 To setup the application, you'll have to fill your Google, AWS, and email account 
 credentials into a file called `.lein-env` in the application's root. I've included
@@ -73,4 +72,4 @@ Apologies for all of the moving parts. It may be difficult to get setup initiall
 but I think you'll find that working in Clojure is drastically more pleasant than
 most other languages/toolkits.
 
-If you run into any issues, just [email me](mailto:ethanis@mit.edu)
+If you run into any issues, just [email me](mailto:ethanis@mit.edu).
