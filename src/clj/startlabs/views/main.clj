@@ -95,7 +95,7 @@
       [:div#people-blogs
         [:h1 "People & Blogs"]
         [:p "Experience is key. Read about the advice and experiences "
-            "that many knowledgable and successful entrepreneurs have to offer."]
+            "that many knowledgeable and successful entrepreneurs have to offer."]
 
         [:table.table
           [:tbody
