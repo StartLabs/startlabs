@@ -198,7 +198,7 @@
                  people have their own ideas on, but to start – take 10 minutes and
                  read this summary of "
                 [:a {:href "http://www.paulgraham.com/fundraising.html"}
-                  "Fundraising"] "by Paul Graham."]
+                  "Fundraising"] " by Paul Graham."]
             [:p "There are a few common ways of financing
                  (in order of the amount of money they will invest):"]
                 [:ul
