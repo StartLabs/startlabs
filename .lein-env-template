@@ -12,4 +12,6 @@
 
   :dev  true
   :port "8000"
+  ;; for remote debugging, etc.
+  :nrepl-port "0000"
 }

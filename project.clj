@@ -10,6 +10,7 @@
                   [org.clojure/tools.logging "0.2.4"]
                   [org.clojure/core.incubator "0.1.1"] ; for -?> goodness
                   [org.clojure/math.numeric-tower "0.0.1"]
+                  [org.clojure/tools.nrepl "0.2.0-beta9"]
                   
                   ;clj other
                   [noir "1.3.0-beta10"]
