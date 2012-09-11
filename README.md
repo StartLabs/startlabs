@@ -4,7 +4,7 @@
 
 StartLabs is written entirely in [Clojure](http://www.clojure.org) and ClojureScript (Clojure which compiles down to JavaScript).
 
-It relies on Twitter Bootstrap, and Leaflet (for mapping), which have been included as
+It relies on Twitter Bootstrap and Leaflet (for mapping), which have been included as
 git submodules, so please run:
 
 `git submodule init && git submodule update;`
