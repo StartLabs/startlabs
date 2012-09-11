@@ -65,10 +65,18 @@
         [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
     (response/redirect "/login")))
 
+(defn correct-link [m]
+  (if-let [link (:link m)]
+    (if (not (re-find #"^http" link))
+      (conj m {:link (str "http://" link)})
+      m)
+    m))
+
 ; This is really bad: datomic is not returning the schema for bio, role, and studying.
 (defpage [:post "/me"] params
   (try
-    (let [my-info (user/get-my-info)
+    (let [params    (correct-link params) ; prefix link with http:// if necessary
+          my-info   (user/get-my-info)
           new-facts (map-diff params my-info)]
       (if (not (empty? new-facts))
         ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)

@@ -6,6 +6,7 @@
   (:require [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
+            [clj-time.core :as t]
             [noir.session :as session]
             [startlabs.models.util :as util]))
 
@@ -72,8 +73,16 @@
 (defn find-user-with-email [email]
   (util/map-for-datom (user-with-email email) :user))
 
+(def q-ungraduated-users
+  '[:find ?user 
+    :in $ ?current-year
+    :where  [?user :user/id _]
+            [?user :user/graduation_year ?grad-year]
+            [(<= ?current-year ?grad-year)]])
+
 (defn find-all-users []
-  (let [users     (q '[:find ?user :where [?user :user/id _]] (db @conn))
+  (let [users     (q  q-ungraduated-users
+                      (db @conn) (t/year (t/now)))
         user-ids  (map first users)
         user-maps (util/maps-for-datoms user-ids :user)]
     (map stringify-values user-maps)))
