@@ -27,10 +27,13 @@
 
 (server/load-views-ns 'startlabs.views)
 
-(defn -main [& m]
+(defn do-main [& m]
   (let [mode (if (env :dev) :dev :prod)
         port (Integer. (or (env :port) "8000"))]
     (db/do-default-setup)
     (reset! repl-server (nrepl/start-server :port (Integer. (env :nrepl-port))))
     (reset! noir-server (server/start port {:mode mode
                                             :ns 'startlabs}))))
+
+(defn -main [& m]
+  (do-main m))
