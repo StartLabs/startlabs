@@ -1,6 +1,7 @@
 (ns startlabs.views.main
   (:require [startlabs.views.common :as common]
-            [noir.response :as response])
+            [noir.response :as response]
+            [noir.statuses :as status])
   (:use [noir.core :only [defpage defpartial]]
         [markdown :only [md-to-html-string]]))
 
@@ -273,11 +274,31 @@
 
               ]
             ]
-
           ]
-
         ]))
+
+(defpartial webmaster-link [text]
+  [:a {:href "mailto:webmaster@startlabs.org"} text])
+
+(defpartial four-oh-four [] 
+    [:h1 "Sorry, we lost that one."]
+    [:p "We couldn't find the page you requested."]
+    [:p "If you got here through a link on another website, then we've
+         probably made a mistake."]
+    [:p "Feel free to contact " (webmaster-link "the webmaster") 
+        " so we can be aware of the issue."])
+
+(defpartial internal-error []
+    [:h1 "Something very bad has happened."]
+    [:p "Well this is embarassing. Please notify " (webmaster-link "our webmaster") 
+      " of the issue."]
+    [:p "Sorry for the inconvience."])
+
+(status/set-page! 404 (four-oh-four))
+(status/set-page! 500 (internal-error))
 
 ;; Redirect. Dead links = evil
 (defpage "/company" [] (response/redirect "/about"))
+(defpage "/contact" [] (response/redirect "/about"))
 (defpage "/partners" [] (response/redirect "/about"))
+(defpage "/postJob" [] (response/redirect "/jobs"))
