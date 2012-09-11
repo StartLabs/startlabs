@@ -123,8 +123,8 @@
 
         [:div.row-fluid
           (if (empty? all-jobs)
-            [:h1 "No jobs posted yet. Come back later!"]
-            (job-list all-jobs))]
+            [:h1 "No jobs posted yet. Come back later!"])
+          (job-list all-jobs)]
 
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]

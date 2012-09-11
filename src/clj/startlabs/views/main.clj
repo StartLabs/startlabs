@@ -1,7 +1,8 @@
 (ns startlabs.views.main
   (:require [startlabs.views.common :as common]
             [noir.response :as response]
-            [noir.statuses :as status])
+            [noir.statuses :as status]
+            [clojure.string :as str])
   (:use [noir.core :only [defpage defpartial]]
         [markdown :only [md-to-html-string]]))
 
@@ -224,7 +225,7 @@
               going on in Boston. They have great blogs, calendars, resources, and job opportunities."
               [:a {:href "http://www.greenhornconnect.com/"} "Check them out."]]
 
-            [:table.table
+            [:table#incubator-table.table
               [:thead
                 [:tr [:td "Incubator"] [:td "Description"] [:td "Funding/Costs"]]]
 
@@ -277,6 +278,41 @@
           ]
         ]))
 
+
+(defn logo-for-company
+  "The scheme is: take the capital letters in the company name, stick them together,
+   append .png to the end. General Catalyst Partners = gcp.png"
+  [company]
+  (str "/img/partners/" 
+    (str/lower-case (apply str (re-seq #"[A-Z]" company))) ".png"))
+
+;; CAPITALIZATION IS CRUCIAL!
+(def partners [
+  ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com/"]
+  ["NEVCA" "http://www.newenglandvc.org/" ]
+  ["Highland Capital Partners" "http://www.hcp.com/"]
+  ["Atlas Venture" "http://www.atlasventure.com/"]
+  ["Bessemer Venture Partners" "http://www.bvp.com/"]
+  ["Boston Seed Capital" "http://www.bostonseed.com/"]
+  ["Charles River Ventures" "http://www.crv.com/"]
+  ["Goodwin Proctor" "http://www.goodwinprocter.com/"]])
+
+(defpage "/partners" []
+  (common/layout
+    [:h1 "Partners"]
+    [:p "StartLabs simply would not be possible without the help of our gracious partners."]
+    [:p "These groups sponsor our efforts to foster the next generation 
+          of technical entrepreneurs:"]
+    [:div.row-fluid
+      [:ul#partners.thumbnails
+        (for [[partner link] partners]
+          (let [logo-url (logo-for-company partner)]
+            [:li.thumbnail.span3
+              [:a {:href link} 
+                [:h3 partner]
+                [:img.center {:src logo-url :alt partner}]]]))
+      ]]))
+
 (defpartial four-oh-four [] 
     [:h1 "Sorry, we lost that one."]
     [:p "We couldn't find the page you requested."]
@@ -297,6 +333,5 @@
 ;; Redirect. Dead links = evil
 (defpage "/company" [] (response/redirect "/about"))
 (defpage "/contact" [] (response/redirect "/about"))
-(defpage "/partners" [] (response/redirect "/about"))
 (defpage "/postJob" [] (response/redirect "/jobs"))
 

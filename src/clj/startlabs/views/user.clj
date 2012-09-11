@@ -121,7 +121,7 @@
     [:h1 "Our Team"]
     [:div.row
       [:div.span12
-        [:ul.thumbnails
+        [:ul#team.thumbnails
           (for [person (sort-by #(:family_name %) (user/find-all-users))]
             (team-member person)
           )]]]))

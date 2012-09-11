@@ -50,7 +50,7 @@
 
 ; could autopopulate routes from defpages that are nested only one layer deep.
 (def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] 
-             [:about "/about"] [:team "/team"]])
+             [:about "/about"] [:partners "/partners"] [:team "/team"]])
 
 (def google-analytics 
   "var _gaq = _gaq || [];
@@ -69,6 +69,9 @@
     (html5
       [:head
         [:title "startlabs"]
+
+        ; make mobile device interface fixed
+        [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
 
         [:link {:rel "stylesheet" :type "text/css" 
                :href (font-link ["Josefin Sans" [400,700]]
