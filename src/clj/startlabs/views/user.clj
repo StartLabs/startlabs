@@ -10,7 +10,7 @@
         [noir.core :only [defpage defpartial render url-for]]
         [noir.request :only [ring-request]]
         [markdown :only [md-to-html-string]]
-        [startlabs.util :only [map-diff]]))
+        [startlabs.util :only [map-diff nil-empty-str-values]]))
 
 ;; account-related routes
 
@@ -94,6 +94,19 @@
         (user-table member-info false)
         [:p "We could not find a user with the email address: " email]))))
 
+(defpartial team-member [person]
+  (let [person    (nil-empty-str-values person)
+        major     (:studying person)
+        grad-year (:graduation_year person)]
+    [:li.span3
+      [:div.thumbnail
+        [:img {:src (:picture person)}]
+        [:h3 [:a {:href (:link person)} (:name person)]]
+        [:h4 (:role person)]
+        [:p  (if major (str "Studying " major))
+             (if (and major grad-year) ", ")
+             (if grad-year (str "Class of " grad-year))]
+        [:p  (md-to-html-string (:bio person))]]]))
 
 (defpage "/team" []
   (common/layout
@@ -101,16 +114,9 @@
     [:div.row
       [:div.span12
         [:ul.thumbnails
-          (for [person (sort-by #(:name %) (user/find-all-users))]
-            [:li.span3
-              [:div.thumbnail
-                [:img {:src (:picture person)}]
-                [:h3 [:a {:href (:link person)} (:name person)]]
-                [:h4  (:role person)]
-                [:p  "Studying " (:studying person) ", Class of " (:graduation_year person)]
-                [:p  (md-to-html-string (:bio person))]]]
-          )]]]
-  ))
+          (for [person (sort-by #(:family_name %) (user/find-all-users))]
+            (team-member person)
+          )]]]))
 
 
 
