@@ -54,10 +54,6 @@
     (html5
       [:head
         [:title "startlabs"]
-        ; switch to style.css in production
-        [:link {:rel "stylesheet/less" :type "text/css" 
-                :href (if (env :dev) "/css/style.less"
-                                     "/css/style.css")}]
 
         [:link {:rel "stylesheet" :type "text/css" 
                :href (font-link ["Josefin Sans" [400,700]]
@@ -102,8 +98,6 @@
                     "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
                     "/oms.min.js"
                     "/client.js")
-
-        (if (env :dev)
-          (include-js "/less-1.3.0.min.js"))])))
+    ])))
 
 
