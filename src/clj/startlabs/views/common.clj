@@ -40,13 +40,28 @@
       ]]
     [:li.pull-right [:a {:href "/login"} "Login"]]))
 
+(defpartial webmaster-link [text]
+  [:a {:href "mailto:ethan@startlabs.org"} text])
+
 (defn home-uri []
   (if (env :dev)
     "http://localhost:8000"
     "http://www.startlabs.org"))
 
 ; could autopopulate routes from defpages that are nested only one layer deep.
-(def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] [:about "/about"] [:team "/team"]])
+(def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] 
+             [:about "/about"] [:team "/team"]])
+
+(def google-analytics 
+  "var _gaq = _gaq || [];
+   _gaq.push(['_setAccount', 'UA-25782354-1']);
+   _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();")
 
 (defpartial layout [& content]
   (let [[message-type message] (session/flash-get :message)
@@ -89,6 +104,8 @@
             [:p "Follow us on " 
               [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
               [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]]
+
+        [:script {:type "text/javascript"} google-analytics]
 
         (include-js "/markdown.js"
                     "/jquery.js"

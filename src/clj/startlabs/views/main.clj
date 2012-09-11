@@ -277,20 +277,17 @@
           ]
         ]))
 
-(defpartial webmaster-link [text]
-  [:a {:href "mailto:webmaster@startlabs.org"} text])
-
 (defpartial four-oh-four [] 
     [:h1 "Sorry, we lost that one."]
     [:p "We couldn't find the page you requested."]
     [:p "If you got here through a link on another website, then we've
          probably made a mistake."]
-    [:p "Feel free to contact " (webmaster-link "the webmaster") 
+    [:p "Feel free to contact " (common/webmaster-link "the webmaster") 
         " so we can be aware of the issue."])
 
 (defpartial internal-error []
     [:h1 "Something very bad has happened."]
-    [:p "Well this is embarassing. Please notify " (webmaster-link "our webmaster") 
+    [:p "Well this is embarassing. Please notify " (common/webmaster-link "our webmaster") 
       " of the issue."]
     [:p "Sorry for the inconvience."])
 
@@ -302,3 +299,4 @@
 (defpage "/contact" [] (response/redirect "/about"))
 (defpage "/partners" [] (response/redirect "/about"))
 (defpage "/postJob" [] (response/redirect "/jobs"))
+
