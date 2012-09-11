@@ -1,4 +1,4 @@
-#startlabs#
+#StartLabs#
 
 ##Getting Started
 
@@ -29,10 +29,9 @@ a `.lein-env-template` to get you started.
 ##The Database
 
 While testing the site, you will need to have an instance of Datomic running locally.
-To do so, [download a copy of Datomic Free](http://downloads.datomic.com/free.html).
-Rename the folder to `datomic-free` and place it at the root of this directory.
-Make sure the version you download matches the number indicated in `project.clj`
-(0.8.3488 as of writing this):
+It should have appeared in the root directory as `datomic-free` when you downloaded
+the git submodules. The only tricky thing is making sure the version number matches
+the one specified on `project.clj` (0.8.3488 as of writing this):
 ```
 [com.datomic/datomic-free "0.8.3488" ...]
 ```
@@ -60,11 +59,12 @@ compile your clojurescripts into JavaScript: `lein cljsbuild auto`
 Stylesheets are preprocessed with less.js. Less was chosen for compatability with Twitter Bootstrap.
 We're using a forked version of Bootstrap, and the primary stylesheet specific to StartLabs
 is located at `bootstrap/less/startlabs.less`. Again, make sure to do `git submodule init && git submodule update;` if you don't see the `bootstrap` folder in this directory's root.
+To rebuild all of boostrap, just call `make bootstrap` or `make watch` within the bootstrap directory.
 
-Once everything is setup nicely, just call `lein run`.
+If you've followed all of the above steps correctly, you should now be able
+to start the site by calling: `lein run`.
 
-
-##Epilogue & Lamentations
+##Epilogue
 
 I haven't gotten around to writing a test suite yet. 
 Shame on me. Hope to do so eventually.
@@ -72,3 +72,5 @@ Shame on me. Hope to do so eventually.
 Apologies for all of the moving parts. It may be difficult to get setup initially,
 but I think you'll find that working in Clojure is drastically more pleasant than
 most other languages/toolkits.
+
+If you run into any issues, just [email me](mailto:ethanis@mit.edu)
