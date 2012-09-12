@@ -63,6 +63,18 @@ To rebuild all of boostrap, just call `make bootstrap` or `make watch` within th
 If you've followed all of the above steps correctly, you should now be able
 to start the site by calling: `lein run`.
 
+##Nginx
+
+If you want to get really fancy (attempt to simulate the actual production 
+environment), you can try proxying the site through [nginx](http://nginx.org/). 
+This is generally safer and more flexible than running the application process as 
+root, so it's the preferred way of configuring things. I've included a configuration 
+file here: `conf/startlabs.conf`. It assumes you'll be running the *real* 
+application server on port 8000. Tweak it as necessary, then run:
+```
+sudo nginx -c /The/full/path/to/conf/startlabs.conf
+```
+
 ##Epilogue
 
 I haven't gotten around to writing a test suite yet. 
