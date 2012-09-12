@@ -113,7 +113,8 @@
                 ["Bill Warner" "http://www.billwarner.posterous.com" "billwarner"]
                 ["Karl Buttner" nil "carlbuttner"]
                 ["David Skok" "http://www.forentrepreneurs.com" "bostonvc"]
-                ["Paul English" "http://www.paulenglish.com" "englishpaulM"]])]]]
+                ["Paul English" "http://www.paulenglish.com" "englishpaulM"]
+                ["Bilal Zuberi" "http://bznotes.wordpress.com" "bznotes"]])]]]
 
         [:div#university-resources.clearfix
           [:h1 "University Resources"]
@@ -168,7 +169,7 @@
 
               [:h2 "Law Firms and Lawyers"]
                 [:ul (map #(apply ablank-li %)
-                  [["http://www.goodwinprocter.com/" "Goodwin Proctor"]
+                  [["http://www.goodwinprocter.com/" "Goodwin Procter"]
                    ["http://www.siliconlegal.com/" "Silicon Legal"]
                    ["http://www.grellas.com/" "Grellas Shah, LLP"]
                    ["http://walkercorporatelaw.com/" "Walker Corporate Law Group"]])]]
@@ -295,7 +296,7 @@
   ["Bessemer Venture Partners" "http://www.bvp.com/"]
   ["Boston Seed Capital" "http://www.bostonseed.com/"]
   ["Charles River Ventures" "http://www.crv.com/"]
-  ["Goodwin Proctor" "http://www.goodwinprocter.com/"]])
+  ["Goodwin Procter" "http://www.goodwinprocter.com/"]])
 
 (defpage "/partners" []
   (common/layout
