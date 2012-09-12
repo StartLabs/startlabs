@@ -5,6 +5,9 @@
 sudo apt-get update
 sudo apt-get install nginx openjdk-7-jre-headless make python-software-properties zsh nodejs npm
 
+# make the nginx log directory
+sudo mkdir /etc/nginx/logs
+
 #cleanup all of the package gunk
 sudo apt-get autoremove
 
