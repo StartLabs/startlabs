@@ -2,7 +2,8 @@
   (:require [startlabs.models.util :as mu]
             [clj-time.format :as t]
             [clojure.string :as str])
-  (:use [clj-time.coerce :only [from-date]])
+  (:use [clj-time.coerce :only [from-date]]
+        [environ.core :only [env]])
   (:import java.util.Date))
 
 (defn stringify-value [val]
@@ -44,3 +45,9 @@
   (apply str default
     (for [[condition value] conditions]
       (if condition (str " " value)))))
+
+
+(defn home-uri []
+  (if (env :dev)
+    (str "http://localhost:" (or (env :port) "8000"))
+    "http://www.startlabs.org"))

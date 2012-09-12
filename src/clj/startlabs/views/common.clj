@@ -43,11 +43,6 @@
 (defpartial webmaster-link [text]
   [:a {:href "mailto:ethan@startlabs.org"} text])
 
-(defn home-uri []
-  (if (env :dev)
-    "http://localhost:8000"
-    "http://www.startlabs.org"))
-
 ; could autopopulate routes from defpages that are nested only one layer deep.
 (def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] 
              [:about "/about"] [:partners "/partners"] [:team "/team"]])

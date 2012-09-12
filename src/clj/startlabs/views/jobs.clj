@@ -13,14 +13,14 @@
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
-        [startlabs.util :only [cond-class trim-vals]]
+        [startlabs.util :only [cond-class trim-vals home-uri]]
         [startlabs.views.jobx :only [job-card job-list]])
   (:import java.net.URI))
 
 ;; jobs
 
 (defpartial job-email-body [job-map]
-  (let [conf-link (str (common/home-uri) (url-for confirm-job {:id (:id job-map)}))]
+  (let [conf-link (str (home-uri) (url-for confirm-job {:id (:id job-map)}))]
     [:div
       [:p "Hey there,"]
       [:p "Thanks for submitting to the StartLabs jobs list."]

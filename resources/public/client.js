@@ -14738,7 +14738,7 @@ p = function(a) {
   return a
 };
 re_tag = /([^\s\.#]+)(?:#([^\s\.#]+))?(?:\.([^\s#]+))?/;
-re_svg_tags = /^(svg|g|rect|circle|clipPath|path|line|polygon|polyline|text|textPath)$/;
+re_svg_tags = /(svg|g|rect|circle|clipPath|path|line|polygon|polyline|text|textPath)/;
 re_whitespace = /^\s+$/;
 key_prefix = "\x00";
 xmlns = {xhtml:"http://www.w3.org/1999/xhtml", svg:"http://www.w3.org/2000/svg"};
@@ -14813,7 +14813,7 @@ singult.coffee.canonicalize_hiccup = function(a) {
   e = d[2];
   d = d[3];
   null != e && (a.id = e);
-  null != d && (a["class"] = d.replace(/\./g, " ") + (null != a["class"] ? " " + a["class"] : ""));
+  null != d && (a["class"] = d.replace(".", " ") + (null != a["class"] ? " " + a["class"] : ""));
   e = namespace_tag(f);
   f = e[0];
   e = e[1];
@@ -14829,9 +14829,6 @@ singult.coffee.canonicalize_hiccup = function(a) {
 };
 singult.coffee.render = function(a) {
   var b, c;
-  if(unify_p(a)) {
-    throw Error("Unify must be the first and only child of its parent.");
-  }
   if(string_p(a)) {
     return document.createTextNode(a)
   }
@@ -14915,9 +14912,7 @@ singult.coffee.merge = function(a, b) {
       singult.coffee.merge(a, b.children[0])
     }else {
       if(a.childNodes.length > b.children.length) {
-        for(e = c = d = a.childNodes.length - 1;0 >= d ? 0 >= c : 0 <= c;e = 0 >= d ? ++c : --c) {
-          a.removeChild(a.childNodes[e])
-        }
+        throw"Removing DOM nodes in singult.core#merge! not yet implemented = (";
       }
       for(e = 0;e < b.children.length;) {
         d = b.children[e] || "";
@@ -19161,7 +19156,8 @@ startlabs.maps.setup_maps = function() {
     var a = clojure.string.trim.call(null, jayq.core.val.call(null, jayq.core.$.call(null, this)));
     return cljs.core.swap_BANG_.call(null, startlabs.maps.filtered_jobs, startlabs.maps.jobs_filter.call(null, a))
   });
-  return jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function() {
+  return jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function(a) {
+    a.preventDefault();
     return jayq.core.$.call(null, "#map").toggle()
   })
 };

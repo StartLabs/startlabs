@@ -2,7 +2,7 @@
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [conn]]
         [environ.core :only [env]]
-        [startlabs.util :only [stringify-values]])
+        [startlabs.util :only [stringify-values home-uri]])
   (:require [clojure.string :as str]
             [oauth.google :as oa]
             [clj-http.client :as client]
@@ -12,7 +12,7 @@
 
 (def redirect-url  
   (if (env :dev)
-    "http://localhost:8000/oauth2callback"
+    (str (home-uri) "/oauth2callback")
     "http://www.startlabs.org/oauth2callback"))
 
 (def googleapis-url "https://www.googleapis.com/oauth2/v1/")

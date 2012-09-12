@@ -115,6 +115,8 @@
         (swap! filtered-jobs (jobs-filter query))))))
 
   (jq/bind ($ "#map-toggle") :click (fn [e]
+    (.preventDefault e)
     (.toggle ($ "#map"))))
 
 )
+
