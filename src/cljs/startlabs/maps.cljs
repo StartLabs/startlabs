@@ -18,16 +18,19 @@
 (def cloudmade-key "fe134333250f494fb51ac8903b83c9fb")
 (def tile-layer-url (str "http://{s}.tile.cloudmade.com/" cloudmade-key "/997/256/{z}/{x}/{y}.png"))
 
+; shorthand
 (def CM js/CM)
 (def L js/L)
 
-(def ^:dynamic lmap nil)
-(def ^:dynamic markers nil)
+; the following are initialized in setup-maps
+(def ^:dynamic lmap nil) ; the leaflet map object
+(def ^:dynamic markers nil) ; the leaflet layergroup containing the markers
 
 (def geocoder (CM/Geocoder. cloudmade-key))
 
 (def ^:dynamic oms nil)
 
+; slurp up the job data from the script tag embedded in the page
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
 (def filtered-jobs (atom []))
 
@@ -108,11 +111,14 @@
   (bind! "#job-list"
     (job-list @filtered-jobs))
 
+
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter jobs as you search
     (this-as job-search
       (let [query (str/trim (jq/val ($ job-search)))]
-        (swap! filtered-jobs (jobs-filter query))))))
+        (swap! filtered-jobs (jobs-filter query))))
+  ))
+
 
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
