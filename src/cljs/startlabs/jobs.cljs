@@ -16,6 +16,10 @@
   (:require-macros [fetch.macros :as fm]
                    [jayq.macros :as jm]))
 
+;; eventually I should split this out into two separate modules:
+;; 1. A generic cloudmade/leaflet api wrapper
+;; 2. The jobs-page-specific logic.
+
 (def cloudmade-key "fe134333250f494fb51ac8903b83c9fb")
 
 (def tile-layer-url 
@@ -125,11 +129,20 @@
             (geocode location (add-marker-callback job false))))
   ))))
 
+  ; hack to makeup for singult's inability to include raw html in templates
+  (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
+    (u/wait 1 (fn []
+      (.each ($ ".description.unrendered") (fn []
+        (this-as descr
+          (let [$descr ($ descr)]
+            (.html $descr (.text $descr))
+            (.removeClass $descr "unrendered"))))
+  )))))
+
   (reset! filtered-jobs job-data)
 
   (bind! "#job-list"
     (job-list @filtered-jobs))
-
 
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter jobs as you search

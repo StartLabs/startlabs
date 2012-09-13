@@ -215,7 +215,8 @@
     (if (job/confirm-job id)
       [:div
         [:h1 "Thanks for Confirming"]
-        [:p  "Your listing should now be posted."]]
+        [:p  "Your listing should now be posted."]
+        [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
       [:div
         [:h1 "Something went wrong."]
         [:p  "Sorry for the inconvenience. Please contact the "

@@ -15582,6 +15582,7 @@ startlabs.views.jobx.is_email_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i, a)
 };
 startlabs.views.jobx.markdownify = markdown.mdToHtml;
+startlabs.views.jobx.is_cljs_QMARK_ = !0;
 startlabs.views.jobx.is_phone_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /^[\d-\.\(\)\s]{7,15}$/, a)
 };
@@ -15599,8 +15600,8 @@ startlabs.views.jobx.job_card = function(a) {
     var b = startlabs.views.jobx.linkify.call(null, (new cljs.core.Keyword("\ufdd0'website")).call(null, a));
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.dateloc", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 
-  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", 
-  "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
+  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":[cljs.core.str("description"), cljs.core.str(cljs.core.truth_(startlabs.views.jobx.is_cljs_QMARK_) ? " unrendered" : 
+  null)].join("")}), startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0)
@@ -18574,6 +18575,9 @@ startlabs.util.redirect_BANG_ = function(a) {
   return window.location = a
 };
 startlabs.util.location_hash = location.hash;
+startlabs.util.wait = function(a, b) {
+  return setTimeout(b, a)
+};
 startlabs.util.log = function(a) {
   return console.log(a)
 };
@@ -19191,6 +19195,15 @@ startlabs.jobs.setup_jobs = function() {
     }else {
       return null
     }
+  });
+  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'fix-descriptions", function() {
+    return startlabs.util.wait.call(null, 1, function() {
+      return jayq.core.$.call(null, ".description.unrendered").each(function() {
+        var a = jayq.core.$.call(null, this);
+        a.html(a.text());
+        return a.removeClass("unrendered")
+      })
+    })
   });
   cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data);
   var a = function() {

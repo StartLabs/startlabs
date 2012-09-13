@@ -1,12 +1,15 @@
 (ns startlabs.util
   (:use [jayq.core :only [$]])
-  
+
   (:require [clojure.string :as str]))
 
 (defn redirect! [url]
   (set! (.-location js/window) url))
 
 (def location-hash (.-hash js/location))
+
+(defn wait [ms func]
+  (js/setTimeout func ms))
 
 (defn log [v]
   (.log js/console v))
