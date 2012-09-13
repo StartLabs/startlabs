@@ -19163,12 +19163,17 @@ startlabs.jobs.jobs_filter = function(a) {
 };
 startlabs.jobs.setup_job_submit = function() {
   jayq.core.$.call(null, ".datepicker").datepicker();
-  var a = jayq.core.$.call(null, "#job-form input, #job-form textarea"), b = function() {
+  var a = jayq.core.$.call(null, window);
+  a.scroll(function() {
+    var b = jayq.core.$.call(null, "#job-preview"), c = a.scrollTop();
+    return jayq.core.css.call(null, b, cljs.core.ObjMap.fromObject(["\ufdd0'margin-top"], {"\ufdd0'margin-top":[cljs.core.str(c), cljs.core.str("px")].join("")})).call(null)
+  });
+  var b = jayq.core.$.call(null, "#job-form input, #job-form textarea"), c = function() {
     jayq.core.$.call(null, "#job-preview").html(singult.core.render.call(null, startlabs.views.jobx.job_card.call(null, startlabs.util.form_to_map.call(null, jayq.core.$.call(null, "#job-form")))));
     return jayq.core.$.call(null, "#job-preview .description").html(markdown.mdToHtml.call(null, jayq.core.$.call(null, "#description").val()))
   };
-  jayq.core.bind.call(null, a, "\ufdd0'keyup", b);
-  return jayq.core.bind.call(null, a, "\ufdd0'blur", b)
+  jayq.core.bind.call(null, b, "\ufdd0'keyup", c);
+  return jayq.core.bind.call(null, b, "\ufdd0'blur", c)
 };
 startlabs.jobs.setup_jobs = function() {
   startlabs.jobs.setup_job_submit.call(null);

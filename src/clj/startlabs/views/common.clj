@@ -81,13 +81,19 @@
       [:body
         [:div#nav [:div.container
           [:a#nav-logo {:href "/"} [:img {:src "/img/logo_small.png" :width "96px"}]]
-          (let [current-uri (:uri request)]
-            [:ul.nav.nav-pills
-              (for [[page location] routes]
-                [:li [:a {:href location :class (if (= current-uri location) "active")} 
-                  (str/capitalize (name page))]])
 
-              (login-info)])]]
+          [:ul.visible-phone.visible-tablet.nav.nav-pills.pull-right
+            [:li
+              [:a {:data-toggle "collapse" :data-target".nav-collapse"} "Navigate"]]]
+
+          (let [current-uri (:uri request)]
+            [:div.nav-collapse
+              [:ul.nav.nav-pills
+                (for [[page location] routes]
+                  [:li [:a {:href location :class (if (= current-uri location) "active")} 
+                    (str/capitalize (name page))]])
+
+                (login-info)]])]]
 
         [:div#content.container
           (if message

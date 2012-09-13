@@ -92,6 +92,14 @@
 (defn setup-job-submit []
   (.datepicker ($ ".datepicker"))
 
+  ; simulate position: fixed
+  (let [$window ($ js/window)]
+    (.scroll $window #(
+      (let [$job-preview ($ "#job-preview")
+            top          (.scrollTop $window)]
+        (jq/css $job-preview {:margin-top (str top "px")})
+  ))))
+
   (let [$elems ($ "#job-form input, #job-form textarea")]
     (letfn [(update-job-card [e]
               (.html ($ "#job-preview")
