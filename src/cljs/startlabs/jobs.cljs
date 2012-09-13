@@ -129,16 +129,13 @@
             (geocode location (add-marker-callback job false))))
   ))))
 
-  ; hack to makeup for singult's inability to include raw html in templates
-  (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
-    (u/wait 1 (fn []
-      (.each ($ ".description") (fn []
-        (this-as descr
-          (let [$descr ($ descr)]
-            (.html $descr (.text $descr)))))
-  )))))
 
-  (reset! filtered-jobs job-data)
+  ; hack to makeup for singult's inability to include raw html in templates
+  ; make sure to add this AFTER the initial reset.
+  (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
+    (doseq [job n]
+      (let [$descr ($ (str "#" (:id job) " .description"))]
+        (.html $descr (markdown/mdToHtml (:description job)))))))
 
   (bind! "#job-list"
     (job-list @filtered-jobs))
@@ -150,10 +147,11 @@
         (swap! filtered-jobs (jobs-filter query))))
   ))
 
-
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
     (.toggle ($ "#map"))))
+
+  (reset! filtered-jobs job-data)
 
 )
 

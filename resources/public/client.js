@@ -19195,15 +19195,19 @@ startlabs.jobs.setup_jobs = function() {
       return null
     }
   });
-  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'fix-descriptions", function() {
-    return startlabs.util.wait.call(null, 1, function() {
-      return jayq.core.$.call(null, ".description").each(function() {
-        var a = jayq.core.$.call(null, this);
-        return a.html(a.text())
-      })
-    })
+  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'fix-descriptions", function(a, b, e, f) {
+    if(b = cljs.core.seq.call(null, f)) {
+      for(a = cljs.core.first.call(null, b);;) {
+        if(jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str(" .description")].join("")).html(markdown.mdToHtml.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))), a = cljs.core.next.call(null, b)) {
+          b = a, a = cljs.core.first.call(null, b)
+        }else {
+          return null
+        }
+      }
+    }else {
+      return null
+    }
   });
-  cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data);
   var a = function() {
     var a = new reflex.core.ComputedObservable(null, !0, function() {
       return startlabs.views.jobx.job_list.call(null, cljs.core.deref.call(null, startlabs.jobs.filtered_jobs))
@@ -19220,10 +19224,11 @@ startlabs.jobs.setup_jobs = function() {
     var a = clojure.string.trim.call(null, jayq.core.val.call(null, jayq.core.$.call(null, this)));
     return cljs.core.swap_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.jobs_filter.call(null, a))
   });
-  return jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function(a) {
+  jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function(a) {
     a.preventDefault();
     return jayq.core.$.call(null, "#map").toggle()
-  })
+  });
+  return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {
