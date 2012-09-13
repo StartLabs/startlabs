@@ -84,7 +84,7 @@
 
           [:ul.visible-phone.visible-tablet.nav.nav-pills.pull-right
             [:li
-              [:a {:data-toggle "collapse" :data-target".nav-collapse"} "Navigate"]]]
+              [:a {:data-toggle "collapse" :data-target".nav-collapse" :href "#"} "Navigate"]]]
 
           (let [current-uri (:uri request)]
             [:div.nav-collapse
