@@ -15,9 +15,6 @@
 ^:clj  (def markdownify md-to-html-string)
 ^:cljs (def markdownify markdown/mdToHtml)
 
-^:clj  (def is-cljs? false)
-^:cljs (def is-cljs? true)
-
 (defn is-phone? 
   "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots."
   [v]
@@ -52,7 +49,7 @@
       [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
     [:div.row-fluid
       ; mark cljs markdown as unrendered because singult is currently unable to embed raw html
-      [:div {:class  (str "description" (if is-cljs? " unrendered"))} 
+      [:div.description 
         (markdownify (:description job-info))]
 
       [:div.well.well-small

@@ -151,9 +151,7 @@
 (defn valid-job? [job-params]
   (let [site-uri    (URI. (or (:website job-params) ""))
         replace-www (fn [x] (str/replace x "www."  ""))
-        site-host   (-?> site-uri
-                         .getHost
-                         replace-www)]
+        site-host   (-?> site-uri .getHost replace-www)]
     (dorun (map empty-rule job-params))
 
     (vali/rule (not (nil? site-host))
@@ -179,8 +177,11 @@
     (not (apply vali/errors? ordered-job-keys))))
 
 (defn fix-job-params [params]
-  (conj params 
-    {:website (u/httpify-url (:website params))}))
+  (let [website (:website params)]
+    (conj params 
+      {:website (if (not (empty? website)) 
+        (u/httpify-url website) 
+        "")})))
 
 (defpage [:post "/jobs"] {:as params}
   (let [trimmed-params (u/trim-vals params)

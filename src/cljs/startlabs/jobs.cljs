@@ -132,11 +132,10 @@
   ; hack to makeup for singult's inability to include raw html in templates
   (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
     (u/wait 1 (fn []
-      (.each ($ ".description.unrendered") (fn []
+      (.each ($ ".description") (fn []
         (this-as descr
           (let [$descr ($ descr)]
-            (.html $descr (.text $descr))
-            (.removeClass $descr "unrendered"))))
+            (.html $descr (.text $descr)))))
   )))))
 
   (reset! filtered-jobs job-data)
