@@ -1,4 +1,4 @@
-(ns startlabs.maps
+(ns startlabs.jobs
   (:use [jayq.core :only [$]]
         [jayq.util :only [clj->js]]
         [singult.core :only [render]]
@@ -8,7 +8,8 @@
   (:require [clojure.string :as str]
             [fetch.remotes :as remotes]
             [jayq.core :as jq]
-            [jayq.util :as util])
+            [jayq.util :as util]
+            [startlabs.util :as u])
 
   (:use-macros [c2.util :only [bind!]])
 
@@ -16,7 +17,10 @@
                    [jayq.macros :as jm]))
 
 (def cloudmade-key "fe134333250f494fb51ac8903b83c9fb")
-(def tile-layer-url (str "http://{s}.tile.cloudmade.com/" cloudmade-key "/997/256/{z}/{x}/{y}.png"))
+
+(def tile-layer-url 
+  (str "http://{s}.tile.cloudmade.com/" cloudmade-key 
+       "/997/256/{z}/{x}/{y}.png"))
 
 ; shorthand
 (def CM js/CM)
@@ -81,7 +85,22 @@
               (map job [:position :company :location])))
         job-data))))
 
-(defn setup-maps []
+(defn setup-job-submit []
+  (.datepicker ($ ".datepicker"))
+
+  (let [$elems ($ "#job-form input, #job-form textarea")]
+    (letfn [(update-job-card [e]
+              (.html ($ "#job-preview")
+                     (render (job-card (u/form-to-map ($ "#job-form")))))
+              ; singult is escaping the generated markdown :(
+              (.html ($ "#job-preview .description") 
+                     (markdown/mdToHtml (.val ($ "#description")))))]
+      (jq/bind $elems :keyup update-job-card)
+      (jq/bind $elems :blur  update-job-card))))
+
+(defn setup-jobs []
+  (setup-job-submit)
+
   (def lmap (.map L "map"))
   (.setView lmap (array 42 -92) 3)
 

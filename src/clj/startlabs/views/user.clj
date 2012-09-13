@@ -5,12 +5,13 @@
             [noir.response :as response]
             [noir.validation :as vali]
             [clojure.string :as str]
-            [startlabs.models.util :as mu])
+            [startlabs.models.util :as mu]
+            [startlabs.util :as u])
+
   (:use [clojure.core.incubator]
         [noir.core :only [defpage defpartial render url-for]]
         [noir.request :only [ring-request]]
-        [markdown :only [md-to-html-string]]
-        [startlabs.util :only [map-diff nil-empty-str-values]]))
+        [markdown :only [md-to-html-string]]))
 
 ;; account-related routes
 
@@ -67,17 +68,14 @@
 
 (defn correct-link [m]
   (if-let [link (:link m)]
-    (if (not (re-find #"^http" link))
-      (conj m {:link (str "http://" link)})
-      m)
+    (conj m {:link (u/httpify-url link)})
     m))
 
-; This is really bad: datomic is not returning the schema for bio, role, and studying.
 (defpage [:post "/me"] params
   (try
     (let [params    (correct-link params) ; prefix link with http:// if necessary
           my-info   (user/get-my-info)
-          new-facts (map-diff params my-info)]
+          new-facts (u/map-diff params my-info)]
       (if (not (empty? new-facts))
         ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
         (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
@@ -103,7 +101,7 @@
         [:p "We could not find a user with the email address: " email]))))
 
 (defpartial team-member [person]
-  (let [person    (nil-empty-str-values person)
+  (let [person    (u/nil-empty-str-values person)
         major     (:studying person)
         grad-year (:graduation_year person)]
     [:li.span3

@@ -20,6 +20,11 @@
   [v]
   (re-matches #"^[\d-\.\(\)\s]{7,15}$" v))
 
+(defn is-www?
+  "Checks if site begins with www. (but not http)"
+  [v]
+  (not (nil? (re-find #"^www\." v))))
+
 (defn linkify 
   "Converts an email address, telephone number, or url into a proper link
    to be used as the href attribute in an HTML anchor."
@@ -28,6 +33,7 @@
     (condp apply [text]
       is-email? "mailto:"
       is-phone? "tel://"
+      is-www?   "http://"
       nil)
 
     text))
@@ -35,7 +41,7 @@
 
 (defn job-card [job-info]
   [:div.thumbnail.job-info
-    [:h2 [:a {:href (or (:website job-info) "#")} (:company job-info) ":"]
+    [:h2 [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
       [:small " " (:position job-info)]]
     [:div.row-fluid.dateloc
       ; need to format dates

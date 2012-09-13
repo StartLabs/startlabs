@@ -6,6 +6,7 @@
             [noir.validation :as vali]
             [postal.core :as postal]
             [startlabs.models.util :as mu]
+            [startlabs.util :as u]
             [startlabs.views.common :as common]
             [startlabs.models.job :as job])
   (:use [clojure.core.incubator]
@@ -13,14 +14,13 @@
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
-        [startlabs.util :only [cond-class trim-vals home-uri]]
         [startlabs.views.jobx :only [job-card job-list]])
   (:import java.net.URI))
 
 ;; jobs
 
 (defpartial job-email-body [job-map]
-  (let [conf-link (str (home-uri) (url-for confirm-job {:id (:id job-map)}))]
+  (let [conf-link (str (u/home-uri) (url-for confirm-job {:id (:id job-map)}))]
     [:div
       [:p "Hey there,"]
       [:p "Thanks for submitting to the StartLabs jobs list."]
@@ -90,7 +90,7 @@
    :contact_info "jobs@squareup.com"})
 
 (defpartial submit-job [has-params? params]
-  [:div#submit {:class (cond-class "tab-pane" [has-params? "active"])}
+  [:div#submit {:class (u/cond-class "tab-pane" [has-params? "active"])}
     [:h1 "Submit a Job"]
 
     [:form#job-form.row-fluid {:method "post" :action "/jobs"}
@@ -106,7 +106,7 @@
 
 (defpartial browse-jobs [has-params?]
   (let [all-jobs (sort-by #(:company %) (job/find-upcoming-jobs))]
-    [:div#browse {:class (cond-class "tab-pane" [(not has-params?) "active"])}
+    [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
       ;; sort by date and location.
       ;; search descriptions and company names
       [:h1 "Browse Startup Jobs"]
@@ -134,9 +134,9 @@
   (let [has-params? (not (empty? params))]
     (common/layout
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
-        [:a {:class (cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"}
+        [:a {:class (u/cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"}
           "Browse Available"]
-        [:a {:class (cond-class "btn" [has-params? "active"]) :href "#submit" :data-toggle "tab"}
+        [:a {:class (u/cond-class "btn" [has-params? "active"]) :href "#submit" :data-toggle "tab"}
           "Submit a Job"]]
       [:div.clearfix]
 
@@ -149,7 +149,7 @@
     (vali/has-value? v) [k "This field cannot be empty."]))
 
 (defn valid-job? [job-params]
-  (let [site-uri    (URI. (:website job-params))
+  (let [site-uri    (URI. (or (:website job-params) ""))
         replace-www (fn [x] (str/replace x "www."  ""))
         site-host   (-?> site-uri
                          .getHost
@@ -178,11 +178,16 @@
 
     (not (apply vali/errors? ordered-job-keys))))
 
+(defn fix-job-params [params]
+  (conj params 
+    {:website (u/httpify-url (:website params))}))
+
 (defpage [:post "/jobs"] {:as params}
-  (let [trimmed-params (trim-vals params)]
-    (if (valid-job? trimmed-params)
+  (let [trimmed-params (u/trim-vals params)
+        fixed-params   (fix-job-params params)]
+    (if (valid-job? fixed-params)
       (try
-        (let [job-info  (job/create-job trimmed-params)
+        (let [job-info  (job/create-job fixed-params)
               email-res (send-confirmation-email job-info)]
           (if (= (:error email-res) :SUCCESS)
             (do
@@ -190,15 +195,15 @@
             (do
               (session/flash-put! 
                 :message [:error "Trouble sending confirmation email:" (:message email-res)])
-              (render "/jobs" trimmed-params))))
+              (render "/jobs" fixed-params))))
 
         (catch Exception e
           (session/flash-put! :message [:error (str "Trouble connecting to the database:" e)])
-          (render "/jobs" trimmed-params)))
+          (render "/jobs" fixed-params)))
 
       (do ;invalid job, flash an error message
         (session/flash-put! :message [:error "Please correct the form and resubmit."])
-        (render "/jobs" trimmed-params)))))
+        (render "/jobs" fixed-params)))))
 
 (defpage "/jobs/success" []
   (common/layout

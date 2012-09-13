@@ -2,33 +2,22 @@
   (:use [jayq.core :only [$]]
         [singult.core :only [render]]
         [startlabs.views.jobx :only [job-card]]
-        [startlabs.maps :only [setup-maps]])
-  (:require [clojure.string :as str]
-            [fetch.remotes :as remotes]
+        [startlabs.jobs :only [setup-jobs]])
+
+  (:require [fetch.remotes :as remotes]
             [jayq.core :as jq]
-            [jayq.util :as util])
+            [jayq.util :as util]
+            [startlabs.util :as u])
+  
   (:require-macros [fetch.macros :as fm]
                    [jayq.macros :as jm]))
 
 ; browser repl for development
 ; (repl/connect "http://localhost:9000/repl")
 
-(def location-hash (.-hash js/location))
-
-(defn exists? [$sel]
-  (not= (.-length ($ $sel)) 0))
-
-(defn mapify-hash 
-  "convert location.hash into a clojure map"
-  []
-  (let [hash (.slice location-hash 1)
-        split-hash (.split hash #"[=&]")
-        keyvals (map-indexed (fn [idx val] (if (even? idx) (keyword val) val)) split-hash)]
-    (apply hash-map keyvals)))
-
 ; haven't got redirect uri working yet
 (defn handle-hash-change [& e]
-  (let [hash-vals (mapify-hash)
+  (let [hash-vals    (u/mapify-hash)
         access-token (:access_token hash-vals)
         expiration   (:expires_in hash-vals)
         redirect-uri (or (:state hash-vals) "/")]
@@ -36,8 +25,8 @@
       (do
         (jq/text ($ "#loading") "Verifying credentials...")
         (fm/remote (token-info access-token) [result]
-          (.log js/console (util/clj->js result))
-          (set! (.-location js/window) redirect-uri)
+          (u/log (util/clj->js result))
+          (u/redirect! redirect-uri)
         )))))
 
 (defn swap-picture-preview []
@@ -67,33 +56,15 @@
 
   (update-bio-preview))
 
-(defn form-to-map [$form]
-  (into {} (for [field (.serializeArray $form)]
-    { (keyword (.-name field)) (str/trim (.-value field))})))
-
-(defn setup-job-submit []
-  (.datepicker ($ ".datepicker"))
-
-  (let [$elems ($ "#job-form input, #job-form textarea")]
-    (letfn [(update-job-card [e]
-              (.html ($ "#job-preview")
-                     (render (job-card (form-to-map ($ "#job-form")))))
-              ; singult is escaping the generated markdown :(
-              (.html ($ "#job-preview .description") 
-                     (markdown/mdToHtml (.val ($ "#description")))))]
-      (jq/bind $elems :keyup update-job-card)
-      (jq/bind $elems :blur update-job-card))))
-
 (defn main []
-  (if location-hash (handle-hash-change))
+  (if u/location-hash (handle-hash-change))
   (set! (.-onhashchange js/window) handle-hash-change)
 
-  (setup-team)
-  (setup-job-submit))
+  (setup-team))
 
 (jm/ready
   (main)
 
-  (if (exists? "#map")
-    (setup-maps)))
+  (if (u/exists? "#map")
+    (setup-jobs)))
 

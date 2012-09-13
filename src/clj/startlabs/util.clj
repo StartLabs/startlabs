@@ -46,6 +46,12 @@
     (for [[condition value] conditions]
       (if condition (str " " value)))))
 
+(defn httpify-url 
+  "Don't force users to type http://..."
+  [url]
+  (if (not (re-find #"^https?://" url))
+    (str "http://" url)
+    url))
 
 (defn home-uri []
   (if (env :dev)
