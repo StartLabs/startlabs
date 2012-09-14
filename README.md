@@ -38,10 +38,10 @@ the one specified on `project.clj` (0.8.3488 as of writing this):
 Please read the [overview of Datomic](http://www.datomic.com/overview.html) 
 to get an understanding for how it works. This is not your mother's SQL database.
 
-You have to start up the Transactor. I've made a tiny shell script called transact.sh to do this.
+You have to start up the Transactor. I've made a tiny shell script located in `srv/transactor/run` to do this.
 So in a terminal, just run:
 ```
-./transact.sh
+cd srv/transactor; ./run;
 ```
 
 ##Tweaking The Site

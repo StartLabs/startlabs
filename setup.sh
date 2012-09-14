@@ -3,7 +3,7 @@
 # git clone https://github.com/sherbondy/startlabs
 
 sudo apt-get update
-sudo apt-get install nginx openjdk-7-jre-headless make python-software-properties zsh nodejs npm
+sudo apt-get install nginx openjdk-7-jre-headless make python-software-properties zsh nodejs npm daemontools
 
 # make the nginx log directory
 sudo mkdir /etc/nginx/logs

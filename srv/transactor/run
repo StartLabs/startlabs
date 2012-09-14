@@ -1,2 +1,4 @@
-cd datomic-free
+#!/bin/sh
+
+cd ../../datomic-free
 ./bin/transactor config/samples/free-transactor-template.properties
