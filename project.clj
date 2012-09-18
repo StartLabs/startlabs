@@ -24,6 +24,7 @@
                   [markdown-clj "0.9.8"]
                   [clj-time "0.4.4"]
                   [com.draines/postal "1.8.0"]
+                  [climp "0.1.1"]
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.0"]

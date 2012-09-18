@@ -2,11 +2,15 @@
   (:require [startlabs.views.common :as common]
             [noir.response :as response]
             [noir.statuses :as status]
+            [noir.session :as session]
+            [noir.validation :as vali]
+            [climp.core :as mc] ; mailchimp
             [clojure.string :as str])
-  (:use [noir.core :only [defpage defpartial]]
-        [markdown :only [md-to-html-string]]))
+  (:use [noir.core :only [defpage defpartial render]]
+        [markdown :only [md-to-html-string]]
+        [environ.core :only [env]]))
 
-(defpage "/" []
+(defpage "/" [& [email]]
   (common/layout
     [:h1.slug "Interested in " [:strong "Startups"] "?"]
     [:div.row-fluid
@@ -20,7 +24,17 @@
                     projects into seed-stage ventures."]
               [:li "Work in rapidly expanding companies – place students in internships
                     and full-time positions at promising startups."]]
-            [:p "We are creating the next generation of technical entrepreneurs."]]
+       [:p "We are creating the next generation of technical entrepreneurs."]
+
+       
+       [:h3 "Join our mailing list to stay in the loop:"]
+       [:form {:action "/" :method "post"}
+        [:input#email.span9.pull-left {:name "email" :placeholder "Your email address"
+                                       :value (if (not (empty? email)) email "")}]
+        [:button#submit.btn.btn-primary.span3.pull-right
+         {:type "submit"} "Submit"]
+        ]]
+       
       [:div.span6
         [:h2 "Upcoming Events"]
 
@@ -30,9 +44,25 @@
 
         [:div
           [:a.center.bootcamp {:href "http://startupbootcamp.mit.edu"}
-            [:img {:src "/img/bootcamp.png" :alt "Startup Bootcamp" :width "240px"}]]]]
+           [:img {:src "/img/bootcamp.png" :alt "Startup Bootcamp" :width "240px"}]]]]
 
-      ]))
+     ]))
+
+(defpage [:post "/"] {:keys [email]}
+  (if (not (vali/is-email? email))
+    (do
+      (session/flash-put! :message [:error "Invalid email address."])
+      (render "/" [email]))
+    (try
+      (let [list-id (env :mc_list_id)]
+        (binding [mc/*mc-api-key* (env :mc_api_key)]
+          (mc/subscribe list-id email)
+          (session/flash-put! :message
+                              [:success "You've been subscribed! We promise not to spam you. <3"])
+          (response/redirect "/")))
+      (catch Exception e
+        (session/flash-put! :message
+                            [:error "Unexpected error. Try again later."])))))
 
 (defpage "/about" []
   (common/layout

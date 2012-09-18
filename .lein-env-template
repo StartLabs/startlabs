@@ -10,6 +10,10 @@
   :email-user "YOUR_EMAIL_ADDRESS"
   :email-pass "YOUR_EMAIL_PASS"
 
+  ;; mailchip credentials
+  :mc_api_key "YOUR_MAILCHIMP_KEY"
+  :mc_list_id "THE_MAILCHIMP_LIST_ID"
+
   :dev  true
   :port "8000"
   ;; for remote debugging, etc.
