@@ -82,12 +82,12 @@
           [:input.btn.btn-primary {:type "submit"}]]]]])
 
 (def sample-job-fields
-  {:position "Frontend Engineering Intern" :company "Square Inc" :location "San Francisco, CA"
-   :website "http://www.squareup.com" :start_date "May 30, 2013" :end_date "August 30, 2013"
+  {:position "Lab Assistant" :company "StartLabs" :location "Cambridge, Massachusetts"
+   :website "http://www.startlabs.org" :start_date "May 30, 2013" :end_date "August 30, 2013"
    :description "Smart people tackling difficult problems at a great location with *nice perks*.
-\n\nMust have **4+ years** of programming experience.
-\n\n We prefer candidates who have created or contributed to large open-source projects." 
-   :contact_info "jobs@squareup.com"})
+\n\nMust have **4+ years** of lab experience.
+\n\nWe prefer candidates who wear green clothing."
+   :contact_info "contact@startlabs.org"})
 
 (defpartial submit-job [has-params? params]
   [:div#submit {:class (u/cond-class "tab-pane" [has-params? "active"])}

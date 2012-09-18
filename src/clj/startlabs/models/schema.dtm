@@ -132,7 +132,7 @@
   :db/ident :job/position,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
-  :db/doc "Frontend Engineering Intern",
+  :db/doc "Lab Assistant",
   :db/fulltext true,
   :db.install/_attribute :db.part/db}
 
@@ -140,7 +140,7 @@
   :db/ident :job/company,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
-  :db/doc "Square Inc.",
+  :db/doc "StartLabs",
   :db/fulltext true,
   :db.install/_attribute :db.part/db}
 
@@ -156,7 +156,7 @@
   :db/ident :job/website,
   :db/valueType :db.type/uri,
   :db/cardinality :db.cardinality/one,
-  :db/doc "http://www.squareup.com",
+  :db/doc "http://www.startlabs.org,
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
