@@ -156,7 +156,7 @@
   :db/ident :job/website,
   :db/valueType :db.type/uri,
   :db/cardinality :db.cardinality/one,
-  :db/doc "http://www.startlabs.org,
+  :db/doc "http://www.startlabs.org",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
