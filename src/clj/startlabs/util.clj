@@ -49,7 +49,8 @@
 (defn httpify-url 
   "Don't force users to type http://..."
   [url]
-  (if (not (re-find #"^https?://" url))
+  (if (and (not (re-find #"^https?://" url))
+           (not (empty? url)))
     (str "http://" url)
     url))
 

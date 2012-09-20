@@ -81,7 +81,8 @@
         (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
           (let  [file-name   (user/username my-info)]
             (try
-              (user/update-my-info (assoc new-facts :picture (mu/save-file-to-s3 picture-url file-name)))
+              (user/update-my-info 
+                (assoc new-facts :picture (mu/save-file-to-s3 picture-url file-name)))
               (catch Exception e
                 (session/flash-put! :message [:error "Unable to grab the specified picture"]))))
           (user/update-my-info new-facts))))
