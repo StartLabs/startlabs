@@ -17,3 +17,6 @@ logs/
 .DS_Store
 data/
 
+lock/
+status/
+supervise/
