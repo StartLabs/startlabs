@@ -79,7 +79,7 @@
       [:tr
         [:td]
         [:td
-          [:input.btn.btn-primary {:type "submit"}]]]]])
+          [:input.btn.btn-primary {:type "submit" :value "Submit"}]]]]])
 
 (def sample-job-fields
   {:position "Lab Assistant" :company "StartLabs" :location "Cambridge, Massachusetts"
