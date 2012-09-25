@@ -36,7 +36,7 @@
       (session/flash-put! :message [:error (str "Trouble confirming job: " e)])
       false)))
 
-(defn after-now 
+(defn after-now?
   "Determines if the provided date is in the future."
   [date]
   (> (to-long date) (to-long (now))))
@@ -46,7 +46,7 @@
   []
   (let [jobs     (q '[:find ?job :where [?job :job/confirmed? true]
                                         [?job :job/start_date ?start]
-                                        [(startlabs.models.job/after-now ?start)]] (db @conn))
+                                        [(startlabs.models.job/after-now? ?start)]] (db @conn))
         job-ids  (map first jobs)
         job-maps (util/maps-for-datoms job-ids :job)]
     (map stringify-values job-maps)))
