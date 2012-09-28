@@ -19196,10 +19196,10 @@ startlabs.jobs.setup_jobs = function() {
     }
   });
   cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'fix-descriptions", function(a, b, e, f) {
-    if(b = cljs.core.seq.call(null, f)) {
-      for(a = cljs.core.first.call(null, b);;) {
-        if(jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str(" .description")].join("")).html(markdown.mdToHtml.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))), a = cljs.core.next.call(null, b)) {
-          b = a, a = cljs.core.first.call(null, b)
+    if(a = cljs.core.seq.call(null, f)) {
+      for(e = cljs.core.first.call(null, a);;) {
+        if(b = jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, e)), cljs.core.str(" .description")].join("")), e = (new cljs.core.Keyword("\ufdd0'description")).call(null, e), e = clojure.string.join.call(null, "\n", clojure.string.split_lines.call(null, e)), e = markdown.mdToHtml(e), startlabs.util.log.call(null, e), b.html(e), a = cljs.core.next.call(null, a)) {
+          b = a, e = a = cljs.core.first.call(null, b), a = b
         }else {
           return null
         }

@@ -131,11 +131,14 @@
 
 
   ; hack to makeup for singult's inability to include raw html in templates
-  ; make sure to add this AFTER the initial reset.
   (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
     (doseq [job n]
-      (let [$descr ($ (str "#" (:id job) " .description"))]
-        (.html $descr (markdown/mdToHtml (:description job)))))))
+      (let [$descr            ($ (str "#" (:id job) " .description"))
+            job-description   (:description job)
+            fixed-description (str/join "\n" (str/split-lines job-description))
+            mdified-descr     (.mdToHtml js/markdown fixed-description)]
+        (u/log mdified-descr)
+        (.html $descr mdified-descr)))))
 
   (bind! "#job-list"
     (job-list @filtered-jobs))
