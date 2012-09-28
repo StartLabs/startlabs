@@ -20,7 +20,9 @@
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
                   [org.slf4j/slf4j-log4j12 "1.6.4"]
                   [environ "0.3.0"]
-                  [clj-aws-s3 "0.3.2"]
+                  [clj-aws-s3 "0.3.2" 
+                    :exclusions [com.amazonaws/aws-java-sdk]]
+                  [com.amazonaws/aws-java-sdk "1.3.20"]
                   [markdown-clj "0.9.8"]
                   [clj-time "0.4.4"]
                   [com.draines/postal "1.8.0"]
