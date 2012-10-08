@@ -38,15 +38,18 @@
 
     text))
 
+(defn job-summary [job-info]
+  [:div.job-summary
+    [:h2 [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
+        [:small " " (:position job-info)]]
+      [:div.row-fluid.dateloc
+        ; need to format dates
+        [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
+        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]])
 
 (defn job-card [job-info]
   [:div.thumbnail.job-info
-    [:h2 [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
-      [:small " " (:position job-info)]]
-    [:div.row-fluid.dateloc
-      ; need to format dates
-      [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
-      [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
+    (job-summary job-info)
     [:div.row-fluid
       ; mark cljs markdown as unrendered because singult is currently unable to embed raw html
       [:div.description 
@@ -60,8 +63,10 @@
           [:a {:href (linkify contact-info)} 
             contact-info])]]])
 
+;; on hover, add icon-white class
 (defn job-list [jobs]
-  [:ul#job-list.thumbnails
+  [:ul#job-list.span6
     (for [job jobs]
-      [:li.job-brick.span6 {:id (:id job)}
-        (job-card job)])])
+      [:li {:id (:id job)}
+        [:a {:href "#"} 
+          (job-summary job)]])])
