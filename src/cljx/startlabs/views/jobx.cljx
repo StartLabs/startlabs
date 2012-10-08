@@ -29,7 +29,7 @@
   "Converts an email address, telephone number, or url into a proper link
    to be used as the href attribute in an HTML anchor."
   [text]
-  (str 
+  (str
     (condp apply [text]
       is-email? "mailto:"
       is-phone? "tel://"
@@ -64,9 +64,13 @@
             contact-info])]]])
 
 ;; on hover, add icon-white class
-(defn job-list [jobs]
+(defn job-list [jobs active-job]
   [:ul#job-list.span6
     (for [job jobs]
-      [:li {:id (:id job)}
-        [:a {:href "#"} 
+      [:li 
+        [:a {:href (str "#" (:id job)) 
+             :class (str "job "
+                      (if (= active-job 
+                          (str "#" (:id job)))
+                            "active"))} 
           (job-summary job)]])])

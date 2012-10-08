@@ -15608,14 +15608,15 @@ startlabs.views.jobx.job_card = function(a) {
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0)
 };
-startlabs.views.jobx.job_list = function(a) {
+startlabs.views.jobx.job_list = function(a, b) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'ul#job-list.span6", function() {
-    return function c(a) {
+    return function d(a) {
       return new cljs.core.LazySeq(null, !1, function() {
         for(;;) {
           if(cljs.core.seq.call(null, a)) {
-            var e = cljs.core.first.call(null, a);
-            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":(new cljs.core.Keyword("\ufdd0'id")).call(null, e)}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":"#"}), startlabs.views.jobx.job_summary.call(null, e)], true)], true), c.call(null, cljs.core.rest.call(null, a)))
+            var f = cljs.core.first.call(null, a);
+            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href", "\ufdd0'class"], {"\ufdd0'href":[cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, f))].join(""), "\ufdd0'class":[cljs.core.str("job "), cljs.core.str(cljs.core._EQ_.call(null, b, [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, f))].join("")) ? 
+            "active" : null)].join("")}), startlabs.views.jobx.job_summary.call(null, f)], true)], true), d.call(null, cljs.core.rest.call(null, a)))
           }
           return null
         }
@@ -19110,6 +19111,7 @@ startlabs.jobs.geocoder = new CM.Geocoder(startlabs.jobs.cloudmade_key);
 startlabs.jobs.oms = null;
 startlabs.jobs.job_data = cljs.core.js__GT_clj.call(null, window.job_data, "\ufdd0'keywordize-keys", !0);
 startlabs.jobs.filtered_jobs = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
+startlabs.jobs.active_job = cljs.core.atom.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, [cljs.core.str("#"), cljs.core.str(cljs.core.first.call(null, startlabs.jobs.job_data))].join("")));
 startlabs.jobs.latlng = function(a, b) {
   return new L.LatLng(a, b)
 };
@@ -19135,12 +19137,15 @@ startlabs.jobs.marker = function() {
 }();
 startlabs.jobs.add_marker_callback = function(a, b) {
   return function(c) {
-    var c = cljs.core.js__GT_clj.call(null, c, "\ufdd0'keywordize-keys", !0), d = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, c), e = cljs.core.apply.call(null, startlabs.jobs.latlng, cljs.core.map.call(null, function(a) {
-      return cljs.core.nth.call(null, d.call(null, 0), a)
-    }, cljs.core.PersistentVector.fromArray([0, 1], !0))), f = cljs.core.apply.call(null, startlabs.jobs.latlng, cljs.core.map.call(null, function(a) {
-      return cljs.core.nth.call(null, d.call(null, 1), a)
-    }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
-    cljs.core.truth_(b) && startlabs.jobs.lmap.fitBounds(startlabs.jobs.latlng_bounds.call(null, e, f));
+    var c = cljs.core.js__GT_clj.call(null, c, "\ufdd0'keywordize-keys", !0), d = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, c);
+    if(cljs.core.truth_(cljs.core.truth_(d) ? b : d)) {
+      var e = cljs.core.apply.call(null, startlabs.jobs.latlng, cljs.core.map.call(null, function(a) {
+        return cljs.core.nth.call(null, d.call(null, 0), a)
+      }, cljs.core.PersistentVector.fromArray([0, 1], !0))), f = cljs.core.apply.call(null, startlabs.jobs.latlng, cljs.core.map.call(null, function(a) {
+        return cljs.core.nth.call(null, d.call(null, 1), a)
+      }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
+      startlabs.jobs.lmap.fitBounds(startlabs.jobs.latlng_bounds.call(null, e, f))
+    }
     c = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, c));
     c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, c));
     c = startlabs.jobs.marker.call(null, c, "\ufdd0'title", [cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a)), cljs.core.str(" ("), cljs.core.str((new cljs.core.Keyword("\ufdd0'location")).call(null, a)), cljs.core.str(")")].join(""));
@@ -19164,6 +19169,11 @@ startlabs.jobs.jobs_filter = function(a) {
     }, startlabs.jobs.job_data)
   }
 };
+startlabs.jobs.job_with_id = function(a) {
+  return cljs.core.first.call(null, cljs.core.filter.call(null, function(b) {
+    return cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, b), a)
+  }, startlabs.jobs.job_data))
+};
 startlabs.jobs.setup_job_submit = function() {
   jayq.core.$.call(null, ".datepicker").datepicker();
   var a = jayq.core.$.call(null, "#job-form input, #job-form textarea"), b = function() {
@@ -19181,11 +19191,11 @@ startlabs.jobs.setup_jobs = function() {
   startlabs.jobs.markers.addTo(startlabs.jobs.lmap);
   startlabs.jobs.L.tileLayer(startlabs.jobs.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":18}))).addTo(startlabs.jobs.lmap);
   startlabs.jobs.oms = new OverlappingMarkerSpiderfier(startlabs.jobs.lmap);
-  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'mapper", function(a, b, e, f) {
-    if(cljs.core.not_EQ_.call(null, e, f)) {
-      if(startlabs.jobs.markers.clearLayers(), startlabs.jobs.oms.clearMarkers(), startlabs.jobs.oms.clearListeners("click"), b = cljs.core.seq.call(null, f)) {
+  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'mapper", function(a, b, c, g) {
+    if(cljs.core.not_EQ_.call(null, c, g)) {
+      if(startlabs.jobs.markers.clearLayers(), startlabs.jobs.oms.clearMarkers(), startlabs.jobs.oms.clearListeners("click"), b = cljs.core.seq.call(null, g)) {
         for(a = cljs.core.first.call(null, b);;) {
-          if(e = (new cljs.core.Keyword("\ufdd0'location")).call(null, a), startlabs.jobs.geocode.call(null, e, startlabs.jobs.add_marker_callback.call(null, a, !1)), a = cljs.core.next.call(null, b)) {
+          if(c = (new cljs.core.Keyword("\ufdd0'location")).call(null, a), startlabs.jobs.geocode.call(null, c, startlabs.jobs.add_marker_callback.call(null, a, !1)), a = cljs.core.next.call(null, b)) {
             b = a, a = cljs.core.first.call(null, b)
           }else {
             return null
@@ -19198,22 +19208,13 @@ startlabs.jobs.setup_jobs = function() {
       return null
     }
   });
-  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'fix-descriptions", function(a, b, e, f) {
-    if(a = cljs.core.seq.call(null, f)) {
-      for(e = cljs.core.first.call(null, a);;) {
-        if(b = jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, e)), cljs.core.str(" .description")].join("")), e = (new cljs.core.Keyword("\ufdd0'description")).call(null, e), e = clojure.string.join.call(null, "\n", clojure.string.split_lines.call(null, e)), e = markdown.mdToHtml(e), startlabs.util.log.call(null, e), b.html(e), a = cljs.core.next.call(null, a)) {
-          b = a, e = a = cljs.core.first.call(null, b), a = b
-        }else {
-          return null
-        }
-      }
-    }else {
-      return null
-    }
+  cljs.core.add_watch.call(null, startlabs.jobs.active_job, "\ufdd0'activate-job", function(a, b, c, g) {
+    jayq.core.$.call(null, c).removeClass("active");
+    return jayq.core.$.call(null, g).addClass("active")
   });
   var a = function() {
     var a = new reflex.core.ComputedObservable(null, !0, function() {
-      return startlabs.views.jobx.job_list.call(null, cljs.core.deref.call(null, startlabs.jobs.filtered_jobs))
+      return startlabs.views.jobx.job_list.call(null, cljs.core.deref.call(null, startlabs.jobs.filtered_jobs), cljs.core.deref.call(null, startlabs.jobs.active_job))
     }, cljs.core.gensym.call(null, "computed-observable"), cljs.core.ObjMap.EMPTY, cljs.core.ObjMap.EMPTY);
     cljs.core.deref.call(null, a);
     return a
@@ -19231,6 +19232,14 @@ startlabs.jobs.setup_jobs = function() {
     a.preventDefault();
     return jayq.core.$.call(null, "#map").toggle()
   });
+  startlabs.jobs.set_active_job_BANG_ = function(a) {
+    a.preventDefault();
+    a = jayq.core.$.call(null, this);
+    a = jayq.core.attr.call(null, a, "href");
+    return cljs.core.reset_BANG_.call(null, startlabs.jobs.active_job, a)
+  };
+  var c = jayq.core.$.call(null, "#job-list");
+  jayq.core.on.call(null, c, cljs.core.PersistentVector.fromArray(["\ufdd0'click", "\ufdd0'mouseover"], !0), ".job", null, startlabs.jobs.set_active_job_BANG_);
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };
 startlabs.main = {};

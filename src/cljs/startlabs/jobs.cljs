@@ -41,6 +41,7 @@
 ; slurp up the job data from the script tag embedded in the page
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
 (def filtered-jobs (atom []))
+(def active-job (atom (:id (str "#" (first job-data)))))
 
 (defn latlng [lat lng]
   (L/LatLng. lat lng))
@@ -55,12 +56,12 @@
 (defn add-marker-callback [job zoom?]
   (fn [response]
     (let [response-map (js->clj response :keywordize-keys true)
-          bounds       (:bounds response-map)
-          south-west   (apply latlng (map #(nth (bounds 0) %) [0 1]))
-          north-east   (apply latlng (map #(nth (bounds 1) %) [0 1]))]
+          bounds       (:bounds response-map)]
 
-      (if zoom?
-        (.fitBounds lmap (latlng-bounds south-west north-east)))
+      (if (and bounds zoom?)
+        (let [south-west   (apply latlng (map #(nth (bounds 0) %) [0 1]))
+              north-east   (apply latlng (map #(nth (bounds 1) %) [0 1]))]
+          (.fitBounds lmap (latlng-bounds south-west north-east))))
 
       (let [feature    (first (:features response-map))
             coords     (:coordinates (:centroid feature))
@@ -88,6 +89,12 @@
         (some #(re-find (re-pattern (str "(?i)" query)) %) 
               (map job [:position :company :location])))
         job-data))))
+
+(defn job-with-id [id]
+  (first 
+    (filter 
+      (fn [job] (= (:id job) id))
+      job-data)))
 
 (defn setup-job-submit []
   (.datepicker ($ ".datepicker"))
@@ -131,17 +138,20 @@
 
 
   ; hack to makeup for singult's inability to include raw html in templates
-  (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
-    (doseq [job n]
-      (let [$descr            ($ (str "#" (:id job) " .description"))
-            job-description   (:description job)
-            fixed-description (str/join "\n" (str/split-lines job-description))
-            mdified-descr     (.mdToHtml js/markdown fixed-description)]
-        (u/log mdified-descr)
-        (.html $descr mdified-descr)))))
+  ; (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
+  ;   (doseq [job n]
+  ;     (let [$descr            ($ (str "#" (:id job) " .description"))
+  ;           job-description   (:description job)
+  ;           fixed-description (str/join "\n" (str/split-lines job-description))
+  ;           mdified-descr     (.mdToHtml js/markdown fixed-description)]
+  ;       (.html $descr mdified-descr)))))
+
+  (add-watch active-job :activate-job (fn [k r o n]
+    (.removeClass ($ o) "active")
+    (.addClass    ($ n) "active")))
 
   (bind! "#job-list"
-    (job-list @filtered-jobs))
+    (job-list @filtered-jobs @active-job))
 
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter jobs as you search
@@ -153,6 +163,17 @@
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
     (.toggle ($ "#map"))))
+
+  (defn set-active-job! [e]
+    (.preventDefault e)
+    (this-as elem
+      (let [$elem ($ elem)
+            job-sel (jq/attr $elem "href")]
+        (reset! active-job job-sel))
+    ))
+
+  (let [$job-list ($ "#job-list")]
+    (jq/on $job-list [:click :mouseover] ".job" nil set-active-job!))
 
   (reset! filtered-jobs job-data)
 

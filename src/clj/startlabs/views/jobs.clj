@@ -124,10 +124,13 @@
         [:div.row-fluid
           (if (empty? all-jobs)
             [:h1 "No jobs posted yet. Come back later!"])
-          (job-list all-jobs)
           
-          [:div.span6.pull-right
-            (job-card (first all-jobs))]]
+          (job-list all-jobs (first all-jobs))
+
+          [:div#active-job.span6.pull-right
+            (for [job all-jobs]
+              [:div {:id (:id job)}
+                (job-card job)])]]
 
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
