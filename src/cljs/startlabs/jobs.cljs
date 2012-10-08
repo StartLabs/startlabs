@@ -41,7 +41,7 @@
 ; slurp up the job data from the script tag embedded in the page
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
 (def filtered-jobs (atom []))
-(def active-job (atom (:id (str "#" (first job-data)))))
+(def active-job (atom {}))
 
 (defn latlng [lat lng]
   (L/LatLng. lat lng))
@@ -173,9 +173,10 @@
     ))
 
   (let [$job-list ($ "#job-list")]
-    (jq/on $job-list [:click :mouseover] ".job" nil set-active-job!))
+    (jq/on $job-list :click ".job" nil set-active-job!))
 
   (reset! filtered-jobs job-data)
+  (reset! active-job (:id (str "#" (first job-data))))
 
 )
 

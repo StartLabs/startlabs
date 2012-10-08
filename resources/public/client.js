@@ -19111,7 +19111,7 @@ startlabs.jobs.geocoder = new CM.Geocoder(startlabs.jobs.cloudmade_key);
 startlabs.jobs.oms = null;
 startlabs.jobs.job_data = cljs.core.js__GT_clj.call(null, window.job_data, "\ufdd0'keywordize-keys", !0);
 startlabs.jobs.filtered_jobs = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
-startlabs.jobs.active_job = cljs.core.atom.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, [cljs.core.str("#"), cljs.core.str(cljs.core.first.call(null, startlabs.jobs.job_data))].join("")));
+startlabs.jobs.active_job = cljs.core.atom.call(null, cljs.core.ObjMap.EMPTY);
 startlabs.jobs.latlng = function(a, b) {
   return new L.LatLng(a, b)
 };
@@ -19239,8 +19239,9 @@ startlabs.jobs.setup_jobs = function() {
     return cljs.core.reset_BANG_.call(null, startlabs.jobs.active_job, a)
   };
   var c = jayq.core.$.call(null, "#job-list");
-  jayq.core.on.call(null, c, cljs.core.PersistentVector.fromArray(["\ufdd0'click", "\ufdd0'mouseover"], !0), ".job", null, startlabs.jobs.set_active_job_BANG_);
-  return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
+  jayq.core.on.call(null, c, "\ufdd0'click", ".job", null, startlabs.jobs.set_active_job_BANG_);
+  cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data);
+  return cljs.core.reset_BANG_.call(null, startlabs.jobs.active_job, (new cljs.core.Keyword("\ufdd0'id")).call(null, [cljs.core.str("#"), cljs.core.str(cljs.core.first.call(null, startlabs.jobs.job_data))].join("")))
 };
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {
