@@ -86,8 +86,8 @@
 (defpartial ablank-tr [site url]
   [:tr [:td site] [:td (ablank site url)]])
 
-(defpartial ablank-li [site url]
-  [:li (ablank site url)])
+(defpartial ablank-li [url site]
+  [:li [:a {:href url} site]])
 
 (defpartial site-twitter [person site twitter]
   [:tr [:td person] 
