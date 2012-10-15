@@ -1,5 +1,6 @@
 echo Installing all of the junk. Hope this works.
 echo Grabbing git submodules
+cd ..
 git submodule init && git submodule update
 
 if ! type "lein" > /dev/null 2>&1; then
@@ -29,8 +30,18 @@ else
   echo Node already installed, skipping.
 fi
 
-echo Installing npm packages for bootstrap
-sudo npm install recess connect uglify-js jshint -g
+if ! type "recess" > /dev/null 2>&1; then
+  echo Installing npm packages for bootstrap
+  sudo npm install recess connect uglify-js jshint -g
+else
+  echo Recess already installed. Hopefully you have the bootstrap deps.
+  echo If not, just do: "sudo npm install recess connect uglify-js jshint -g"
+fi
 
+echo Making bootstrap
+cd bootstrap; rm -rf bootstrap; make bootstrap;
+
+echo If you just got a weird error about recess, you need to update your path.
+echo Try adding /usr/local/share/npm/bin to your path
 
 # still need to do nice .lein-env bit

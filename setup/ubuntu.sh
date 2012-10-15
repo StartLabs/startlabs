@@ -15,11 +15,13 @@ sudo apt-get autoremove
 curl https://raw.github.com/technomancy/leiningen/preview/bin/lein > lein
 chmod 755 lein
 sudo mv lein /usr/local/bin
+#run cljx once
+lein cljx
 
 #grab startlabs submodules
 git submodule init && git submodule update
 sudo npm install recess connect uglify-js jshint -g
-cd bootstrap; make bootstrap
+cd ../bootstrap; make bootstrap
 
 # now all that's left to do is configure datomic and .lein-env.
 # I should automate this eventually.
