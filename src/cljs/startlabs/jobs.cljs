@@ -33,10 +33,9 @@
 ; the following are initialized in setup-maps
 (def ^:dynamic lmap nil) ; the leaflet map object
 (def ^:dynamic markers nil) ; the leaflet layergroup containing the markers
+(def ^:dynamic oms nil) ; the overlapping marker spiderfier
 
 (def geocoder (CM/Geocoder. cloudmade-key))
-
-(def ^:dynamic oms nil)
 
 ; slurp up the job data from the script tag embedded in the page
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
@@ -67,16 +66,17 @@
             coords     (:coordinates (:centroid feature))
             new-marker (marker coords :title 
                          (str (:company job) ": " (:position job) 
-                              " (" (:location job) ")"))]
-
-        (set! (.-id new-marker) (:id job))
+                              " (" (:location job) ")"))
+            job-id     (:id job)]
+        
+        (set! (.-id new-marker) job-id)
         (.addLayer markers new-marker)
         (.addMarker oms new-marker)
 
-        (.addListener oms "click" (fn [marker]
-          (set! (.-hash js/location) (str "#" (.-id marker)))))
-        )
-)))
+        (.addListener oms "click"
+                      (fn [marker]
+                        (reset! active-job (str "#" job-id))))
+))))
 
 (defn geocode [place callback]
   (.getLocations geocoder place callback))
@@ -113,13 +113,13 @@
   (setup-job-submit)
 
   (def lmap (.map L "map"))
-  (.setView lmap (array 42 -92) 3)
+  (.setView lmap (array 42 -40) 3)
 
   (def markers (L/LayerGroup.))
   ; add markers layer to map
   (.addTo markers lmap)
   ; add tiles to map
-  (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 18})) lmap)
+  (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 20})) lmap)
 
   (def oms (js/OverlappingMarkerSpiderfier. lmap))
 
@@ -136,15 +136,6 @@
             (geocode location (add-marker-callback job false))))
   ))))
 
-
-  ; hack to makeup for singult's inability to include raw html in templates
-  ; (add-watch filtered-jobs :fix-descriptions (fn [k r o n]
-  ;   (doseq [job n]
-  ;     (let [$descr            ($ (str "#" (:id job) " .description"))
-  ;           job-description   (:description job)
-  ;           fixed-description (str/join "\n" (str/split-lines job-description))
-  ;           mdified-descr     (.mdToHtml js/markdown fixed-description)]
-  ;       (.html $descr mdified-descr)))))
 
   (add-watch active-job :activate-job (fn [k r o n]
     (.removeClass ($ o) "active")
@@ -176,7 +167,7 @@
     (jq/on $job-list :click ".job" nil set-active-job!))
 
   (reset! filtered-jobs job-data)
-  (reset! active-job (:id (str "#" (first job-data))))
+  (reset! active-job (str "#" (:id (first job-data))))
 
 )
 
