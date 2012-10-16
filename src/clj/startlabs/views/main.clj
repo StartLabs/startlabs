@@ -44,7 +44,8 @@
            for people to come hack and hang out. Join us!"]
 
         [:p "To keep up with going-ons, subscribe to our "
-          [:a {:href common/calendar-rss} "event calendar."]]]
+          [:a {:href common/calendar-rss} "event calendar"]
+         "."]]
 
      ]))
 
