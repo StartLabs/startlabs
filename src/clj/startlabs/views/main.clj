@@ -38,13 +38,13 @@
       [:div.span6
         [:h2 "Upcoming Events"]
 
-        [:p "On Monday, October 8th, we'll be hosting " [:strong "Startup Bootcamp"]
-            ", a free one-day event featuring talks by startup founders."]
-        [:p "It's from 9am to 5pm in Kresge Auditorium."]
+        [:p "The StartLabs Space, located on the 3rd floor of "
+          [:a {:href "http://whereis.mit.edu/?go=N51"} "N51"]
+          ", is open every Wednesday from 5pm to midnight
+           for people to come hack and hang out. Join us!"]
 
-        [:div
-          [:a.center.bootcamp {:href "http://startupbootcamp.mit.edu"}
-           [:img {:src "/img/bootcamp.png" :alt "Startup Bootcamp" :width "240px"}]]]]
+        [:p "To keep up with going-ons, subscribe to our "
+          [:a {:href common/calendar-rss} "event calendar."]]]
 
      ]))
 

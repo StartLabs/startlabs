@@ -58,6 +58,8 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();")
 
+(def calendar-rss "http://www.google.com/calendar/feeds/startlabs.org_5peolh5d72ol1r9c7hf624ke9g%40group.calendar.google.com/public/basic")
+
 (defpartial layout [& content]
   (let [[message-type message] (session/flash-get :message)
         request (ring-request)]
@@ -73,6 +75,9 @@
                                 ["Josefin Slab" [400,700]]
                                 ["Crimson Text" [400,"400italic",600,"600italic",700,"700italic"]]
                                 ["Ultra"])}]
+
+       [:link {:rel "alternate" :type "application/rss+xml" :title "StartLabs Events Calendar"
+               :href calendar-rss}]
 
         (include-css "/bootstrap/css/bootstrap.min.css"
                      "/bootstrap/css/bootstrap-responsive.min.css"
