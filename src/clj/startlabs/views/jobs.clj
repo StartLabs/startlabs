@@ -27,7 +27,7 @@
       [:p "To confirm your listing, " [:strong (:position job-map)] ", please visit this link:"]
       [:p [:a {:href conf-link} conf-link]]
       [:p "If this email was sent in error, feel free to ignore it or contact "
-          (common/webmaster-link "our webmaster.")]]))
+          (common/webmaster-link "our webmaster") "."]]))
 
 (defn send-confirmation-email [job-map]
   (postal/send-message ^{:host (env :email-host)
