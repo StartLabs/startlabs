@@ -45,8 +45,8 @@
   "returns all confirmed jobs whose start dates are after a certain date"
   []
   (let [jobs     (q '[:find ?job :where [?job :job/confirmed? true]
-                                        [?job :job/start_date ?start]
-                                        [(startlabs.models.job/after-now? ?start)]] (db @conn))
+                                        [?job :job/end_date ?end]
+                                        [(startlabs.models.job/after-now? ?end)]] (db @conn))
         job-ids  (map first jobs)
         job-maps (util/maps-for-datoms job-ids :job)]
     (map stringify-values job-maps)))
