@@ -19288,9 +19288,22 @@ startlabs.main.setup_team = function() {
   jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", startlabs.main.update_bio_preview);
   return startlabs.main.update_bio_preview.call(null)
 };
+startlabs.main.setup_home = function() {
+  jayq.core.bind.call(null, jayq.core.$.call(null, "#edit-upcoming"), "\ufdd0'click", function(a) {
+    a.preventDefault();
+    jayq.core.$.call(null, "#event-form").toggleClass("hidden");
+    return jayq.core.$.call(null, "#event-text").focus()
+  });
+  var a = jayq.core.$.call(null, "#event-info"), b = jayq.core.$.call(null, "#event-text");
+  return jayq.core.bind.call(null, b, "\ufdd0'keyup", function() {
+    var c = b.val();
+    return a.html(markdown.mdToHtml.call(null, c))
+  })
+};
 startlabs.main.main = function() {
   cljs.core.truth_(startlabs.util.location_hash) && startlabs.main.handle_hash_change.call(null);
   window.onhashchange = startlabs.main.handle_hash_change;
+  startlabs.main.setup_home.call(null);
   return startlabs.main.setup_team.call(null)
 };
 jayq.core.document_ready.call(null, function() {

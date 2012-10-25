@@ -201,4 +201,18 @@
   :db/cardinality :db.cardinality/one,
   :db/doc "Indicates whether the job was confirmed",
   :db.install/_attribute :db.part/db}
+
+
+
+  ;; upcoming events page
+
+   ;; jobs
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :event/description,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Markdown text describing upcoming events.",
+  :db.install/_attribute :db.part/db}
+  
 ]

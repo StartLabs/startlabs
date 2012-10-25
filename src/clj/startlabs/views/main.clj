@@ -5,10 +5,13 @@
             [noir.session :as session]
             [noir.validation :as vali]
             [climp.core :as mc] ; mailchimp
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [startlabs.models.user :as user]
+            [startlabs.models.event :as event])
   (:use [noir.core :only [defpage defpartial render]]
         [markdown :only [md-to-html-string]]
-        [environ.core :only [env]]))
+        [environ.core :only [env]]
+        [markdown :only [md-to-html-string]]))
 
 (defpage [:get "/"] [& [email]]
   (common/layout
@@ -35,19 +38,35 @@
          {:type "submit"} "Submit"]
         ]]
        
-      [:div.span6
-        [:h2 "Upcoming Events"]
+      (let [event-descr (:description (event/get-latest-event))
+            logged-in?  (user/logged-in?)]
+            
+        [:div#upcoming-events.span6
+         [:h2 "Upcoming Events"
+          (if logged-in?
+            [:a#edit-upcoming.btn.pull-right {:href "#"} "Edit"])]
 
-        [:p "The StartLabs Space, located on the 3rd floor of "
-          [:a {:href "http://whereis.mit.edu/?go=N51"} "N51"]
-          ", is open every Wednesday from 5pm to midnight
-           for people to come hack and hang out. Join us!"]
+          (if logged-in?
+            [:form#event-form.hidden {:action "/event" :method "post"}
+              [:textarea#event-text.span9 {:name "description" :placeholder "Markdown supported" :rows 6}
+                event-descr]
+              [:input.btn.pull-right {:type "submit"}]])
 
-        [:p "To keep up with going-ons, subscribe to our "
-          [:a {:href common/calendar-rss} "event calendar"]
-         "."]]
+          [:div#event-info
+            (md-to-html-string event-descr)]
+
+          [:p "To keep up with going-ons, subscribe to our "
+            [:a {:href common/calendar-rss} "event calendar"] "."]])
 
      ]))
+
+(defpage [:post "/event"] {:keys [description] :as event-map}
+  (if (user/logged-in?)
+    (event/create-event event-map)
+
+    ;; else
+    (session/flash-put! :message [:error "You must be logged in to do that."]))
+  (response/redirect "/"))
 
 (defpage [:post "/"] {:keys [email]}
   (if (not (vali/is-email? email))

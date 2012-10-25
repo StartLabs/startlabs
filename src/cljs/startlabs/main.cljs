@@ -56,10 +56,23 @@
 
   (update-bio-preview))
 
+(defn setup-home []
+  (jq/bind ($ "#edit-upcoming") :click (fn [e]
+    (.preventDefault e)
+    (.toggleClass ($ "#event-form") "hidden")
+    (.focus ($ "#event-text"))))
+
+  (let [$event-info ($ "#event-info")
+        $event-text ($ "#event-text")]
+    (jq/bind $event-text :keyup (fn [e]
+      (let [new-text (.val $event-text)]
+        (.html $event-info (markdown/mdToHtml new-text)))))))
+
 (defn main []
   (if u/location-hash (handle-hash-change))
   (set! (.-onhashchange js/window) handle-hash-change)
 
+  (setup-home)
   (setup-team))
 
 (jm/ready
