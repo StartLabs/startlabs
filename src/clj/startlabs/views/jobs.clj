@@ -8,7 +8,8 @@
             [startlabs.models.util :as mu]
             [startlabs.util :as u]
             [startlabs.views.common :as common]
-            [startlabs.models.job :as job])
+            [startlabs.models.job :as job]
+            [startlabs.models.user :as user])
   (:use [clojure.core.incubator]
         [clojure.tools.logging :only [info]]
         [clj-time.coerce :only [to-long]]
@@ -104,6 +105,7 @@
         (job-card (if has-params? params sample-job-fields))]
     ]])
 
+
 (defpartial browse-jobs [has-params?]
   (let [all-jobs (sort-by #(:company %) (job/find-upcoming-jobs))]
     [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
@@ -116,7 +118,8 @@
         [:div.navbar
           [:div.navbar-inner
             [:form.navbar-search.pull-left {:action "#"}
-              [:input#job-search.search-query {:type "text" :placeholder "Search"}]]
+             [:input#job-search.search-query
+              {:type "text" :placeholder "Search"}]]
             [:ul.nav.pull-right
               [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
         ]]]
@@ -134,21 +137,51 @@
 
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
-    ]))
+     ]))
+
+(defn split-sites [sitelist]
+  (str/split sitelist #"\s+"))
+
+(defpage [:post "/whitelist"] {:keys [the-list]}
+  (common/layout
+   [:h2 "Success, the Whitelist is now:"]
+   (for [site (sort (split-sites the-list))]
+     [:div site])))
+
+(defpartial whitelist [has-params?]
+  [:div#whitelist {:class "tab-pane"}
+   [:h2 "Company Whitelist"]
+   [:div.well
+    [:p "Just put each company domain name on a new line."]
+    [:p "Do not include the http:// or the www."]]
+   [:form {:action "/whitelist" :method "post"}
+    [:div.span6.pull-left
+     [:textarea#the-list.span6 {:name "the-list" :rows 20}]
+     [:input.btn.btn-primary.span3 {:type "submit"}]]
+    [:div.span5
+     [:input.btn.btn-primary.span3 {:type "submit"}]]]
+   ])
 
 (defpage [:get "/jobs"] {:as params}
   (let [has-params? (not (empty? params))]
     (common/layout
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
-        [:a {:class (u/cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"}
-          "Browse Available"]
-        [:a {:class (u/cond-class "btn" [has-params? "active"]) :href "#submit" :data-toggle "tab"}
+       [:a {:class (u/cond-class "btn" [(not has-params?) "active"])
+            :href "#browse" :data-toggle "tab"}
+        "Browse Available"]
+       
+       (if (user/logged-in?)
+         [:a {:class "btn" :href "#whitelist" :data-toggle "tab"} "Whitelist"])
+       
+       [:a {:class (u/cond-class "btn" [has-params? "active"])
+            :href "#submit" :data-toggle "tab"}
           "Submit a Job"]]
       [:div.clearfix]
 
       [:div.tab-content
-        (browse-jobs has-params?)
-        (submit-job has-params? params)])))
+       (browse-jobs has-params?)
+       (whitelist has-params?)
+       (submit-job has-params? params)])))
 
 (defn empty-rule [[k v]]
   (vali/rule 
