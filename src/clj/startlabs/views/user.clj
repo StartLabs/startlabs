@@ -121,7 +121,7 @@
     [:div.row
       [:div.span12
         [:ul#team.thumbnails
-          (for [person (sort-by #(:family_name %) (user/find-all-users))]
+          (for [person (shuffle (user/find-all-users))]
             (team-member person)
           )]]]))
 
