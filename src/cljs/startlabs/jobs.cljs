@@ -102,7 +102,7 @@
   (let [$elems ($ "#job-form input, #job-form textarea")]
     (letfn [(update-job-card [e]
               (.html ($ "#job-preview")
-                     (render (job-card (u/form-to-map ($ "#job-form")))))
+                     (render (job-card (u/form-to-map ($ "#job-form")) false)))
               ; singult is escaping the generated markdown :(
               (.html ($ "#job-preview .description") 
                      (markdown/mdToHtml (.val ($ "#description")))))]

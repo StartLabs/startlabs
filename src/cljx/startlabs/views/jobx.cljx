@@ -38,21 +38,27 @@
 
     text))
 
-(defn job-summary [job-info]
+(defn job-summary [job-info show-delete?]
   [:div.job-summary
-    [:h2 [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
-        [:small " " (:position job-info)]]
+    (if show-delete?
+      [:form.pull-right {:action (str "/job/" (:id job-info) "/delete") :method "post"}
+        [:input.btn.btn-danger {:type "submit" :value "Delete"}]])
+
+    [:h2 
+      [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
+      [:small " " (:position job-info)]]
+
       [:div.row-fluid.dateloc
         ; need to format dates
         [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
         [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]])
 
-(defn job-card [job-info]
+(defn job-card [job-info show-delete?]
   [:div.thumbnail.job-info
-    (job-summary job-info)
+    (job-summary job-info show-delete?)
     [:div.row-fluid
       ; mark cljs markdown as unrendered because singult is currently unable to embed raw html
-      [:div.description 
+      [:div.description
         (markdownify (:description job-info))]
 
       [:div.well.well-small
@@ -73,4 +79,4 @@
                       (if (= active-job 
                           (str "#" (:id job)))
                             "active"))} 
-          (job-summary job)]])])
+          (job-summary job false)]])])

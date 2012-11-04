@@ -102,12 +102,14 @@
 
       [:div#job-preview.span6.clearfix
         ; generate this in js
-        (job-card (if has-params? params sample-job-fields))]
+        (job-card (if has-params? params sample-job-fields) false)]
     ]])
 
 
 (defpartial browse-jobs [has-params?]
-  (let [all-jobs (sort-by #(:company %) (job/find-upcoming-jobs))]
+  (let [all-jobs     (sort-by #(:company %) 
+                      (filter #(not= (:removed? %) "true") (job/find-upcoming-jobs)))
+        show-delete? (user/logged-in?)]
     [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
       ;; sort by date and location.
       ;; search descriptions and company names
@@ -133,7 +135,7 @@
           [:div#active-job.span6.pull-right
             (for [job all-jobs]
               [:div {:id (:id job)}
-                (job-card job)])]]
+                (job-card job show-delete?)])]]
 
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
@@ -250,12 +252,22 @@
     [:h1 "Submission Received"]
     [:p "Please, check your email for a confirmation link."]))
 
-(defpage confirm-job "/jobs/:id/confirm" {:keys [id]}
+(defpage [:post "/job/:id/delete"] {:keys [id]}
+  (if (user/logged-in?)
+    (if (job/remove-job id)
+      (session/flash-put! :message [:success "The job has been removed."]))
+
+    (do
+      (session/flash-put! :message [:error "You cannot delete that job!"])))
+
+  (response/redirect "/jobs"))
+
+(defpage confirm-job "/job/:id/confirm" {:keys [id]}
   (common/layout
     (if (job/confirm-job id)
       [:div
         [:h1 "Thanks for Confirming"]
-        [:p  "Your listing should now be posted."]
+        [:p "Your listing should now be posted."]
         [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
       [:div
         [:h1 "Something went wrong."]
