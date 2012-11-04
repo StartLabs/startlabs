@@ -30,6 +30,11 @@ else
   echo Node already installed, skipping.
 fi
 
+if ! type "watchr" > /dev/null 2>&1; then
+  echo Installing watchr
+  sudo gem install watcher
+fi
+
 if ! type "recess" > /dev/null 2>&1; then
   echo Installing npm packages for bootstrap
   sudo npm install recess connect uglify-js jshint -g
@@ -41,6 +46,7 @@ fi
 echo Making bootstrap
 cd bootstrap; rm -rf bootstrap; make bootstrap;
 
+echo ---
 echo If you just got a weird error about recess, you need to update your path.
 echo Try adding /usr/local/share/npm/bin to your path
 
