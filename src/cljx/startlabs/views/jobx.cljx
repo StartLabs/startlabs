@@ -38,11 +38,23 @@
 
     text))
 
+(defn job-delete-modal [job]
+  [:div {:id (str "delete-" (:id job)) :class "modal hide fade" :tabindex "-1" :role "dialog" :aria-hidden true}
+    [:div.modal-header
+      [:button.close {:type "button" :data-dismiss "modal" :aria-hidden true} "&times;"]
+      [:h3 "Are you sure you want to remove this job?"]]
+    [:div.modal-body
+      [:p (:company job) ": " (:position job)]
+      [:p "This will hide it from the listing."]]
+    [:form.modal-footer {:action (str "/job/" (:id job) "/delete") :method "post"}
+      [:a.btn {:href "#" :data-dismiss "modal" :aria-hidden true} "Whoops, never mind."]
+      [:input.btn.btn-danger {:type "submit" :value "Yes, Remove it."}]]])
+
 (defn job-summary [job-info show-delete?]
   [:div.job-summary
     (if show-delete?
-      [:form.pull-right {:action (str "/job/" (:id job-info) "/delete") :method "post"}
-        [:input.btn.btn-danger {:type "submit" :value "Delete"}]])
+      [:a.btn.btn-danger.pull-right 
+        {:href (str "#delete-" (:id job-info)) :role "button" :data-toggle "modal"} "Delete"])
 
     [:h2 
       [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
@@ -55,7 +67,9 @@
 
 (defn job-card [job-info show-delete?]
   [:div.thumbnail.job-info
+    (if show-delete? (job-delete-modal job-info))
     (job-summary job-info show-delete?)
+
     [:div.row-fluid
       ; mark cljs markdown as unrendered because singult is currently unable to embed raw html
       [:div.description
