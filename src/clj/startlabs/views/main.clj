@@ -321,14 +321,15 @@
 
 ;; CAPITALIZATION IS CRUCIAL!
 (def partners [
-  ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com/"]
-  ["NEVCA" "http://www.newenglandvc.org/" ]
-  ["Highland Capital Partners" "http://www.hcp.com/"]
-  ["Atlas Venture" "http://www.atlasventure.com/"]
-  ["Bessemer Venture Partners" "http://www.bvp.com/"]
-  ["Boston Seed Capital" "http://www.bostonseed.com/"]
-  ["Charles River Ventures" "http://www.crv.com/"]
-  ["Goodwin Procter" "http://www.goodwinprocter.com/"]])
+   ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com"]
+   ["NEVCA" "http://www.newenglandvc.org"]
+   ["Highland Capital Partners" "http://www.hcp.com"]
+   ["Atlas Venture" "http://www.atlasventure.com"]
+   ["Bessemer Venture Partners" "http://www.bvp.com"]
+   ["Boston Seed Capital" "http://www.bostonseed.com"]
+   ["OpenView Venture Partners" "http://openviewpartners.com"]
+   ["Goodwin Procter" "http://www.goodwinprocter.com"]
+   ["North Bridge Venture Partners" "http://www.nbvp.com"]])
 
 (defpage "/partners" []
   (common/layout
