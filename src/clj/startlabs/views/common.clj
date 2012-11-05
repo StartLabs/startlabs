@@ -77,7 +77,7 @@
        [:link {:rel "alternate" :type "application/rss+xml" :title "StartLabs Events Calendar"
                :href calendar-rss}]
 
-        (include-css "/bootstrap/css/custom.pretty.css"
+        (include-css "/css/custom.pretty.css"
                      "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")]
 
       [:body
