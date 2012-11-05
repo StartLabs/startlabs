@@ -2,8 +2,9 @@
 # sudo apt-get install git;
 # git clone https://github.com/sherbondy/startlabs
 
+sudo add-apt-repository ppa:chris-lea/node.js
 sudo apt-get update
-sudo apt-get install nginx openjdk-7-jre-headless make python-software-properties zsh nodejs npm daemontools
+sudo apt-get install nginx openjdk-7-jre-headless make python-software-properties nodejs npm zsh daemontools wget
 
 # make the nginx log directory
 sudo mkdir /etc/nginx/logs
@@ -12,11 +13,14 @@ sudo mkdir /etc/nginx/logs
 sudo apt-get autoremove
 
 #setup clojure
-curl https://raw.github.com/technomancy/leiningen/preview/bin/lein > lein
-chmod 755 lein
+wget https://raw.github.com/technomancy/leiningen/preview/bin/lein
+chmod u+x lein
 sudo mv lein /usr/local/bin
+#run cljx once
+lein cljx
 
 #grab startlabs submodules
+cd ..
 git submodule init && git submodule update
 sudo npm install recess connect uglify-js jshint -g
 cd bootstrap; make bootstrap

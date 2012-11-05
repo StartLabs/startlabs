@@ -122,3 +122,6 @@
           ))
       ; lack of else clause = implicit nil
       )))
+
+(defn logged-in? []
+  (not (nil? (get-my-info))))

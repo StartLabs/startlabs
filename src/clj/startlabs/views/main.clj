@@ -5,12 +5,15 @@
             [noir.session :as session]
             [noir.validation :as vali]
             [climp.core :as mc] ; mailchimp
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [startlabs.models.user :as user]
+            [startlabs.models.event :as event])
   (:use [noir.core :only [defpage defpartial render]]
         [markdown :only [md-to-html-string]]
-        [environ.core :only [env]]))
+        [environ.core :only [env]]
+        [markdown :only [md-to-html-string]]))
 
-(defpage "/" [& [email]]
+(defpage [:get "/"] [& [email]]
   (common/layout
     [:h1.slug "Interested in " [:strong "Startups"] "?"]
     [:div.row-fluid
@@ -49,6 +52,37 @@
         ]]
        [:div.span4]
      ]))
+       
+      (let [event-descr (event/get-latest-event)
+            logged-in?  (user/logged-in?)]
+            
+        [:div#upcoming-events.span6
+         [:h2 "Upcoming Events"
+          (if logged-in?
+            [:a#edit-upcoming.btn.pull-right {:href "#"} "Edit"])]
+
+          (if logged-in?
+            [:form#event-form.hidden {:action "/event" :method "post"}
+              [:textarea#event-text.span9 {:name "description" :placeholder "Markdown supported" :rows 6}
+                event-descr]
+              [:input.btn.pull-right {:type "submit"}]])
+
+          [:div#event-info
+            (md-to-html-string event-descr)]
+
+          [:p "To keep up with going-ons, subscribe to our "
+            [:a {:href common/calendar-rss} "event calendar"] "."]])
+
+     ]))
+
+(defpage [:post "/event"] {:keys [description] :as event-map}
+  (if (user/logged-in?)
+    (event/create-event event-map)
+
+    ;; else
+    (session/flash-put! :message [:error "You must be logged in to do that."]))
+  (response/redirect "/"))
+>>>>>>> d87a21c54304790cc031f92cc84c6d43e7734f25
 
 (defpage [:post "/"] {:keys [email]}
   (if (not (vali/is-email? email))
@@ -123,7 +157,8 @@
                ["From Up North" "www.fromupnorth.com"]
                ["Make a quick site" "www.flavors.me"]
                ["Sell things online" "www.shopify.com"]
-               ["Crowdsource funding your idea" "www.kickstarter.com"]])]]]
+               ["Crowdsource funding your idea" "www.kickstarter.com"]
+              ])]]]
 
       [:div#people-blogs
         [:h1 "People & Blogs"]
@@ -134,19 +169,21 @@
           [:tbody
             (map #(apply site-twitter %)
               [
-                ["Brad Feld" "http://www.feld.com/wp/" "bfeld"]
-                ["Paul Graham" "http://www.paulgraham.com" "paulg"]
-                ["Fred Wilson" "http://www.avc.com"  "fredwilson"]
-                ["Scott Kirsner" "http://www.boston.com/business/technology/innoeco/" "scottkirsner"]
-                ["Bob Metcalfe" nil "BobMetcalfe"]
-                ["Dharmesh Shah" "http://www.onstartups.com" "dharmesh"]
-                ["Katie Ray" "http://thehumansideofstartups.wordpress.com/" "ktrae"]
-                ["David Cohen" "http://www.davidgcohen.com" "davidcohen"]
-                ["Bill Warner" "http://www.billwarner.posterous.com" "billwarner"]
-                ["Karl Buttner" nil "carlbuttner"]
-                ["David Skok" "http://www.forentrepreneurs.com" "bostonvc"]
-                ["Paul English" "http://www.paulenglish.com" "englishpaulM"]
-                ["Bilal Zuberi" "http://bznotes.wordpress.com" "bznotes"]])]]]
+               ["Brad Feld" "http://www.feld.com/wp/" "bfeld"]
+               ["Paul Graham" "http://www.paulgraham.com" "paulg"]
+               ["Fred Wilson" "http://www.avc.com"  "fredwilson"]
+               ["Scott Kirsner" "http://www.boston.com/business/technology/innoeco/" "scottkirsner"]
+               ["Bob Metcalfe" nil "BobMetcalfe"]
+               ["Dharmesh Shah" "http://www.onstartups.com" "dharmesh"]
+               ["Katie Ray" "http://thehumansideofstartups.wordpress.com/" "ktrae"]
+               ["David Cohen" "http://www.davidgcohen.com" "davidcohen"]
+               ["Bill Warner" "http://www.billwarner.posterous.com" "billwarner"]
+               ["Karl Buttner" nil "carlbuttner"]
+               ["David Skok" "http://www.forentrepreneurs.com" "bostonvc"]
+               ["Paul English" "http://www.paulenglish.com" "englishpaulM"]
+               ["Bilal Zuberi" "http://bznotes.wordpress.com" "bznotes"]
+               ["Ric Fulop" "http://ricfulop.tumblr.com" "ricfulop"]
+              ])]]]
 
         [:div#university-resources.clearfix
           [:h1 "University Resources"]
@@ -204,7 +241,8 @@
                   [["http://www.goodwinprocter.com/" "Goodwin Procter"]
                    ["http://www.siliconlegal.com/" "Silicon Legal"]
                    ["http://www.grellas.com/" "Grellas Shah, LLP"]
-                   ["http://walkercorporatelaw.com/" "Walker Corporate Law Group"]])]]
+                   ["http://walkercorporatelaw.com/" "Walker Corporate Law Group"]
+                  ])]]
 
             [:div.pull-left.span3
               [:h2 "Legal Tools"]
@@ -214,15 +252,16 @@
                   "Model Legal Documents"]
                  ["http://www.legalzoom.com/" "Legal Zoom"]
                  ["http://www.wsgr.com/wsgr/Display.aspx?SectionName=practice/termsheet.htm" 
-                  "Term Sheet Generator"]])]
+                  "Term Sheet Generator"]
+                ])]
 
               [:h2 "Tips from VCs"]
               [:ul (map #(apply ablank-li %)
                 [["http://blog.guykawasaki.com/2007/09/the-top-ten-six.html#axzz0VM3lKUJm" 
                   "Guy Kawasaki on \"The Top Ten (Sixteen) Lies of Lawyers\""]
                  ["http://www.bothsidesofthetable.com/2010/01/21/how-to-work-with-lawyers-at-a-startup/"
-                  "Mark Suster: \"How to Work with Lawyers at a Startup\""]])]]
-
+                  "Mark Suster: \"How to Work with Lawyers at a Startup\""]
+                ])]]
               ]]
 
           [:div#financing
@@ -321,14 +360,16 @@
 
 ;; CAPITALIZATION IS CRUCIAL!
 (def partners [
-  ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com/"]
-  ["NEVCA" "http://www.newenglandvc.org/" ]
-  ["Highland Capital Partners" "http://www.hcp.com/"]
-  ["Atlas Venture" "http://www.atlasventure.com/"]
-  ["Bessemer Venture Partners" "http://www.bvp.com/"]
-  ["Boston Seed Capital" "http://www.bostonseed.com/"]
-  ["Charles River Ventures" "http://www.crv.com/"]
-  ["Goodwin Procter" "http://www.goodwinprocter.com/"]])
+  ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com"]
+  ["NEVCA" "http://www.newenglandvc.org"]
+  ["Highland Capital Partners" "http://www.hcp.com"]
+  ["Atlas Venture" "http://www.atlasventure.com"]
+  ["Bessemer Venture Partners" "http://www.bvp.com"]
+  ["Boston Seed Capital" "http://www.bostonseed.com"]
+  ["OpenView Venture Partners" "http://openviewpartners.com"]
+  ["Goodwin Procter" "http://www.goodwinprocter.com"]
+  ["North Bridge Venture Partners" "http://www.nbvp.com"]
+ ])
 
 (defpage "/partners" []
   (common/layout

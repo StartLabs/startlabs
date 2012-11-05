@@ -8,7 +8,8 @@
             [startlabs.models.util :as mu]
             [startlabs.util :as u]
             [startlabs.views.common :as common]
-            [startlabs.models.job :as job])
+            [startlabs.models.job :as job]
+            [startlabs.models.user :as user])
   (:use [clojure.core.incubator]
         [clojure.tools.logging :only [info]]
         [clj-time.coerce :only [to-long]]
@@ -19,15 +20,23 @@
 
 ;; jobs
 
+(defn edit-link [job-map]
+  (str (u/home-uri) (url-for edit-job {:id (:id job-map)}) "?secret=" (:secret job-map)))
+
 (defpartial job-email-body [job-map]
-  (let [conf-link (str (u/home-uri) (url-for confirm-job {:id (:id job-map)}))]
+  (let [conf-link     (str (u/home-uri) (url-for confirm-job {:id (:id job-map)}))
+        the-edit-link (edit-link job-map)]
     [:div
       [:p "Hey there,"]
       [:p "Thanks for submitting to the StartLabs jobs list."]
       [:p "To confirm your listing, " [:strong (:position job-map)] ", please visit this link:"]
       [:p [:a {:href conf-link} conf-link]]
+
+      [:p "If you ever need to edit the listing, use this link:"]
+      [:p [:a {:href the-edit-link} the-edit-link]]
+
       [:p "If this email was sent in error, feel free to ignore it or contact "
-          (common/webmaster-link "our webmaster.")]]))
+          (common/webmaster-link "our webmaster") "."]]))
 
 (defn send-confirmation-email [job-map]
   (postal/send-message ^{:host (env :email-host)
@@ -90,22 +99,36 @@
    :contact_info "contact@startlabs.org"})
 
 (defpartial submit-job [has-params? params]
-  [:div#submit {:class (u/cond-class "tab-pane" [has-params? "active"])}
-    [:h1 "Submit a Job"]
+  ;; make the distinction between editing existing values vs. creating a new job
+  (let [editing? (not (empty? (:id params)))
+        heading  (if editing? "Edit Job" "Submit a Job")
+        action   (if editing? (str "/job/" (:id params)) "/jobs")]
 
-    [:form#job-form.row-fluid {:method "post" :action "/jobs"}
-      [:div.span6
-        [:div.well "In order to submit a job, your email address and 
-                    company website domain must match."]
-        (fields-from-schema (job/job-fields) ordered-job-keys params)]
+    [:div#submit {:class (u/cond-class "tab-pane" [has-params? "active"])}
+      [:h1 heading]
 
-      [:div#job-preview.span6.clearfix
-        ; generate this in js
-        (job-card (if has-params? params sample-job-fields))]
-    ]])
+      [:form#job-form.row-fluid {:method "post" :action action}
+        [:div.span6
+          (if (not editing?)
+            [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
+                        [:strong "your company must be preapproved"] ". Please " 
+                        [:a {:href "mailto:team@startlabs.org?subject=Jobs List Request: [Your_Company_Name]"} "email us"] 
+                        " for consideration for the Jobs List."])
+          (fields-from-schema (job/job-fields) ordered-job-keys params)]
+
+          (if editing?
+            [:input {:type "hidden" :name "secret" :value (:secret params)}])
+
+        [:div#job-preview.span6.clearfix
+          ; generate this in js
+          (job-card (if has-params? params sample-job-fields) false)]
+      ]]))
+
 
 (defpartial browse-jobs [has-params?]
-  (let [all-jobs (sort-by #(:company %) (job/find-upcoming-jobs))]
+  (let [all-jobs     (sort-by #(:company %) 
+                       (filter #(not= (:removed? %) "true") (job/find-upcoming-jobs)))
+        show-delete? (user/logged-in?)]
     [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
       ;; sort by date and location.
       ;; search descriptions and company names
@@ -116,7 +139,8 @@
         [:div.navbar
           [:div.navbar-inner
             [:form.navbar-search.pull-left {:action "#"}
-              [:input#job-search.search-query {:type "text" :placeholder "Search"}]]
+             [:input#job-search.search-query
+              {:type "text" :placeholder "Search"}]]
             [:ul.nav.pull-right
               [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
         ]]]
@@ -130,43 +154,95 @@
           [:div#active-job.span6.pull-right
             (for [job all-jobs]
               [:div {:id (:id job)}
-                (job-card job)])]]
+                (job-card job show-delete?)])]]
 
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
-    ]))
+     ]))
+
+(defn split-sites [sitelist]
+  (str/split sitelist #"\s+"))
+
+(defpage [:post "/whitelist"] {:keys [the-list]}
+  (if (user/logged-in?)
+    (do
+      (job/update-whitelist the-list)
+      (session/flash-put! :message [:success "The whitelist has been updated successfully."]))
+
+    (do
+      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])))
+
+  (response/redirect "/jobs"))
+
+(defpartial whitelist []
+  (let [whitelist (job/get-current-whitelist)]
+    [:div#whitelist {:class "tab-pane"}
+      [:h2 "Company Whitelist"]
+
+      [:div.well
+        [:p "Just put each company domain name on a new line."]
+        [:p "Do not include the http:// or the www."]]
+
+      [:form {:action "/whitelist" :method "post"}
+        [:div.span6.pull-left
+          [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
+            whitelist]
+        [:input.btn.btn-primary.span3 {:type "submit"}]]
+
+      [:div.span5
+       [:input.btn.btn-primary.span3 {:type "submit"}]]]
+     ]))
 
 (defpage [:get "/jobs"] {:as params}
   (let [has-params? (not (empty? params))]
     (common/layout
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
-        [:a {:class (u/cond-class "btn" [(not has-params?) "active"]) :href "#browse" :data-toggle "tab"}
-          "Browse Available"]
-        [:a {:class (u/cond-class "btn" [has-params? "active"]) :href "#submit" :data-toggle "tab"}
+       [:a {:class (u/cond-class "btn" [(not has-params?) "active"])
+            :href "#browse" :data-toggle "tab"}
+        "Browse Available"]
+       
+       (if (user/logged-in?)
+         [:a {:class "btn" :href "#whitelist" :data-toggle "tab"} "Whitelist"])
+       
+       [:a {:class (u/cond-class "btn" [has-params? "active"])
+            :href "#submit" :data-toggle "tab"}
           "Submit a Job"]]
       [:div.clearfix]
 
       [:div.tab-content
-        (browse-jobs has-params?)
-        (submit-job has-params? params)])))
+       (browse-jobs has-params?)
+       (whitelist)
+       (submit-job has-params? params)])))
 
 (defn empty-rule [[k v]]
   (vali/rule 
     (vali/has-value? v) [k "This field cannot be empty."]))
 
+(defn get-hostname [url]
+  (try
+    (let [site-uri    (URI. (or url ""))
+          replace-www (fn [x] (str/replace x "www."  ""))
+          site-host   (-?> site-uri .getHost replace-www)]
+      site-host)
+    (catch Exception e
+      "")))
+
 (defn valid-job? [job-params]
-  (let [site-uri    (URI. (or (:website job-params) ""))
-        replace-www (fn [x] (str/replace x "www."  ""))
-        site-host   (-?> site-uri .getHost replace-www)]
+  (let [site-host (get-hostname (:website job-params))
+        whitelist (job/get-current-whitelist)]
+
     (dorun (map empty-rule job-params))
 
-    (vali/rule (not (nil? site-host))
+    (vali/rule (not (or (nil? site-host) (= "" site-host)))
       [:website "Must be a valid website." site-host])
 
     ; also allow submissions from startlabs members
     (vali/rule (or (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
                    (re-matches #".*@startlabs.org$" (:email job-params)))
       [:email "Your email address must match the company website."])
+
+    (vali/rule (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist)
+      [:website "Sorry, your site is not on our whitelist."])
 
     (doseq [date [:start_date :end_date]]
       (vali/rule 
@@ -189,9 +265,16 @@
         (u/httpify-url website) 
         "")})))
 
-(defpage [:post "/jobs"] {:as params}
+(defn flash-job-error []
+  (session/flash-put! :message [:error "Please correct the form and resubmit."]))
+
+(defn trim-and-fix-params [params]
   (let [trimmed-params (u/trim-vals params)
-        fixed-params   (fix-job-params params)]
+        fixed-params   (fix-job-params trimmed-params)]
+      fixed-params))
+
+(defpage [:post "/jobs"] {:as params}
+  (let [fixed-params (trim-and-fix-params params)]
     (if (valid-job? fixed-params)
       (try
         (let [job-info  (job/create-job fixed-params)
@@ -209,7 +292,7 @@
           (render "/jobs" fixed-params)))
 
       (do ;invalid job, flash an error message
-        (session/flash-put! :message [:error "Please correct the form and resubmit."])
+        (flash-job-error)
         (render "/jobs" fixed-params)))))
 
 (defpage "/jobs/success" []
@@ -217,14 +300,128 @@
     [:h1 "Submission Received"]
     [:p "Please, check your email for a confirmation link."]))
 
-(defpage confirm-job "/jobs/:id/confirm" {:keys [id]}
+
+
+
+;; individual job editing
+
+(defpartial unexpected-error [& [error]]
+  [:div
+    [:h1 "Something went wrong."]
+    (if error
+      [:p "Here's the problem: " error])
+    [:p  "Sorry for the inconvenience. Please contact the "
+      (common/webmaster-link "webmaster") "."]])
+
+(defpartial job-not-found []
+  [:div
+    [:h1 "Job not found"]
+
+    [:p "Sorry, we couldn't find any jobs with that ID."]
+    [:p "If you think this is a mistake, feel free to contact the "
+      (common/webmaster-link "webmaster") "."]])
+
+
+(defpartial job-edit-email-body [job-map]
+  (let [the-link (edit-link job-map)]
+    [:div
+      [:p "Hey there,"]
+      [:p "To edit your StartLabs jobs posting, please visit this link:"]
+      [:p [:a {:href the-link} the-link]]
+      [:p "Don't share it with anyone!"]
+      [:p "If this email was sent in error, feel free to ignore it or contact "
+          (common/webmaster-link "our webmaster") "."]]))
+
+(defn send-edit-email [job-map]
+  (postal/send-message ^{:host (env :email-host)
+                         :user (env :email-user)
+                         :pass (env :email-pass)
+                         :ssl  :yes}
+    {:from    "jobs@startlabs.org"
+     :to      (:email job-map)
+     :subject "Edit your StartLabs Job Listing"
+     :body [{:type    "text/html; charset=utf-8"
+             :content (job-edit-email-body job-map)}]}))
+
+
+;; going here triggers an edit link to be sent to the author of the listing
+(defpage [:get "/job/:id/edit"] {:keys [id]}
+  (common/layout
+    (if (user/logged-in?)
+      (if-let [job-map (job/job-map id)]
+        ;; here we find the existing secret or create a new one
+        (let [secret     (or (:secret job-map) 
+                             (job/update-job-field id :secret (mu/uuid)))
+              secret-map (assoc job-map :secret secret)]
+
+          (send-edit-email secret-map)
+
+          [:div
+            [:h1 "Edit Link Sent"]
+            [:p "The author can now check their email for a link to edit the job listing."]])
+
+        (job-not-found))
+
+      ;;else
+      (response/redirect "/jobs"))))
+
+
+(defpage edit-job "/job/:id" {:keys [id] :as params}
+  (common/layout
+    (if-let [job-map (job/job-map id)]
+      (let [secret-map (assoc job-map :secret (:secret params))]
+        (submit-job true secret-map))
+        ;; else
+        (job-not-found))))
+
+(defn flash-error-and-render [error render-url params]
+  (session/flash-put! :message [:error error])
+  (render render-url params))
+
+(defpage [:post "/job/:id"] {:keys [id] :as params}
+  (let [fixed-params (trim-and-fix-params params)
+        job-url      (url-for edit-job {:id id})
+        job-secret   (job/job-secret id)]
+
+    (try
+      (if (= (:secret fixed-params) job-secret)
+        (if (valid-job? fixed-params)
+          (if (job/update-job id params)
+            (do
+              (session/flash-put! :message [:success "Your job has been updated successfully."])
+              (response/redirect "/jobs"))
+            ; else
+            (flash-error-and-render "Unable to update job. Sorry for the inconvenience." 
+                                    job-url fixed-params))
+
+          ; invalid job, flash an error message, return to edit page
+          (do (flash-job-error) (render job-url fixed-params)))
+
+        ; secret does not match job secret
+        (flash-error-and-render "Invalid job secret." job-url fixed-params))
+
+      (catch Exception e
+        ;; else: no idea what's wrong, generic error page
+        (unexpected-error (str [(str e) id fixed-params]))))))
+
+
+(defpage [:post "/job/:id/delete"] {:keys [id]}
+  (if (user/logged-in?)
+    (if (job/remove-job id)
+      (session/flash-put! :message [:success "The job has been removed."]))
+
+    (do
+      (session/flash-put! :message [:error "You cannot delete that job!"])))
+
+  (response/redirect "/jobs"))
+
+(defpage confirm-job "/job/:id/confirm" {:keys [id]}
   (common/layout
     (if (job/confirm-job id)
       [:div
         [:h1 "Thanks for Confirming"]
-        [:p  "Your listing should now be posted."]
+        [:p "Your listing should now be posted."]
         [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
-      [:div
-        [:h1 "Something went wrong."]
-        [:p  "Sorry for the inconvenience. Please contact the "
-          (common/webmaster-link "webmaster") "."]])))
+
+      ;; else
+      (unexpected-error))))

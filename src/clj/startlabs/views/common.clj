@@ -58,12 +58,14 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();")
 
+(def calendar-rss "http://www.google.com/calendar/feeds/startlabs.org_5peolh5d72ol1r9c7hf624ke9g%40group.calendar.google.com/public/basic")
+
 (defpartial layout [& content]
   (let [[message-type message] (session/flash-get :message)
         request (ring-request)]
     (html5
       [:head
-        [:title "startlabs"]
+        [:title "StartLabs"]
 
         ; make mobile device interface fixed
         [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
@@ -74,7 +76,15 @@
                                 )}]
 
         (include-css "/bootstrap/css/custom.pretty.css"
-                     "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")]
+                     "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")
+
+        [:link {:rel "alternate" :type "application/rss+xml" :title "StartLabs Events Calendar"
+                :href calendar-rss}]
+
+        ;;(include-css "/bootstrap/css/bootstrap.min.css"
+        ;;             "/bootstrap/css/bootstrap-responsive.min.css"
+        ;;             "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")
+      ]
 
       [:body
         [:div.wrapper [:div#nav [:div.container

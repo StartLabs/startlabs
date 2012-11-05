@@ -21,3 +21,5 @@ lock/
 status/
 supervise/
 *.un~
+\#*\#*
+*.*\~
