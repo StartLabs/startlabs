@@ -344,22 +344,26 @@
              :content (job-edit-email-body job-map)}]}))
 
 
+;; going here triggers an edit link to be sent to the author of the listing
 (defpage [:get "/job/:id/edit"] {:keys [id]}
   (common/layout
-    (if-let [job-map (job/job-map id)]
-      ;; here we find the existing secret or create a new one
-      (let [secret     (or (:secret job-map) 
-                           (job/update-job-field id :secret (mu/uuid)))
-            secret-map (assoc job-map :secret secret)]
+    (if (user/logged-in?)
+      (if-let [job-map (job/job-map id)]
+        ;; here we find the existing secret or create a new one
+        (let [secret     (or (:secret job-map) 
+                             (job/update-job-field id :secret (mu/uuid)))
+              secret-map (assoc job-map :secret secret)]
 
-        (send-edit-email secret-map)
+          (send-edit-email secret-map)
 
-        [:div
-          [:h1 "Edit Link Sent"]
-          [:p "Check your email for a link to edit your job listing."]])
+          [:div
+            [:h1 "Edit Link Sent"]
+            [:p "The author can now check their email for a link to edit the job listing."]])
+
+        (job-not-found))
 
       ;;else
-      (job-not-found))))
+      (response/redirect "/jobs"))))
 
 
 (defpage edit-job "/job/:id" {:keys [id] :as params}
