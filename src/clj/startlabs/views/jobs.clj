@@ -222,7 +222,7 @@
                    (re-matches #".*@startlabs.org$" (:email job-params)))
       [:email "Your email address must match the company website."])
 
-    (vali/rule (re-find (re-pattern (str "^" site-host)) whitelist)
+    (vali/rule (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist)
       [:website "Sorry, your site is not on our whitelist."])
 
     (doseq [date [:start_date :end_date]]
