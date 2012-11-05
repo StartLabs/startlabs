@@ -24,9 +24,22 @@
                     projects into seed-stage ventures."]
               [:li "Work in rapidly expanding companies – place students in internships
                     and full-time positions at promising startups."]]
-       [:p "We are creating the next generation of technical entrepreneurs."]
-
+       [:p "We are creating the next generation of technical entrepreneurs."]]
        
+      [:div.span6
+        [:h2 "Past Events"]
+
+        [:p "On Monday, October 8th, we hosted " [:strong "Startup Bootcamp"]
+            ", a free annual one-day event featuring talks by startup founders."]
+        [:p "It was from 9am to 5pm in Kresge Auditorium."]
+
+        [:div
+          [:a.center.bootcamp {:href "http://startupbootcamp.mit.edu"}
+           [:img {:src "/img/bootcamp_new.png" :alt "Startup Bootcamp" :width "420px"}]]]]
+     ]
+     [:div.row-fluid
+       [:div.span4]
+       [:div.span4
        [:h3 "Join our mailing list to stay in the loop:"]
        [:form {:action "/" :method "post"}
         [:input#email.span9.pull-left {:name "email" :placeholder "Your email address"
@@ -34,18 +47,7 @@
         [:button#submit.btn.btn-primary.span3.pull-right
          {:type "submit"} "Submit"]
         ]]
-       
-      [:div.span6
-        [:h2 "Upcoming Events"]
-
-        [:p "On Monday, October 8th, we'll be hosting " [:strong "Startup Bootcamp"]
-            ", a free one-day event featuring talks by startup founders."]
-        [:p "It's from 9am to 5pm in Kresge Auditorium."]
-
-        [:div
-          [:a.center.bootcamp {:href "http://startupbootcamp.mit.edu"}
-           [:img {:src "/img/bootcamp.png" :alt "Startup Bootcamp" :width "240px"}]]]]
-
+       [:div.span4]
      ]))
 
 (defpage [:post "/"] {:keys [email]}
@@ -96,7 +98,7 @@
 
 (defpage "/resources" []
   (common/layout
-    [:h1 "Resources"]
+    [:h1.affix "Resources"]
     [:ul#left-nav.nav.nav-tabs.nav-stacked.span3 {:data-spy "affix"}
       [:li [:a {:href "#design-marketing"} "Design and Marketing"]]
       [:li [:a {:href "#people-blogs"} "People and Blogs"]]

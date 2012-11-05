@@ -38,7 +38,7 @@
         [:li.divider]
         [:li [:a {:href "/logout"} "Logout"]]
       ]]
-    [:li.pull-right [:a {:href "/login"} "Login"]]))
+    [:li.pull-right [:a {:href "/login"} "Login &raquo;"]]))
 
 (defpartial webmaster-link [text]
   [:a {:href "mailto:ethan@startlabs.org"} text])
@@ -69,18 +69,16 @@
         [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
 
         [:link {:rel "stylesheet" :type "text/css" 
-               :href (font-link ["Josefin Sans" [400,700]]
-                                ["Josefin Slab" [400,700]]
-                                ["Crimson Text" [400,"400italic",600,"600italic",700,"700italic"]]
-                                ["Ultra"])}]
+               :href (font-link ["Open Sans" [300,400,600]]
+                                ["Kreon" [400,700]]
+                                )}]
 
-        (include-css "/bootstrap/css/bootstrap.min.css"
-                     "/bootstrap/css/bootstrap-responsive.min.css"
+        (include-css "/bootstrap/css/custom.pretty.css"
                      "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")]
 
       [:body
-        [:div#nav [:div.container
-          [:a#nav-logo {:href "/"} [:img {:src "/img/logo_small.png" :width "96px"}]]
+        [:div.wrapper [:div#nav [:div.container
+          [:a#nav-logo {:href "/"} [:img {:src "/img/logo.png" :width "110px"}]]
 
           [:ul.visible-phone.visible-tablet.nav.nav-pills.pull-right
             [:li
@@ -104,8 +102,10 @@
 
           content
 
-          [:footer
-            [:p "Follow us on " 
+          ]
+          [:div.push]
+          [:footer.container
+            [:p "&copy; 2012 Startlabs. Follow us on " 
               [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
               [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]]
 
