@@ -38,7 +38,7 @@
         [:li.divider]
         [:li [:a {:href "/logout"} "Logout"]]
       ]]
-    [:li.pull-right [:a {:href "/login"} "Login &raquo;"]]))
+    [:li.pull-right [:a {:href "/login"} "Login"]]))
 
 (defpartial webmaster-link [text]
   [:a {:href "mailto:ethan@startlabs.org"} text])
@@ -72,19 +72,13 @@
 
         [:link {:rel "stylesheet" :type "text/css" 
                :href (font-link ["Open Sans" [300,400,600]]
-                                ["Kreon" [400,700]]
-                                )}]
+                                ["Kreon" [400,700]])}]
+
+       [:link {:rel "alternate" :type "application/rss+xml" :title "StartLabs Events Calendar"
+               :href calendar-rss}]
 
         (include-css "/bootstrap/css/custom.pretty.css"
-                     "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")
-
-        [:link {:rel "alternate" :type "application/rss+xml" :title "StartLabs Events Calendar"
-                :href calendar-rss}]
-
-        ;;(include-css "/bootstrap/css/bootstrap.min.css"
-        ;;             "/bootstrap/css/bootstrap-responsive.min.css"
-        ;;             "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")
-      ]
+                     "http://cdn.leafletjs.com/leaflet-0.4/leaflet.css")]
 
       [:body
         [:div.wrapper [:div#nav [:div.container
@@ -111,11 +105,10 @@
               [:p message]])
 
           content
-
-          ]
+        ]
           [:div.push]
-          [:footer.container
-            [:p "&copy; 2012 Startlabs. Follow us on " 
+            [:footer.container
+              [:p "&copy; 2012 Startlabs. Follow us on "
               [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
               [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]]
 
