@@ -65,7 +65,7 @@
         request (ring-request)]
     (html5
       [:head
-        [:title "startlabs"]
+        [:title "StartLabs"]
 
         ; make mobile device interface fixed
         [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]

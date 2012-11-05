@@ -15580,8 +15580,8 @@ startlabs.views.jobx.job_summary = function(a, b) {
   a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0)], !0)
 };
 startlabs.views.jobx.job_card = function(a, b) {
-  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail.job-info", cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", 
-  "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
+  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail.job-info", cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", 
+  cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("/edit")].join("")}), "Send edit link to author"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0)
@@ -19160,8 +19160,7 @@ startlabs.jobs.setup_job_submit = function() {
   jayq.core.bind.call(null, a, "\ufdd0'keyup", b);
   return jayq.core.bind.call(null, a, "\ufdd0'blur", b)
 };
-startlabs.jobs.setup_jobs = function() {
-  startlabs.jobs.setup_job_submit.call(null);
+startlabs.jobs.setup_jobs_list = function() {
   startlabs.jobs.lmap = startlabs.jobs.L.map("map");
   startlabs.jobs.lmap.setView([42, -40], 3);
   startlabs.jobs.markers = new L.LayerGroup;
@@ -19286,5 +19285,6 @@ startlabs.main.main = function() {
 };
 jayq.core.document_ready.call(null, function() {
   startlabs.main.main.call(null);
-  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) ? startlabs.jobs.setup_jobs.call(null) : null
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
+  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) ? startlabs.jobs.setup_job_submit.call(null) : null
 });

@@ -96,6 +96,7 @@
       (fn [job] (= (:id job) id))
       job-data)))
 
+
 (defn setup-job-submit []
   (.datepicker ($ ".datepicker"))
 
@@ -109,9 +110,8 @@
       (jq/bind $elems :keyup update-job-card)
       (jq/bind $elems :blur  update-job-card))))
 
-(defn setup-jobs []
-  (setup-job-submit)
 
+(defn setup-jobs-list []
   (def lmap (.map L "map"))
   (.setView lmap (array 42 -40) 3)
 
@@ -168,6 +168,5 @@
 
   (reset! filtered-jobs job-data)
   (reset! active-job (str "#" (:id (first job-data))))
-
 )
 

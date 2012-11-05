@@ -2,7 +2,7 @@
   (:use [jayq.core :only [$]]
         [singult.core :only [render]]
         [startlabs.views.jobx :only [job-card]]
-        [startlabs.jobs :only [setup-jobs]])
+        [startlabs.jobs :only [setup-jobs-list setup-job-submit]])
 
   (:require [fetch.remotes :as remotes]
             [jayq.core :as jq]
@@ -79,5 +79,8 @@
   (main)
 
   (if (u/exists? "#map")
-    (setup-jobs)))
+    (setup-jobs-list))
+
+  (if (u/exists? "#job-form")
+    (setup-job-submit)))
 

@@ -75,6 +75,9 @@
       [:div.description
         (markdownify (:description job-info))]
 
+      (if show-delete?
+        [:p [:a {:href (str "/job/" (:id job-info) "/edit")} "Send edit link to author"]])
+
       [:div.well.well-small
         "Contact: "
         [:i.icon.icon-envelope]
