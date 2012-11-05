@@ -38,7 +38,7 @@
          {:type "submit"} "Submit"]
         ]]
        
-      (let [event-descr (:description (event/get-latest-event))
+      (let [event-descr (event/get-latest-event)
             logged-in?  (user/logged-in?)]
             
         [:div#upcoming-events.span6

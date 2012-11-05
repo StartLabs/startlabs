@@ -145,24 +145,34 @@
   (str/split sitelist #"\s+"))
 
 (defpage [:post "/whitelist"] {:keys [the-list]}
-  (common/layout
-   [:h2 "Success, the Whitelist is now:"]
-   (for [site (sort (split-sites the-list))]
-     [:div site])))
+  (if (user/logged-in?)
+    (do
+      (job/update-whitelist the-list)
+      (session/flash-put! :message [:success "The whitelist has been updated successfully."]))
+
+    (do
+      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])))
+
+  (response/redirect "/jobs"))
 
 (defpartial whitelist [has-params?]
-  [:div#whitelist {:class "tab-pane"}
-   [:h2 "Company Whitelist"]
-   [:div.well
-    [:p "Just put each company domain name on a new line."]
-    [:p "Do not include the http:// or the www."]]
-   [:form {:action "/whitelist" :method "post"}
-    [:div.span6.pull-left
-     [:textarea#the-list.span6 {:name "the-list" :rows 20}]
-     [:input.btn.btn-primary.span3 {:type "submit"}]]
-    [:div.span5
-     [:input.btn.btn-primary.span3 {:type "submit"}]]]
-   ])
+  (let [whitelist (job/get-current-whitelist)]
+    [:div#whitelist {:class "tab-pane"}
+      [:h2 "Company Whitelist"]
+
+      [:div.well
+        [:p "Just put each company domain name on a new line."]
+        [:p "Do not include the http:// or the www."]]
+
+      [:form {:action "/whitelist" :method "post"}
+        [:div.span6.pull-left
+          [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
+            whitelist]
+        [:input.btn.btn-primary.span3 {:type "submit"}]]
+
+      [:div.span5
+       [:input.btn.btn-primary.span3 {:type "submit"}]]]
+     ]))
 
 (defpage [:get "/jobs"] {:as params}
   (let [has-params? (not (empty? params))]
@@ -189,19 +199,31 @@
   (vali/rule 
     (vali/has-value? v) [k "This field cannot be empty."]))
 
+(defn get-hostname [url]
+  (try
+    (let [site-uri    (URI. (or url ""))
+          replace-www (fn [x] (str/replace x "www."  ""))
+          site-host   (-?> site-uri .getHost replace-www)]
+      site-host)
+    (catch Exception e
+      "")))
+
 (defn valid-job? [job-params]
-  (let [site-uri    (URI. (or (:website job-params) ""))
-        replace-www (fn [x] (str/replace x "www."  ""))
-        site-host   (-?> site-uri .getHost replace-www)]
+  (let [site-host (get-hostname (:website job-params))
+        whitelist (job/get-current-whitelist)]
+
     (dorun (map empty-rule job-params))
 
-    (vali/rule (not (nil? site-host))
+    (vali/rule (not (or (nil? site-host) (= "" site-host)))
       [:website "Must be a valid website." site-host])
 
     ; also allow submissions from startlabs members
     (vali/rule (or (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
                    (re-matches #".*@startlabs.org$" (:email job-params)))
       [:email "Your email address must match the company website."])
+
+    (vali/rule (re-find (re-pattern (str "^" site-host)) whitelist)
+      [:website "Sorry, your site is not on our whitelist."])
 
     (doseq [date [:start_date :end_date]]
       (vali/rule 
@@ -226,7 +248,7 @@
 
 (defpage [:post "/jobs"] {:as params}
   (let [trimmed-params (u/trim-vals params)
-        fixed-params   (fix-job-params params)]
+        fixed-params   (fix-job-params trimmed-params)]
     (if (valid-job? fixed-params)
       (try
         (let [job-info  (job/create-job fixed-params)

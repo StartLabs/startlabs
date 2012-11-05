@@ -1,7 +1,7 @@
 (ns startlabs.models.job
   (:use [datomic.api :only [q db ident] :as d]
         [clj-time.core :only [now]]
-        [clj-time.coerce :only [to-long]]
+        [clj-time.coerce :only [to-long to-date]]
         [startlabs.models.database :only [conn]]
         [startlabs.util :only [stringify-values]])
   (:require [clojure.string :as str]
@@ -59,3 +59,23 @@
         job-ids  (map first jobs)
         job-maps (util/maps-for-datoms job-ids :job)]
     (map stringify-values job-maps)))
+
+
+;; whitelist
+
+
+(defn update-whitelist [whitelist]
+  (let [tx-data (util/txify-new-entity :joblist {:whitelist whitelist :updated (to-date (now))})]
+    @(d/transact @conn tx-data)
+    whitelist))
+
+(defn get-current-whitelist
+  "returns all confirmed jobs whose start dates are after a certain date"
+  []
+  (let [whitelists (q '[:find ?when ?wl :in $
+                        :where [?whitelist :joblist/whitelist ?wl]
+                               [?whitelist :joblist/updated ?when]] (db @conn))
+        whitelist  (last (sort-by first whitelists))]
+    (last whitelist)))
+
+

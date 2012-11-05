@@ -210,7 +210,22 @@
   :db.install/_attribute :db.part/db}
 
 
+  ;; job whitelist
 
+ {:db/id #db/id[:db.part/db],
+  :db/ident :joblist/whitelist,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/fulltext true,
+  :db/doc "Whitelist of company domains that are allowed on the jobs board.",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :joblist/updated,
+  :db/valueType :db.type/instant,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Time that the whitelist was updated",
+  :db.install/_attribute :db.part/db}
 
 
   ;; upcoming events page
@@ -220,6 +235,14 @@
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Markdown text describing upcoming events.",
+  :db.install/_attribute :db.part/db}
+
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :event/updated,
+  :db/valueType :db.type/instant,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Time that the event was updated",
   :db.install/_attribute :db.part/db}
   
 ]
