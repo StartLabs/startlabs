@@ -1708,13 +1708,13 @@ table .span24 {
     *margin-right: .3em;
     line-height: 14px;
     vertical-align: text-top;
-    background-image: url("../img/glyphicons-halflings.png");
+    background-image: url("/bootstrap/img/glyphicons-halflings.png");
     background-position: 14px 14px;
     background-repeat: no-repeat;
 }
 
 .icon-white,.nav>.active>a>[class^="icon-"],.nav>.active>a>[class*=" icon-"],.dropdown-menu>li>a:hover>[class^="icon-"],.dropdown-menu>li>a:hover>[class*=" icon-"],.dropdown-menu>.active>a>[class^="icon-"],.dropdown-menu>.active>a>[class*=" icon-"] {
-    background-image: url("../img/glyphicons-halflings-white.png");
+    background-image: url("/bootstrap/img/glyphicons-halflings-white.png");
 }
 
 .icon-glass {
@@ -5259,7 +5259,7 @@ a.label:hover,a.badge:hover {
 }
 
 body {
-    background: url('../../img/xv.png') repeat fixed;
+    background: url('/bootstrap/img/xv.png') repeat fixed;
 }
 
 #nav-logo {
@@ -6723,4 +6723,72 @@ html,body {
         height: auto!important;
         overflow: visible!important;
     }
+}
+
+#upcoming-events #edit-upcoming {
+    display: none;
+  }
+
+#upcoming-events:hover #edit-upcoming {
+  display: block;
+}
+
+#active-job > div {
+    display: none;
+}
+  
+#active-job > div.active {
+    display: block;
+}
+
+#job-list {
+  overflow: hidden;
+}
+
+#job-list li {
+    border-bottom: 1px solid #fff;
+}
+
+#job-list i {
+    margin: 4px 4px 0 0;
+}
+
+#job-list li > a {
+  display: block;
+  background: #efefef;
+  padding: 12px;
+  position: relative;
+}
+
+#job-list li > a h2 {
+    font-size: 20px;
+    line-height: 1.25;
+    text-align: left;
+}
+
+#job-list li > a h2 small {
+  color: #000;
+}
+
+#job-list li > a:hover, #job-list li > a.active {
+    text-decoration: none;
+    text-shadow: none;
+    color: #fff;
+    background: rgb(80,150,41);
+}
+
+#job-list li > a:hover h2 a, #job-list li > a.active h2 a {
+    color: #fff;
+}
+
+#job-list li > a:hover small, #job-list li > a.active small {
+    color: #fff;
+}
+
+#job-list li > a:hover i, #job-list li > a.active i {
+    background-image: url("/bootstrap/img/glyphicons-halflings-white.png");
+}
+
+#job-list li > a:active {
+    top: 1px;
 }
