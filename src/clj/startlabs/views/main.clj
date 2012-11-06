@@ -5,7 +5,9 @@
             [noir.session :as session]
             [noir.validation :as vali]
             [climp.core :as mc] ; mailchimp
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [startlabs.models.event :as event]
+            [startlabs.models.user :as user])
   (:use [noir.core :only [defpage defpartial render]]
         [markdown :only [md-to-html-string]]
         [environ.core :only [env]]))
@@ -26,17 +28,27 @@
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
        
-      [:div.span6
-        [:h2 "Past Events"]
+      (let [event-descr (event/get-latest-event)
+            logged-in?  (user/logged-in?)]
+            
+        [:div#upcoming-events.span6
+         [:h2 "Upcoming Events"
+          (if logged-in?
+            [:a#edit-upcoming.btn.pull-right {:href "#"} "Edit"])]
 
-        [:p "On Monday, October 8th, we hosted " [:strong "Startup Bootcamp"]
-            ", a free annual one-day event featuring talks by startup founders."]
-        [:p "It was from 9am to 5pm in Kresge Auditorium."]
+          (if logged-in?
+            [:form#event-form.hidden {:action "/event" :method "post"}
+              [:textarea#event-text.span9 {:name "description" :placeholder "Markdown supported" :rows 6}
+                event-descr]
+              [:input.btn.pull-right {:type "submit"}]])
 
-        [:div
-          [:a.center.bootcamp {:href "http://startupbootcamp.mit.edu"}
-           [:img {:src "/img/bootcamp_new.png" :alt "Startup Bootcamp" :width "420px"}]]]]
+          [:div#event-info
+            (md-to-html-string event-descr)]
+
+          [:p "To keep up with going-ons, subscribe to our "
+            [:a {:href common/calendar-rss} "event calendar"] "."]])
      ]
+
      [:div.row-fluid
        [:div.span4]
        [:div.span4
