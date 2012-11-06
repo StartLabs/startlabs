@@ -2561,7 +2561,7 @@ button.close {
 .btn {
     display: inline-block;
     *display: inline;
-    padding: 4px 14px;
+    padding: 4px 12px;
     margin-bottom: 0;
     *margin-left: .3em;
     font-size: 16px;
@@ -5302,7 +5302,7 @@ h1.slug strong {
     font-weight: bold;
     border-top: 3px solid rgb(90,200,10);
     border-bottom: 3px solid #fff;
-    background: #333;
+    background: #222;
 }
 
 #nav .nav {
@@ -5314,7 +5314,7 @@ h1.slug strong {
 }
 
 #nav .nav>li.pull-right {
-    margin-right: 0;
+    margin-right: 16px;
 }
 
 #nav .nav>li>a {
@@ -5486,24 +5486,30 @@ footer {
     }
 
     #nav-logo {
+        margin-left: 20px;
         width: 88px;
         height: 96px;
     }
 
     #nav .nav {
-        margin-left: 98px;
+        margin-left: 150px;
     }
 
     #content {
-        padding: 16px;
+        padding: 40px 20px 20px;
     }
 
     h1.slug {
         font-size: 64px;
     }
 
+    h1.affix {
+        position: relative;
+    }
+
     #left-nav {
         position: relative;
+        margin-top: 5px;
     }
 
     #job-toggle {
@@ -6648,11 +6654,11 @@ html,body {
     }
 
     .nav-collapse .nav>li>a:hover,.nav-collapse .dropdown-menu a:hover {
-        background-color: #f2f2f2;
+        background-color: #366C06;
     }
 
     .navbar-inverse .nav-collapse .nav>li>a:hover,.navbar-inverse .nav-collapse .dropdown-menu a:hover {
-        background-color: #111;
+        background-color: #366C06;
     }
 
     .nav-collapse.in .btn-group {
