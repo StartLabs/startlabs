@@ -1,3 +1,12 @@
+$(document).ready(function(){
+	$('.job').click(function() {
+		$('.job').not(this).find('.read:hidden').show();
+		$('.job').not(this).find('.more').hide();
+		$(this).find('.read').toggle();
+		$(this).find('.more').toggle();
+	});
+});
+
 var COMPILED = !0, goog = goog || {};
 goog.global = this;
 goog.DEBUG = !0;
@@ -15577,30 +15586,14 @@ startlabs.views.jobx.job_summary = function(a, b) {
     var b = startlabs.views.jobx.linkify.call(null, (new cljs.core.Keyword("\ufdd0'website")).call(null, a));
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.dateloc", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 
-  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0)], !0)
+  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'name"], {"\ufdd0'name":[cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Read More..."], !0)], !0)
 };
 startlabs.views.jobx.job_card = function(a, b) {
-  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.thumbnail.job-info", cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", 
+  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-info", cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.more", cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", 
   cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("/edit")].join("")}), "Send edit link to author"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0)
-};
-startlabs.views.jobx.job_list = function(a, b) {
-  return cljs.core.PersistentVector.fromArray(["\ufdd0'ul#job-list.span6", function() {
-    return function d(a) {
-      return new cljs.core.LazySeq(null, !1, function() {
-        for(;;) {
-          if(cljs.core.seq.call(null, a)) {
-            var f = cljs.core.first.call(null, a);
-            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href", "\ufdd0'class"], {"\ufdd0'href":[cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, f))].join(""), "\ufdd0'class":[cljs.core.str("job "), cljs.core.str(cljs.core._EQ_.call(null, b, [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, f))].join("")) ? 
-            "active" : null)].join("")}), startlabs.views.jobx.job_summary.call(null, f, false)], true)], true), d.call(null, cljs.core.rest.call(null, a)))
-          }
-          return null
-        }
-      }, null)
-    }.call(null, a)
-  }()], !0)
 };
 goog.disposable = {};
 goog.disposable.IDisposable = function() {

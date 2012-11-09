@@ -38,7 +38,7 @@
         [:li.divider]
         [:li [:a {:href "/logout"} "Logout"]]
       ]]
-    [:li.pull-right [:a {:href "/login"} "Login"]]))
+    [:li.pull-right [:a {:href "/login"} "Login &rsaquo;"]]))
 
 (defpartial webmaster-link [text]
   [:a {:href "mailto:ethan@startlabs.org"} text])
@@ -82,7 +82,7 @@
 
       [:body
         [:div.wrapper [:div#nav [:div.container
-          [:a#nav-logo {:href "/"} [:img {:src "/img/logo.png" :width "110px"}]]
+          [:a#nav-logo {:href "/"} [:img {:src "/img/logo_small.png" :width "110px"}]]
 
           [:ul.visible-phone.visible-tablet.nav.nav-pills.pull-right
             [:li

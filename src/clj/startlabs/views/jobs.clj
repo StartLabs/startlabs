@@ -15,7 +15,7 @@
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
-        [startlabs.views.jobx :only [job-card job-list]])
+        [startlabs.views.jobx :only [job-card]])
   (:import java.net.URI))
 
 ;; jobs
@@ -119,7 +119,7 @@
           (if editing?
             [:input {:type "hidden" :name "secret" :value (:secret params)}])
 
-        [:div#job-preview.span6.clearfix
+        [:div#job-preview.span6.clearfix.thumbnail
           ; generate this in js
           (job-card (if has-params? params sample-job-fields) false)]
       ]]))
@@ -149,16 +149,15 @@
           (if (empty? all-jobs)
             [:h1 "No jobs posted yet. Come back later!"])
           
-          (job-list all-jobs (first all-jobs))
-
-          [:div#active-job.span6.pull-right
-            (for [job all-jobs]
-              [:div {:id (:id job)}
-                (job-card job show-delete?)])]]
-
+		  [:ul#job-list.span12
+		    (for [job all-jobs]
+		      [:li.span6
+		        [:div.job.thumbnail {:id (:id job)}
+				  (job-card job show-delete?)]])]
+				  		  
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
-     ]))
+     ]]))
 
 (defn split-sites [sitelist]
   (str/split sitelist #"\s+"))
@@ -167,12 +166,12 @@
   (if (user/logged-in?)
     (do
       (job/update-whitelist the-list)
-      (session/flash-put! :message [:success "The whitelist has been updated successfully."]))
+      (session/flash-put! :message [:success "The whitelist has been updated successfully."])))
 
     (do
       (session/flash-put! :message [:error "You must be logged in to change the whitelist."])))
 
-  (response/redirect "/jobs"))
+  (response/redirect "/jobs")
 
 (defpartial whitelist []
   (let [whitelist (job/get-current-whitelist)]

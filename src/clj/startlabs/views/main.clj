@@ -80,6 +80,9 @@
 
 (defpage "/about" []
   (common/layout
+    [:div.row-fluid
+    [:div.span1]
+	[:div.span10
     [:h1 "About Us"]
     [:div
       [:p "StartLabs is a non-profit created out of the ideals of collegiate entrepreneurship."]
@@ -92,7 +95,9 @@
 
       [:p "StartLabs runs “experiments” to create people that matter."]
       [:p [:a {:href "http://www.twitter.com/Start_Labs"} "Follow us on Twitter"] 
-          " to stay in the loop."]]))
+          " to stay in the loop."]]
+	]
+	[:div.span1]]))
 
 (defpartial ablank [site url]
   [:a {:href (str "http://" url)} url])
@@ -345,6 +350,9 @@
 
 (defpage "/partners" []
   (common/layout
+    [:div.row-fluid
+    [:div.span1]
+    [:div.span10
     [:h1 "Partners"]
     [:p "StartLabs simply would not be possible without the help of our gracious partners."]
     [:p "These groups sponsor our efforts to foster the next generation 
@@ -353,11 +361,11 @@
       [:ul#partners.thumbnails
         (for [[partner link] partners]
           (let [logo-url (logo-for-company partner)]
-            [:li.thumbnail.span3
+            [:li.thumbnail.span4
               [:a {:href link} 
                 [:h3 partner]
                 [:img.center {:src logo-url :alt partner}]]]))
-      ]]))
+      ]]][:div.span1]]))
 
 (defpartial four-oh-four [] 
     [:h1 "Sorry, we lost that one."]

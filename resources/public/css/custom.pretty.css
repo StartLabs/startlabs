@@ -309,7 +309,7 @@ a:hover {
     display: block;
     float: left;
     width: 100%;
-    min-height: 30px;
+    min-height: 1px;
     margin-left: 2.127659574468085%;
     *margin-left: 2.074468085106383%;
     -webkit-box-sizing: border-box;
@@ -2474,7 +2474,7 @@ table .span24 {
 .well {
     min-height: 20px;
     padding: 19px;
-    margin-bottom: 20px;
+    margin: 0 -10px;
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
     -webkit-border-radius: 4px;
@@ -5302,7 +5302,7 @@ h1.slug strong {
     font-weight: bold;
     border-top: 3px solid rgb(90,200,10);
     border-bottom: 3px solid #fff;
-    background: #222;
+    background: #292929;
 }
 
 #nav .nav {
@@ -5380,12 +5380,24 @@ footer {
 }
 
 .job-info {
-    padding: 0 16px;
+    padding: 0 10px;
+}
+
+.over .job-info .more {
+	display: block;
+}
+
+.job-info .more {
+	border-top: 1px solid #ccc;
+	padding-top: 8px;
+	display: none;
 }
 
 .job-info small {
-    font-size: 16px;
-    color: #000;
+	display: inline-block;
+	padding: 0 0 .3em .4em;
+    font-size: 20px;
+    color: #222;
 }
 
 .job-info .description {
@@ -5405,9 +5417,8 @@ footer {
 
 .job-info .dateloc {
     padding-top: 6px;
-    margin-bottom: 8px;
     border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+	min-height: 24px;
 }
 
 .bootcamp {
@@ -5476,7 +5487,7 @@ footer {
     padding: 16px;
 }
 
-#partners li:nth-child(4n+1) {
+#partners li:nth-child(3n+1) {
     margin-left: 0;
 }
 
@@ -5496,11 +5507,12 @@ footer {
     }
 
     #content {
-        padding: 40px 20px 20px;
+        padding: 20px;
     }
 
     h1.slug {
         font-size: 64px;
+		padding-top: 10px;
     }
 
     h1.affix {
@@ -6747,54 +6759,59 @@ html,body {
     display: block;
 }
 
+.job-info {
+	padding: 10px 20px;
+}
+.job-info h2 {
+	text-align: left;
+}
+
 #job-list {
   overflow: hidden;
 }
 
 #job-list li {
-    border-bottom: 1px solid #fff;
+	margin-bottom: 20px;
 }
 
 #job-list i {
     margin: 4px 4px 0 0;
 }
 
-#job-list li > a {
+#job-list li > .job {
   display: block;
-  background: #efefef;
-  padding: 12px;
+  cursor: pointer;
+  padding: 10px;
   position: relative;
 }
 
-#job-list li > a h2 {
-    font-size: 20px;
-    line-height: 1.25;
+#job-list li > .job h2 {
+    font-size: 24px;
     text-align: left;
+	color: #5ab40a;
+	margin: 0 0 5px 0;
 }
 
-#job-list li > a h2 small {
+
+#job-list li > .job h2 small {
   color: #000;
 }
 
-#job-list li > a:hover, #job-list li > a.active {
+#job-list li > .job {
     text-decoration: none;
     text-shadow: none;
-    color: #fff;
-    background: rgb(80,150,41);
+    color: #222;
+    background: #fff;
 }
 
-#job-list li > a:hover h2 a, #job-list li > a.active h2 a {
-    color: #fff;
+#job-list li > .job .description {
+	color: #222;
 }
 
-#job-list li > a:hover small, #job-list li > a.active small {
-    color: #fff;
+#job-list li > .job:hover small, #job-list li > .job.active small {
+    color: #222;
 }
 
 #job-list li > a:hover i, #job-list li > a.active i {
-    background-image: url("/bootstrap/img/glyphicons-halflings-white.png");
-}
-
-#job-list li > a:active {
-    top: 1px;
+    background-image: url("/bootstrap/img/glyphicons-halflings.png");
 }

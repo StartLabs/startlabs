@@ -63,14 +63,14 @@
       [:div.row-fluid.dateloc
         ; need to format dates
         [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
-        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]])
+        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]][:a.read {:name (str "#" (:id job-info))} "Read More..." ]])
 
 (defn job-card [job-info show-delete?]
-  [:div.thumbnail.job-info
+  [:div.job-info
     (if show-delete? (job-delete-modal job-info))
     (job-summary job-info show-delete?)
 
-    [:div.row-fluid
+    [:div.row-fluid.more
       ; mark cljs markdown as unrendered because singult is currently unable to embed raw html
       [:div.description
         (markdownify (:description job-info))]
@@ -85,15 +85,3 @@
           ; need to handle phone numbers
           [:a {:href (linkify contact-info)} 
             contact-info])]]])
-
-;; on hover, add icon-white class
-(defn job-list [jobs active-job]
-  [:ul#job-list.span6
-    (for [job jobs]
-      [:li 
-        [:a {:href (str "#" (:id job)) 
-             :class (str "job "
-                      (if (= active-job 
-                          (str "#" (:id job)))
-                            "active"))} 
-          (job-summary job false)]])])
