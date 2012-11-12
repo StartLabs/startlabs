@@ -5383,8 +5383,12 @@ footer {
     padding: 0 10px;
 }
 
-.over .job-info .more {
+#job-preview .more {
 	display: block;
+}
+
+#job-preview .read {
+	display: none;
 }
 
 .job-info .more {
@@ -5812,6 +5816,10 @@ html,body {
         -moz-box-sizing: border-box;
         box-sizing: border-box;
     }
+	
+	#job-list [class*="span"]:nth-child(2n + 1) {
+		margin-left: 0;
+	}
 
     .row-fluid [class*="span"]:first-child {
         margin-left: 0;
@@ -6782,6 +6790,7 @@ html,body {
   display: block;
   cursor: pointer;
   padding: 10px;
+  margin-bottom: 10px;
   position: relative;
 }
 

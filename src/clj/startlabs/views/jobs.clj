@@ -150,11 +150,19 @@
             [:h1 "No jobs posted yet. Come back later!"])
           
 		  [:ul#job-list.span12
-		    (for [job all-jobs]
-		      [:li.span6
+			(let [[left-jobs right-jobs] (split-at (/ (- (count all-jobs) 1) 2) all-jobs)]
+			[:li.span6
+			  (for [job left-jobs]
 		        [:div.job.thumbnail {:id (:id job)}
-				  (job-card job show-delete?)]])]
-				  		  
+				  (job-card job show-delete?)]
+			  )]
+			[:li.span6
+			  (for [job right-jobs]
+   		        [:div.job.thumbnail {:id (:id job)}
+   				  (job-card job show-delete?)]
+   			  )]
+		     )]
+        
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
      ]]))

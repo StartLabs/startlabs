@@ -66,12 +66,11 @@
         [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]][:a.read {:name (str "#" (:id job-info))} "Read More..." ]])
 
 (defn job-card [job-info show-delete?]
-  [:div.job-info
+  [:div.job-info.test
     (if show-delete? (job-delete-modal job-info))
     (job-summary job-info show-delete?)
 
     [:div.row-fluid.more
-      ; mark cljs markdown as unrendered because singult is currently unable to embed raw html
       [:div.description
         (markdownify (:description job-info))]
 
