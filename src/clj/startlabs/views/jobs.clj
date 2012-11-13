@@ -145,14 +145,13 @@
               [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
         ]]]
 
-        [:div#job-list.row-fluid
-          (if (empty? all-jobs)
-            [:h1 "No jobs posted yet. Come back later!"]
-            ;else
-            (job-list all-jobs show-delete?))]
+     [:div.row-fluid
+      (if (empty? all-jobs)
+        [:h1 "Sorry, no jobs posted currently. Come back later."])
+      (job-list all-jobs show-delete?)]
 				  
-        [:script#job-data
-          (str "window.job_data = " (json/json-str all-jobs) ";")]
+     [:script#job-data
+      (str "window.job_data = " (json/json-str all-jobs) ";")]
      ]))
 
 (defn split-sites [sitelist]

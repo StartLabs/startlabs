@@ -73,9 +73,9 @@
         (.addLayer markers new-marker)
         (.addMarker oms new-marker)
 
-        (.addListener oms "click"
-                      (fn [marker]
-                        (reset! active-job (str "#" job-id))))
+        ;; (.addListener oms "click"
+        ;;               (fn [marker]
+        ;;                 (reset! active-job (str "#" job-id))))
 ))))
 
 (defn geocode [place callback]
@@ -137,9 +137,9 @@
   ))))
 
 
-  (add-watch active-job :activate-job (fn [k r o n]
-    (.removeClass ($ o) "active")
-    (.addClass    ($ n) "active")))
+  ;; (add-watch active-job :activate-job (fn [k r o n]
+  ;;   (.removeClass ($ o) "active")
+  ;;   (.addClass    ($ n) "active")))
 
   (bind! "#job-list"
     (job-list @filtered-jobs false))
@@ -164,18 +164,18 @@
     (.preventDefault e)
     (.toggle ($ "#map"))))
 
-  (defn set-active-job! [e]
-    (.preventDefault e)
-    (this-as elem
-      (let [$elem ($ elem)
-            job-sel (jq/attr $elem "href")]
-        (reset! active-job job-sel))
-    ))
+    ;; (defn set-active-job! [e]
+    ;; (.preventDefault e)
+    ;; (this-as elem
+    ;;   (let [$elem ($ elem)
+    ;;         job-sel (jq/attr $elem "href")]
+    ;;     (reset! active-job job-sel))
+    ;; ))
 
   (let [$job-list ($ "#job-list")]
     (jq/on $job-list :click ".job" nil set-active-job!))
 
   (reset! filtered-jobs job-data)
-  (reset! active-job (str "#" (:id (first job-data))))
+  ;; (reset! active-job (str "#" (:id (first job-data))))
 )
 

@@ -92,7 +92,7 @@
       (job-card job show-delete?)])])
 
 (defn job-list [jobs show-delete?]
-  [:ul#job-list.span12
-   (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)]
+  (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)]
+    [:div#job-list.span12
      (half-list left-jobs show-delete?)
-     (half-list right-jobs show-delete?))])
+     (half-list right-jobs show-delete?)]))
