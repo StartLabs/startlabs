@@ -15,7 +15,7 @@
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]
-        [startlabs.views.jobx :only [job-card]])
+        [startlabs.views.jobx :only [job-card job-list]])
   (:import java.net.URI))
 
 ;; jobs
@@ -111,9 +111,9 @@
         [:div.span6
           (if (not editing?)
             [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
-                        [:strong "your company must be preapproved"] ". Please " 
-                        [:a {:href "mailto:team@startlabs.org?subject=Jobs List Request: [Your_Company_Name]"} "email us"] 
-                        " for consideration for the Jobs List."])
+             [:strong "your company must be preapproved"] ". Please " 
+             [:a {:href "mailto:team@startlabs.org?subject=Jobs List Request: [Your_Company_Name]"} "email us"] 
+             " for consideration for the Jobs List."])
           (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
           (if editing?
@@ -147,23 +147,13 @@
 
         [:div#job-list.row-fluid
           (if (empty? all-jobs)
-            [:h1 "No jobs posted yet. Come back later!"])
-          
-			(let [[left-jobs right-jobs] (split-at (/ (count all-jobs) 2) all-jobs)]
-			[:div.span6 
-			  (for [job left-jobs]
-		        [:div.job.thumbnail {:id (:id job)}
-				  (job-card job show-delete?)])])
-				  
-			(let [[left-jobs right-jobs] (split-at (/ (count all-jobs) 2) all-jobs)]  
-			[:div.span6 
-			  (for [job right-jobs]
-		        [:div.job.thumbnail {:id (:id job)}
-				  (job-card job show-delete?)])])
+            [:h1 "No jobs posted yet. Come back later!"]
+            ;else
+            (job-list all-jobs show-delete?))]
 				  
         [:script#job-data
           (str "window.job_data = " (json/json-str all-jobs) ";")]
-     ]]))
+     ]))
 
 (defn split-sites [sitelist]
   (str/split sitelist #"\s+"))
@@ -172,12 +162,12 @@
   (if (user/logged-in?)
     (do
       (job/update-whitelist the-list)
-      (session/flash-put! :message [:success "The whitelist has been updated successfully."])))
-
+      (session/flash-put! :message [:success "The whitelist has been updated successfully."]))
+    ;else
     (do
       (session/flash-put! :message [:error "You must be logged in to change the whitelist."])))
 
-  (response/redirect "/jobs")
+  (response/redirect "/jobs"))
 
 (defpartial whitelist []
   (let [whitelist (job/get-current-whitelist)]

@@ -25,7 +25,7 @@ lein cljx
 if ! type "node" > /dev/null 2>&1; then
   echo Installing node and npm
   brew install node
-  curl http://npmjs.org/install.sh | sh
+  curl https://npmjs.org/install.sh | sh
 else
   echo Node already installed, skipping.
 fi

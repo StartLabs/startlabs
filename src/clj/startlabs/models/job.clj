@@ -101,6 +101,6 @@
                         :where [?whitelist :joblist/whitelist ?wl]
                                [?whitelist :joblist/updated ?when]] (db @conn))
         whitelist  (last (sort-by first whitelists))]
-    (last whitelist)))
+    (or (last whitelist) "")))
 
 

@@ -83,4 +83,16 @@
         (let [contact-info (:contact_info job-info)]
           ; need to handle phone numbers
           [:a {:href (linkify contact-info)} 
-            contact-info])]]])
+           contact-info])]]])
+
+(defn half-list [half-jobs show-delete?]
+  [:div.span6
+   (for [job half-jobs]
+     [:div.job.thumbnail {:id (:id job)}
+      (job-card job show-delete?)])])
+
+(defn job-list [jobs show-delete?]
+  [:ul#job-list.span12
+   (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)]
+     (half-list left-jobs show-delete?)
+     (half-list right-jobs show-delete?))])

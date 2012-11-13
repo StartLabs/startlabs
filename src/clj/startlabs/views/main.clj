@@ -60,7 +60,15 @@
          {:type "submit"} "Submit"]
         ]]
        [:div.span4]
-     ]))
+      ]))
+
+(defpage [:post "/event"] {:keys [description] :as event-map}
+  (if (user/logged-in?)
+    (event/create-event event-map)
+
+    ;; else
+    (session/flash-put! :message [:error "You must be logged in to do that."]))
+  (response/redirect "/"))
 
 (defpage [:post "/"] {:keys [email]}
   (if (not (vali/is-email? email))

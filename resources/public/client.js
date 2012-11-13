@@ -1,12 +1,3 @@
-$(document).ready(function(){
-	$('.job').click(function() {
-		$('.job').not(this).find('.read:hidden').show();
-		$('.job').not(this).find('.more').hide();
-		$(this).find('.read').toggle();
-		$(this).find('.more').toggle();
-	});
-});
-
 var COMPILED = !0, goog = goog || {};
 goog.global = this;
 goog.DEBUG = !0;
@@ -15595,6 +15586,28 @@ startlabs.views.jobx.job_card = function(a, b) {
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b)}), b], !0)
   }()], !0)], !0)], !0)
 };
+startlabs.views.jobx.half_list = function(a, b) {
+  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", function() {
+    return function d(a) {
+      return new cljs.core.LazySeq(null, !1, function() {
+        for(;;) {
+          if(cljs.core.seq.call(null, a)) {
+            var f = cljs.core.first.call(null, a);
+            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.job.thumbnail", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":(new cljs.core.Keyword("\ufdd0'id")).call(null, f)}), startlabs.views.jobx.job_card.call(null, f, b)], true), d.call(null, cljs.core.rest.call(null, a)))
+          }
+          return null
+        }
+      }, null)
+    }.call(null, a)
+  }()], !0)
+};
+startlabs.views.jobx.job_list = function(a, b) {
+  return cljs.core.PersistentVector.fromArray(["\ufdd0'ul#job-list.span12", function() {
+    var c = cljs.core.split_at.call(null, cljs.core.count.call(null, a) / 2, a), d = cljs.core.nth.call(null, c, 0, null), c = cljs.core.nth.call(null, c, 1, null);
+    startlabs.views.jobx.half_list.call(null, d, b);
+    return startlabs.views.jobx.half_list.call(null, c, b)
+  }()], !0)
+};
 goog.disposable = {};
 goog.disposable.IDisposable = function() {
 };
@@ -19183,7 +19196,7 @@ startlabs.jobs.setup_jobs_list = function() {
   });
   var a = function() {
     var a = new reflex.core.ComputedObservable(null, !0, function() {
-      return startlabs.views.jobx.job_list.call(null, cljs.core.deref.call(null, startlabs.jobs.filtered_jobs), cljs.core.deref.call(null, startlabs.jobs.active_job))
+      return startlabs.views.jobx.job_list.call(null, cljs.core.deref.call(null, startlabs.jobs.filtered_jobs), false)
     }, cljs.core.gensym.call(null, "computed-observable"), cljs.core.ObjMap.EMPTY, cljs.core.ObjMap.EMPTY);
     cljs.core.deref.call(null, a);
     return a
@@ -19196,6 +19209,13 @@ startlabs.jobs.setup_jobs_list = function() {
   jayq.core.bind.call(null, jayq.core.$.call(null, "#job-search"), "\ufdd0'keyup", function() {
     var a = clojure.string.trim.call(null, jayq.core.val.call(null, jayq.core.$.call(null, this)));
     return cljs.core.swap_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.jobs_filter.call(null, a))
+  });
+  jayq.core.bind.call(null, jayq.core.$.call(null, ".job"), "\ufdd0'click", function() {
+    var a = jayq.core.$.call(null, ".job").not(this);
+    a.find(".read:hidden").show();
+    a.find(".more").show();
+    jayq.core.$.call(null, this).find(".read").toggle();
+    return jayq.core.$.call(null, this).find(".more").toggle()
   });
   jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function(a) {
     a.preventDefault();

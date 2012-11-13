@@ -142,14 +142,23 @@
     (.addClass    ($ n) "active")))
 
   (bind! "#job-list"
-    (job-list @filtered-jobs @active-job))
+    (job-list @filtered-jobs false))
 
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter jobs as you search
     (this-as job-search
       (let [query (str/trim (jq/val ($ job-search)))]
         (swap! filtered-jobs (jobs-filter query))))
-  ))
+    ))
+
+  (jq/bind ($ ".job") :click
+    (fn [e]
+      (this-as this
+               (let [not-this (-> ($ ".job") (.not this))]
+                 (-> not-this (.find ".read:hidden") .show)
+                 (-> not-this (.find ".more") .show))
+               (-> ($ this) (.find ".read") .toggle)
+               (-> ($ this) (.find ".more") .toggle))))
 
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
