@@ -72,10 +72,6 @@
         (set! (.-id new-marker) job-id)
         (.addLayer markers new-marker)
         (.addMarker oms new-marker)
-
-        ;; (.addListener oms "click"
-        ;;               (fn [marker]
-        ;;                 (reset! active-job (str "#" job-id))))
 ))))
 
 (defn geocode [place callback]
@@ -110,6 +106,11 @@
       (jq/bind $elems :keyup update-job-card)
       (jq/bind $elems :blur  update-job-card))))
 
+(defn show-job-details [e]
+  (.preventDefault e)
+  (this-as this
+           (-> ($ this) (.find ".read") .toggle)
+           (-> ($ this) (.find ".more") .toggle)))
 
 (defn setup-jobs-list []
   (def lmap (.map L "map"))
@@ -136,11 +137,6 @@
             (geocode location (add-marker-callback job false))))
   ))))
 
-
-  ;; (add-watch active-job :activate-job (fn [k r o n]
-  ;;   (.removeClass ($ o) "active")
-  ;;   (.addClass    ($ n) "active")))
-
   (bind! "#job-list"
     (job-list @filtered-jobs false))
 
@@ -151,31 +147,13 @@
         (swap! filtered-jobs (jobs-filter query))))
     ))
 
-  (jq/bind ($ ".job") :click
-    (fn [e]
-      (this-as this
-               (let [not-this (-> ($ ".job") (.not this))]
-                 (-> not-this (.find ".read:hidden") .show)
-                 (-> not-this (.find ".more") .show))
-               (-> ($ this) (.find ".read") .toggle)
-               (-> ($ this) (.find ".more") .toggle))))
-
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
     (.toggle ($ "#map"))))
 
-    ;; (defn set-active-job! [e]
-    ;; (.preventDefault e)
-    ;; (this-as elem
-    ;;   (let [$elem ($ elem)
-    ;;         job-sel (jq/attr $elem "href")]
-    ;;     (reset! active-job job-sel))
-    ;; ))
-
   (let [$job-list ($ "#job-list")]
-    (jq/on $job-list :click ".job" nil set-active-job!))
+    (jq/on $job-list :click ".job" nil show-job-details))
 
   (reset! filtered-jobs job-data)
-  ;; (reset! active-job (str "#" (:id (first job-data))))
 )
 

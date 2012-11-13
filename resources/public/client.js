@@ -19162,6 +19162,11 @@ startlabs.jobs.setup_job_submit = function() {
   jayq.core.bind.call(null, a, "\ufdd0'keyup", b);
   return jayq.core.bind.call(null, a, "\ufdd0'blur", b)
 };
+startlabs.jobs.show_job_details = function(a) {
+  a.preventDefault();
+  jayq.core.$.call(null, this).find(".read").toggle();
+  return jayq.core.$.call(null, this).find(".more").toggle()
+};
 startlabs.jobs.setup_jobs_list = function() {
   startlabs.jobs.lmap = startlabs.jobs.L.map("map");
   startlabs.jobs.lmap.setView([42, -40], 3);
@@ -19202,19 +19207,12 @@ startlabs.jobs.setup_jobs_list = function() {
     var a = clojure.string.trim.call(null, jayq.core.val.call(null, jayq.core.$.call(null, this)));
     return cljs.core.swap_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.jobs_filter.call(null, a))
   });
-  jayq.core.bind.call(null, jayq.core.$.call(null, ".job"), "\ufdd0'click", function() {
-    var a = jayq.core.$.call(null, ".job").not(this);
-    a.find(".read:hidden").show();
-    a.find(".more").show();
-    jayq.core.$.call(null, this).find(".read").toggle();
-    return jayq.core.$.call(null, this).find(".more").toggle()
-  });
   jayq.core.bind.call(null, jayq.core.$.call(null, "#map-toggle"), "\ufdd0'click", function(a) {
     a.preventDefault();
     return jayq.core.$.call(null, "#map").toggle()
   });
   var c = jayq.core.$.call(null, "#job-list");
-  jayq.core.on.call(null, c, "\ufdd0'click", ".job", null, startlabs.jobs.set_active_job_BANG_);
+  jayq.core.on.call(null, c, "\ufdd0'click", ".job", null, startlabs.jobs.show_job_details);
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };
 startlabs.main = {};
