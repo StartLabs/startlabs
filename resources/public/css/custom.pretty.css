@@ -6778,23 +6778,23 @@ html,body {
   overflow: hidden;
 }
 
-#job-list li {
-	margin-bottom: 20px;
-}
-
 #job-list i {
     margin: 4px 4px 0 0;
 }
 
-#job-list li > .job {
+#job-list .job {
   display: block;
   cursor: pointer;
   padding: 10px;
   margin-bottom: 10px;
   position: relative;
+  text-decoration: none;
+  text-shadow: none;
+  color: #222;
+  background: #fff;
 }
 
-#job-list li > .job h2 {
+#job-list .job h2 {
     font-size: 24px;
     text-align: left;
 	color: #5ab40a;
@@ -6802,25 +6802,18 @@ html,body {
 }
 
 
-#job-list li > .job h2 small {
+#job-list .job h2 small {
   color: #000;
 }
 
-#job-list li > .job {
-    text-decoration: none;
-    text-shadow: none;
-    color: #222;
-    background: #fff;
-}
-
-#job-list li > .job .description {
+#job-list .job .description {
 	color: #222;
 }
 
-#job-list li > .job:hover small, #job-list li > .job.active small {
+#job-list .job:hover small, #job-list .job.active small {
     color: #222;
 }
 
-#job-list li > a:hover i, #job-list li > a.active i {
+#job-list a:hover i, #job-list a.active i {
     background-image: url("/bootstrap/img/glyphicons-halflings.png");
 }
