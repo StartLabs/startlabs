@@ -63,7 +63,7 @@
       [:div.row-fluid.dateloc
         ; need to format dates
         [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
-        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]][:a.read {:name (str "#" (:id job-info))} "Read More..." ]])
+        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]][:a.read {:href (str "#" (:id job-info))} "Read More..." ]])
 
 (defn job-card [job-info show-delete?]
   [:div.job-info.test

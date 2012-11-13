@@ -4598,6 +4598,12 @@ button.btn.btn-mini,input[type="submit"].btn.btn-mini {
     transition: all .2s ease-in-out;
 }
 
+#team .thumbnail {
+	padding: 15px 15px 5px;
+	text-align: left;
+	min-height: 250px;
+}
+
 a.thumbnail:hover {
     border-color: #5ab40a;
     -webkit-box-shadow: 0 1px 4px rgba(0,105,214,0.25);
@@ -5471,9 +5477,30 @@ footer {
     margin-left: 0;
 }
 
+#team .holder {
+	float: left;
+    min-width: 161px;
+	height: 240px;
+	margin-right: 20px;
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#team .holder * {
+	vertical-align: middle;
+}
+
+#team .holder span {
+	display: inline-block;
+	height: 100%;
+	width: 1px;
+}
+
 #team img {
-    width: auto;
-    max-height: 240px;
+	width: auto;
+	max-width: 240px;
+	max-height: 240px;
 }
 
 #partners {

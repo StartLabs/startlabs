@@ -105,9 +105,9 @@
   (let [person    (u/nil-empty-str-values person)
         major     (:studying person)
         grad-year (:graduation_year person)]
-    [:li.span3
+    [:li.span6
       [:div.thumbnail
-        [:img {:src (:picture person)}]
+        [:div.holder [:span " "][:img {:src (:picture person)}]]
         [:h3 [:a {:href (:link person)} (:name person)]]
         [:h4 (:role person)]
         [:p  (if major (str "Studying " major))
@@ -117,9 +117,10 @@
 
 (defpage "/team" []
   (common/layout
-    [:h1 "Our Team"]
-    [:div.row
-      [:div.span12
+    [:div.row-fluid
+	  [:div.span1 ""]
+      [:div.span10
+	    [:h1 "Our Team"]
         [:ul#team.thumbnails
           (for [person (shuffle (user/find-all-users))]
             (team-member person)
