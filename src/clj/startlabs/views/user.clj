@@ -118,8 +118,7 @@
 (defpage "/team" []
   (common/layout
     [:div.row-fluid
-	  [:div.span1 ""]
-      [:div.span10
+      [:div.span12
 	    [:h1 "Our Team"]
         [:ul#team.thumbnails
           (for [person (shuffle (user/find-all-users))]

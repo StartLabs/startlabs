@@ -5844,7 +5844,7 @@ html,body {
         box-sizing: border-box;
     }
 	
-	#job-list [class*="span"]:nth-child(2n + 1) {
+	#job-list [class*="span"]:nth-child(2n + 1), #team [class*="span"]:nth-child(2n + 1) {
 		margin-left: 0;
 	}
 
