@@ -5480,7 +5480,8 @@ footer {
 #team .holder {
 	float: left;
     min-width: 161px;
-	height: 240px;
+	height: 200px;
+	padding: 20px 0;
 	margin-right: 20px;
 	display: table-cell;
 	text-align: center;
@@ -5499,8 +5500,8 @@ footer {
 
 #team img {
 	width: auto;
-	max-width: 240px;
-	max-height: 240px;
+	max-width: 200px;
+	max-height: 200px;
 }
 
 #partners {
