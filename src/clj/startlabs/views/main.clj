@@ -17,7 +17,7 @@
     [:h1.slug "Interested in " [:strong "Startups"] "?"]
     [:div.row-fluid
       [:div.span6
-        [:h2 "You've come to the right place."]
+        [:h2.centered "You've come to the right place."]
         [:p [:strong "StartLabs"] " was established by MIT engineering students
             in the summer of 2011 to spread entrepreneurship.
             We support and encourage students to:"]
@@ -32,7 +32,7 @@
             logged-in?  (user/logged-in?)]
             
         [:div#upcoming-events.span6
-         [:h2 "Upcoming Events"
+         [:h2.centered "Upcoming Events"
           (if logged-in?
             [:a#edit-upcoming.btn.pull-right {:href "#"} "Edit"])]
 
@@ -49,7 +49,7 @@
             [:a {:href common/calendar-rss} "event calendar"] "."]])
      ]
 
-     [:div.row-fluid
+     [:div.row-fluid.push-down
        [:div.span4]
        [:div.span4
        [:h3 "Join our mailing list to stay in the loop:"]
