@@ -75,6 +75,14 @@ application server on port 8000. Tweak it as necessary, then run:
 sudo nginx -c /The/full/path/to/conf/startlabs.conf
 ```
 
+##Production Mode Differences##
+Currently, whenever you edit a .clj file, you need to recompile by restarting the server.
+Use `screen -R` then press tab to load up the current screen instance.
+Use `ctrl+a n` to cycle through screens.
+Find the screen corresponding the server. Kill it with `ctrl+c`.
+Then type `supervise startlabs` to recompile the server and get it running once more.
+This is a poor, temporary solution. Still trying to devise a better setup.
+
 ##Epilogue
 
 I haven't gotten around to writing a test suite yet. 
