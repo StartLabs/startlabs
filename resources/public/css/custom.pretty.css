@@ -4601,6 +4601,10 @@ button.btn.btn-mini,input[type="submit"].btn.btn-mini {
 	min-height: 240px;
 }
 
+#email {
+	padding: 0.2em 0.5em;
+}
+
 a.thumbnail:hover {
     border-color: #5ab40a;
     -webkit-box-shadow: 0 1px 4px rgba(0,105,214,0.25);
@@ -5363,7 +5367,7 @@ h1.slug strong {
 }
 
 footer {
-    padding-top: 17px;
+    padding-bottom: 17px;
     clear: both;
     text-align: center;
 }
@@ -5442,6 +5446,14 @@ footer {
 
 .bootcamp:active {
     top: 1px;
+}
+
+h2.centered {
+	text-align: center;
+}
+
+.push-down {
+	padding-top: 20px;
 }
 
 .center {
