@@ -123,7 +123,7 @@
         [:ul#team.thumbnails
           (for [person (shuffle (user/find-all-users))]
             (team-member person)
-          )]]]))
+          )]]][:div.clear ]))
 
 
 
