@@ -49,7 +49,7 @@
 
 (def google-analytics 
   "var _gaq = _gaq || [];
-   _gaq.push(['_setAccount', 'UA-25782354-1']);
+   _gaq.push(['_setAccount', 'UA-36464612-1']);
    _gaq.push(['_trackPageview']);
 
   (function() {
