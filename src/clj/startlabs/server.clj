@@ -32,6 +32,11 @@
   (let [mode (if (env :dev) :dev :prod)
         port (Integer. (or (env :port) "8000"))]
     (db/do-default-setup)
+
+    ;; stop exisiting servers
+    (if @repl-server (nrepl/stop-server @repl-server))
+    (if @noir-server (server/stop @noir-server))
+
     (reset! repl-server (nrepl/start-server :port (Integer. (env :nrepl-port))))
     (reset! noir-server (server/start port {:mode mode
                                             :ns 'startlabs}))))

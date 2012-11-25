@@ -270,6 +270,13 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
+  :db/ident :payment/description,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "The reason for the payment",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
   :db/ident :payment/amount,
   :db/valueType :db.type/float,
   :db/cardinality :db.cardinality/one,

@@ -10,6 +10,12 @@
   (:use [environ.core :only [env]]
         [noir.core :only [defpage defpartial render url-for]]))
 
+;; Eventually we should have dynamic payment pages for different expenses
+;; In the database, the schema would look something like:
+;; expense/name "career-fair"
+;; expense/amount 10000 => $100 (amount in cents to align with stripe api)
+;; Then you would send users to /pay/career-fair
+
 (defpartial stripe-button []
   [:script.stripe-button {:src "https://button.stripe.com/v1/button.js"
                           :data-key (env :stripe-pub-key)
@@ -60,7 +66,7 @@
 (defpage [:post "/pay"] {:keys [company email stripeToken] :as params}
   (let [params (u/trim-vals params)]
     (if (valid-payment? params)
-      (let [response (payment/charge-payment params)]
+      (let [response (payment/charge-payment "Career fair admittance fee" params)]
         (if (= response :success)
           (do
             (session/flash-put! :message [:success "Thanks! Your payment has been received. See you at the Career Fair."])
@@ -68,8 +74,7 @@
           ;else
           (do
             (session/flash-put! :message 
-                                [:error "Payment failed. You have not been charged.
-                                         Try re-entering your card info."])
+                                [:error response])
             (render "/pay" params))))
       ;else
       (do
