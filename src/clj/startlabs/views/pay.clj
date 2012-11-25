@@ -1,11 +1,10 @@
 (ns startlabs.views.pay
-  (:require [clj-stripe.charges :as charges]
-            [clj-stripe.common :as scom]
-            [noir.session :as session]
+  (:require [noir.session :as session]
             [noir.response :as response]
             [noir.validation :as vali]
             [startlabs.views.common :as common]
             [startlabs.models.user :as user]
+            [startlabs.models.payment :as payment]
             [startlabs.util :as u])
 
   (:use [environ.core :only [env]]
@@ -13,7 +12,8 @@
 
 (defpartial stripe-button []
   [:script.stripe-button {:src "https://button.stripe.com/v1/button.js"
-                          :data-key (env :stripe-pub-key)}])
+                          :data-key (env :stripe-pub-key)
+                          :data-amout (payment/fee "amount")}])
 
 (defpartial control-group [type & [id descr params]]
   (let [kw-id (or (keyword id) nil)
@@ -34,7 +34,8 @@
        [:h1 "StartLabs Career Fair Payment"]
        [:div.well 
         [:p "To finish your registration for the StartLabs Career Fair, please submit a
-             payment of " [:strong "$250"] ". Make sure to provide your company name and contact information below."]]
+             payment of " [:strong (str "$" (/ (payment/fee "amount") 100))]
+             ". Make sure to provide your company name and contact information below."]]
 
        [:form#payment.form-horizontal {:method "post" :action "/pay"}
         (control-group "text" "company" "Company Name" params) 
@@ -59,14 +60,22 @@
 (defpage [:post "/pay"] {:keys [company email stripeToken] :as params}
   (let [params (u/trim-vals params)]
     (if (valid-payment? params)
-      (common/layout
-       [:div.row-fluid
-        [:p (str "You submitted a form as " company " with contact email: " email ". The stripeToken is: " stripeToken)]])
+      (let [response (payment/charge-payment params)]
+        (if (= response :success)
+          (do
+            (session/flash-put! :message [:success "Thanks! Your payment has been received. See you at the Career Fair."])
+            (response/redirect "/"))
+          ;else
+          (do
+            (session/flash-put! :message 
+                                [:error "Payment failed. You have not been charged.
+                                         Try re-entering your card info."])
+            (render "/pay" params))))
       ;else
       (do
-        (session/flash-put! :message [:error "Make sure you entered a valid email and filled in all of the fields."])
+        (session/flash-put! :message [:error "Make sure you entered a valid email address and filled in all of the fields."])
         (render "/pay" params)))))
-  
+
 (defpage "/payments" []
   (if (user/logged-in?)
     (common/layout
