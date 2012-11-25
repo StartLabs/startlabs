@@ -18,7 +18,6 @@
   :stripe_secret_key "STRIPE_SECRET_KEY"
   :stripe_pub_key "STRIPE_PUBLIC_KEY"
 
-
   :dev  true
   :port "8000"
   ;; for remote debugging, etc.

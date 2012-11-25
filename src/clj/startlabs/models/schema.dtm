@@ -262,6 +262,12 @@
   :db/doc "Company name",
   :db.install/_attribute :db.part/db}
 
+ {:db/id #db/id[:db.part/db],
+  :db/ident :payment/email,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Contact email",
+  :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
   :db/ident :payment/amount,

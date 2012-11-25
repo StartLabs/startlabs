@@ -36,5 +36,7 @@
     (reset! noir-server (server/start port {:mode mode
                                             :ns 'startlabs}))))
 
+; (do-main)
+
 (defn -main [& m]
   (do-main m))
