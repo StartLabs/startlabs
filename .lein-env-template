@@ -11,12 +11,12 @@
   :email-pass "YOUR_EMAIL_PASS"
 
   ;; mailchip credentials
-  :mc_api_key "YOUR_MAILCHIMP_KEY"
-  :mc_list_id "THE_MAILCHIMP_LIST_ID"
+  :mc-api-key "YOUR_MAILCHIMP_KEY"
+  :mc-list-id "THE_MAILCHIMP_LIST_ID"
 
   ;; stripe payments
-  :stripe_secret_key "STRIPE_SECRET_KEY"
-  :stripe_pub_key "STRIPE_PUBLIC_KEY"
+  :stripe-secret-key "STRIPE_SECRET_KEY"
+  :stripe-pub-key "STRIPE_PUBLIC_KEY"
 
   :dev  true
   :port "8000"
