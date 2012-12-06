@@ -105,8 +105,7 @@
         action   (if editing? (str "/job/" (:id params)) "/jobs")]
 
     [:div#submit {:class (u/cond-class "tab-pane" [has-params? "active"])}
-      [:h1 heading]
-
+	  [:h1 heading]
       [:form#job-form.row-fluid {:method "post" :action action}
         [:div.span6
           (if (not editing?)

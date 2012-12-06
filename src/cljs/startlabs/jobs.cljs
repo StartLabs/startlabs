@@ -153,7 +153,7 @@
 
   (let [$job-list ($ "#job-list")]
     (jq/on $job-list :click ".job" nil show-job-details))
-
+	
   (reset! filtered-jobs job-data)
 )
 

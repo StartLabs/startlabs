@@ -66,10 +66,10 @@
         [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]][:a.read {:href (str "#" (:id job-info))} "Read More..." ]])
 
 (defn job-card [job-info show-delete?]
-  [:div.job-info.test
+  [:div.job-info {:onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'More', '" (:id job-info) "']);")}
     (if show-delete? (job-delete-modal job-info))
     (job-summary job-info show-delete?)
-
+    
     [:div.row-fluid.more
       [:div.description
         (markdownify (:description job-info))]
@@ -82,7 +82,7 @@
         [:i.icon.icon-envelope]
         (let [contact-info (:contact_info job-info)]
           ; need to handle phone numbers
-          [:a {:href (linkify contact-info)} 
+          [:a {:href (linkify contact-info) :onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'Contact', '" (:id job-info) "']);")}
            contact-info])]]])
 
 (defn half-list [half-jobs show-delete?]

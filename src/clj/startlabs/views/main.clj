@@ -16,7 +16,7 @@
   (common/layout
     [:h1.slug "Interested in " [:strong "Startups"] "?"]
     [:div.row-fluid
-      [:div.span6
+      [:div.span5
         [:h2.centered "You've come to the right place."]
         [:p [:strong "StartLabs"] " was established by MIT engineering students
             in the summer of 2011 to spread entrepreneurship.
@@ -27,11 +27,15 @@
               [:li "Work in rapidly expanding companies – place students in internships
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
+	[:div.span2
+	  [:h2.centered "Register For"]
+	  [:a.guestlist-event-136884 {:href "#"} [:img {:src "/img/career-fair.png" :width "auto"}]]
+	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]
        
       (let [event-descr (event/get-latest-event)
             logged-in?  (user/logged-in?)]
             
-        [:div#upcoming-events.span6
+        [:div#upcoming-events.span5
          [:h2.centered "Upcoming Events"
           (if logged-in?
             [:a#edit-upcoming.btn.pull-right {:href "#"} "Edit"])]
