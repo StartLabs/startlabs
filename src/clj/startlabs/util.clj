@@ -1,7 +1,8 @@
 (ns startlabs.util
   (:require [startlabs.models.util :as mu]
             [clj-time.format :as t]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [noir.validation :as vali])
   (:use [clj-time.coerce :only [from-date]]
         [environ.core :only [env]])
   (:import java.util.Date))
@@ -58,3 +59,7 @@
   (if (env :dev)
     (str "http://localhost:" (or (env :port) "8000"))
     "http://www.startlabs.org"))
+
+(defn empty-rule [[k v]]
+  (vali/rule 
+    (vali/has-value? v) [k "This field cannot be empty."]))

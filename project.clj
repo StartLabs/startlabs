@@ -27,6 +27,7 @@
                   [clj-time "0.4.4"]
                   [com.draines/postal "1.8.0"]
                   [climp "0.1.1"]
+                  [abengoa/clj-stripe "1.0.3"]
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.0"]

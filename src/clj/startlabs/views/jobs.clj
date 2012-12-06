@@ -207,10 +207,6 @@
        (whitelist)
        (submit-job has-params? params)])))
 
-(defn empty-rule [[k v]]
-  (vali/rule 
-    (vali/has-value? v) [k "This field cannot be empty."]))
-
 (defn get-hostname [url]
   (try
     (let [site-uri    (URI. (or url ""))
@@ -224,7 +220,7 @@
   (let [site-host (get-hostname (:website job-params))
         whitelist (job/get-current-whitelist)]
 
-    (dorun (map empty-rule job-params))
+    (dorun (map u/empty-rule job-params))
 
     (vali/rule (not (or (nil? site-host) (= "" site-host)))
       [:website "Must be a valid website." site-host])
