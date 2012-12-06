@@ -27,7 +27,7 @@
               [:li "Work in rapidly expanding companies – place students in internships
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
-	[:div.span2
+	[:div.span2.centered
 	  [:h2.centered "Register For Startup"]
 	  [:a.guestlist-event-136884 {:href "#"} [:img {:src "/img/career-fair.png" :width "auto"}]]
 	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]

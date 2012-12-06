@@ -5452,6 +5452,10 @@ h2.centered {
 	text-align: center;
 }
 
+div.centered {
+	text-align: center;
+}
+
 .push-down {
 	padding-top: 20px;
 }
