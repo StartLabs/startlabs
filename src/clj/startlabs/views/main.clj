@@ -28,7 +28,7 @@
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
 	[:div.span2
-	  [:h2.centered "Register For"]
+	  [:h2.centered "Register For Startup"]
 	  [:a.guestlist-event-136884 {:href "#"} [:img {:src "/img/career-fair.png" :width "auto"}]]
 	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]
        
@@ -80,8 +80,8 @@
       (session/flash-put! :message [:error "Invalid email address."])
       (render "/" [email]))
     (try
-      (let [list-id (env :mc-list-id)]
-        (binding [mc/*mc-api-key* (env :mc-api-key)]
+      (let [list-id (env :mc_list_id)]
+        (binding [mc/*mc-api-key* (env :mc_api_key)]
           (mc/subscribe list-id email)
           (session/flash-put! :message
                               [:success "You've been subscribed! We promise not to spam you. <3"])
