@@ -5470,6 +5470,13 @@ div.centered {
     height: 320px;
 }
 
+.map {
+	margin: 15px 0 50px;
+	border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 5px 0px #333;
+	box-shadow: 0px 0px 5px 0px #333;
+}
+
 #map-box .navbar {
     margin-top: 16px;
 }

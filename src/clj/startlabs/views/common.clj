@@ -105,7 +105,7 @@
               [:p message]])
 
           content
-        ]]
+        [:div.clear]]]
           [:div.push]
             [:footer.container
               [:p "&copy; 2012 Startlabs. Follow us on "
