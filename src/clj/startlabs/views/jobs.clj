@@ -13,6 +13,7 @@
             [startlabs.models.user :as user])
   (:use [clojure.core.incubator]
         [clojure.tools.logging :only [info]]
+        [clj-time.core :only [now plus months]]
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [hiccup.core :only [html]]
@@ -53,8 +54,8 @@
              :content (job-email-body job-map)}]}))
 
 (def ordered-job-keys
-  [:company :position :location :website :start_date :end_date 
-   :description :contact_info :email])
+  [:company :position :location :website :fulltime? :start_date :end_date 
+   :company_size :description :contact_info :email])
 
 (defmulti input-for-field (fn [field type docs v] 
   (keyword (name type))) :default :string)
@@ -69,6 +70,16 @@
   (let [date-format (str/lower-case mu/default-date-format)]
     [:input.datepicker {:type "text" :data-date-format date-format :value v
                         :id field :name field :placeholder date-format}]))
+
+(defmethod input-for-field :boolean [field type docs v]
+  (let [str-v (if (or (false? v) (true? v)) (str v) "false")]
+    [:div.btn-group {:data-toggle-name field :data-toggle "buttons-radio"}
+     (let [choices (if (= field :fulltime?) 
+                     [["Fulltime" "true"] ["Internship" "false"]]
+                     [["True" "true"] ["False" "false"]])]
+       (for [[k val] choices]
+         [:button.btn {:value val :data-toggle "button"} k]))
+     [:input {:type "hidden" :name field :id field :value str-v}]]))
 
 (defpartial error-item [[first-error]]
   [:span.help-block first-error])
@@ -124,7 +135,8 @@
           (if (not editing?)
             [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
              [:strong "your company must be preapproved"] ". Please " 
-             [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" job-list-email-body)} "email us"] 
+             [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" 
+                             job-list-email-body)} "email us"] 
              " for consideration for the Jobs List."])
           (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
@@ -247,41 +259,54 @@
 
 (defn valid-job? [job-params]
   (let [site-host (get-hostname (:website job-params))
-        whitelist (job/get-current-whitelist)]
+        whitelist (job/get-current-whitelist)
+        fulltime? (:fulltime? job-params)]
 
     (dorun (map u/empty-rule job-params))
 
     (vali/rule (not (or (nil? site-host) (= "" site-host)))
-      [:website "Must be a valid website." site-host])
+               [:website "Must be a valid website." site-host])
 
-    ; also allow submissions from startlabs members
+                                        ; also allow submissions from startlabs members
     (vali/rule (or (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
                    (re-matches #".*@startlabs.org$" (:email job-params)))
-      [:email "Your email address must match the company website."])
+               [:email "Your email address must match the company website."])
 
     (vali/rule (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist)
-      [:website "Sorry, your site is not on our whitelist."])
+               [:website "Sorry, your site is not on our whitelist."])
+
+    (vali/rule (vali/valid-number? (:company_size job-params))
+               [:company_size "The company size must be a valid number."])
 
     (doseq [date [:start_date :end_date]]
-      (vali/rule 
-        (mu/parse-date (date job-params))
-        [date "Invalid date."]))
+      (vali/rule
+       (mu/parse-date (date job-params))
+       [date "Invalid date."]))
 
-    ; make sure the end date comes after the start
+  ; make sure the end date comes after the start
     (vali/rule
-      (let [[start end] (map #(mu/parse-date (% job-params)) [:start_date :end_date])]
-        (and (and start end) 
-             (= -1 (apply compare (map to-long [start end])))))
-        [:end_date "The end date must come after the start date."])
+     (let [[start end] (map #(mu/parse-date (% job-params)) [:start_date :end_date])]
+       (and (and start end) 
+            (= -1 (apply compare (map to-long [start end])))))
+     [:end_date "The end date must come after the start date."])
 
     (not (apply vali/errors? ordered-job-keys))))
 
 (defn fix-job-params [params]
-  (let [website (:website params)]
-    (conj params 
+  (let [website (:website params)
+        fulltime? (if (= (:fulltime? params) "true") true false)
+        start-date (mu/parse-date (:start_date params))
+        end-date (if start-date
+                   (plus start-date (months 6)) 
+                   (plus (now) (months 6)))]
+    (conj params
       {:website (if (not (empty? website)) 
         (u/httpify-url website) 
-        "")})))
+        "")
+       :fulltime? fulltime?
+       :end_date (if fulltime? 
+                   (mu/unparse-date end-date)
+                   (:end_date params))})))
 
 (defn flash-job-error []
   (session/flash-put! :message [:error "Please correct the form and resubmit."]))

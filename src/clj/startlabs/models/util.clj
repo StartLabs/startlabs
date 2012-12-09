@@ -31,6 +31,9 @@
   (try (t/parse default-date-formatter the-date) 
     (catch Exception e false)))
 
+(defn unparse-date [the-date]
+  (t/unparse default-date-formatter the-date))
+
 (defn uuid []
   (str (java.util.UUID/randomUUID)))
 

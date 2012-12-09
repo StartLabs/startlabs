@@ -85,18 +85,20 @@
       job-data)))
 
 
+(defn update-job-card []
+  (let [job-map (u/form-to-map ($ "#job-form"))]
+    (.html ($ "#job-preview")
+           (render (job-card job-map false))))
+  ; singult is escaping the generated markdown :(
+  (.html ($ "#job-preview .description")
+         (markdown/mdToHtml (.val ($ "#description")))))
+
 (defn setup-job-submit []
   (.datepicker ($ ".datepicker"))
-
+  (setup-radio-buttons)
   (let [$elems ($ "#job-form input, #job-form textarea")]
-    (letfn [(update-job-card [e]
-              (.html ($ "#job-preview")
-                     (render (job-card (u/form-to-map ($ "#job-form")) false)))
-              ; singult is escaping the generated markdown :(
-              (.html ($ "#job-preview .description")
-                     (markdown/mdToHtml (.val ($ "#description")))))]
-      (jq/bind $elems :keyup update-job-card)
-      (jq/bind $elems :blur  update-job-card))))
+    (jq/bind $elems :keyup update-job-card)
+    (jq/bind $elems :blur  update-job-card)))
 
 (defn show-job-details [e]
   (.preventDefault e)
@@ -106,14 +108,44 @@
 
 (defn find-jobs [query]
   (fn []
-    (.log (.-console js/window) "searching...")
     (fm/remote (jobsearch query) [results]
                (let [$job-list ($ "#job-list")
                      parent (.parent $job-list)]
                  (reset! filtered-jobs (:jobs results))
                  (.remove $job-list)
                  (.html parent (:html results))))))
-                                 
+
+(defn change-fulltime [val]
+  (update-job-card)
+  (let [$tr (.eq (.parents ($ "#end_date") "tr") 0)]
+    (if (= val "true")
+      (.hide $tr)
+      (.show $tr))))
+
+(defn setup-radio-buttons []
+  (.each ($ "div.btn-group[data-toggle-name=*]") 
+    (fn [i elem]
+      (this-as this
+        (let [group ($ this)
+               form (.eq (.parents group "form") 0)
+               name (.attr group "data-toggle-name")
+               $inp ($ (str "input[name='" name "']") form)]
+           (.each ($ "button" group) 
+             (fn [i elem]
+               (this-as btn
+                 (let [$btn ($ btn)]
+
+                   (jq/bind $btn :click
+                     (fn [e]
+                       (let [btn-val (.val $btn)]
+                         (.preventDefault e)
+                         (.val $inp btn-val)
+                         (change-fulltime btn-val))))
+                 
+                   (if (= (.val $btn) (.val $inp))
+                     (.addClass $btn "active"))))))
+
+           (change-fulltime (.val $inp)))))))
 
 (defn setup-jobs-list []
   (def lmap (.map L "map"))

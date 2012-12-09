@@ -388,6 +388,13 @@ goog.base = function(a, b, c) {
 goog.scope = function(a) {
   a.call(goog.global)
 };
+goog.debug = {};
+goog.debug.Error = function(a) {
+  this.stack = Error().stack || "";
+  a && (this.message = "" + a)
+};
+goog.inherits(goog.debug.Error, Error);
+goog.debug.Error.prototype.name = "CustomError";
 goog.string = {};
 goog.string.Unicode = {NBSP:"\u00a0"};
 goog.string.startsWith = function(a, b) {
@@ -708,13 +715,6 @@ goog.string.toSelectorCaseCache_ = {};
 goog.string.toSelectorCase = function(a) {
   return goog.string.toSelectorCaseCache_[a] || (goog.string.toSelectorCaseCache_[a] = ("" + a).replace(/([A-Z])/g, "-$1").toLowerCase())
 };
-goog.debug = {};
-goog.debug.Error = function(a) {
-  this.stack = Error().stack || "";
-  a && (this.message = "" + a)
-};
-goog.inherits(goog.debug.Error, Error);
-goog.debug.Error.prototype.name = "CustomError";
 goog.asserts = {};
 goog.asserts.ENABLE_ASSERTS = goog.DEBUG;
 goog.asserts.AssertionError = function(a, b) {
@@ -12291,6 +12291,50 @@ cljs.core.UUID.prototype.toString = function() {
   return cljs.core.pr_str.call(null, this)
 };
 cljs.core.UUID;
+var jayq = {util:{}};
+jayq.util.map__GT_js = function(a) {
+  var b = {};
+  if(a = cljs.core.seq.call(null, a)) {
+    var c = cljs.core.first.call(null, a);
+    cljs.core.nth.call(null, c, 0, null);
+    for(cljs.core.nth.call(null, c, 1, null);;) {
+      var d = c, c = cljs.core.nth.call(null, d, 0, null), d = cljs.core.nth.call(null, d, 1, null);
+      b[cljs.core.name.call(null, c)] = d;
+      if(a = cljs.core.next.call(null, a)) {
+        c = a, a = cljs.core.first.call(null, c), d = c, c = a, a = d
+      }else {
+        break
+      }
+    }
+  }
+  return b
+};
+jayq.util.wait = function(a, b) {
+  return setTimeout(b, a)
+};
+jayq.util.log = function() {
+  var a = function(a, b) {
+    var e = cljs.core.string_QMARK_.call(null, a) ? cljs.core.apply.call(null, cljs.core.str, a, b) : a;
+    return console.log(e)
+  }, b = function(b, d) {
+    var e = null;
+    goog.isDef(d) && (e = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0));
+    return a.call(this, b, e)
+  };
+  b.cljs$lang$maxFixedArity = 1;
+  b.cljs$lang$applyTo = function(b) {
+    var d = cljs.core.first(b), b = cljs.core.rest(b);
+    return a(d, b)
+  };
+  b.cljs$lang$arity$variadic = a;
+  return b
+}();
+jayq.util.clj__GT_js = function clj__GT_js(b) {
+  return cljs.core.string_QMARK_.call(null, b) ? b : cljs.core.keyword_QMARK_.call(null, b) ? cljs.core.name.call(null, b) : cljs.core.map_QMARK_.call(null, b) ? cljs.core.reduce.call(null, function(b, d) {
+    var e = cljs.core.nth.call(null, d, 0, null), f = cljs.core.nth.call(null, d, 1, null);
+    return cljs.core.assoc.call(null, b, clj__GT_js.call(null, e), clj__GT_js.call(null, f))
+  }, cljs.core.ObjMap.EMPTY, b).strobj : cljs.core.coll_QMARK_.call(null, b) ? cljs.core.apply.call(null, cljs.core.array, cljs.core.map.call(null, clj__GT_js, b)) : b
+};
 var clojure = {string:{}};
 clojure.string.seq_reverse = function(a) {
   return cljs.core.reduce.call(null, cljs.core.conj, cljs.core.List.EMPTY, a)
@@ -12410,50 +12454,6 @@ clojure.string.escape = function(a, b) {
     cljs.core.truth_(g) ? c.append("" + cljs.core.str(g)) : c.append(f);
     e += 1
   }
-};
-var jayq = {util:{}};
-jayq.util.map__GT_js = function(a) {
-  var b = {};
-  if(a = cljs.core.seq.call(null, a)) {
-    var c = cljs.core.first.call(null, a);
-    cljs.core.nth.call(null, c, 0, null);
-    for(cljs.core.nth.call(null, c, 1, null);;) {
-      var d = c, c = cljs.core.nth.call(null, d, 0, null), d = cljs.core.nth.call(null, d, 1, null);
-      b[cljs.core.name.call(null, c)] = d;
-      if(a = cljs.core.next.call(null, a)) {
-        c = a, a = cljs.core.first.call(null, c), d = c, c = a, a = d
-      }else {
-        break
-      }
-    }
-  }
-  return b
-};
-jayq.util.wait = function(a, b) {
-  return setTimeout(b, a)
-};
-jayq.util.log = function() {
-  var a = function(a, b) {
-    var e = cljs.core.string_QMARK_.call(null, a) ? cljs.core.apply.call(null, cljs.core.str, a, b) : a;
-    return console.log(e)
-  }, b = function(b, d) {
-    var e = null;
-    goog.isDef(d) && (e = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0));
-    return a.call(this, b, e)
-  };
-  b.cljs$lang$maxFixedArity = 1;
-  b.cljs$lang$applyTo = function(b) {
-    var d = cljs.core.first(b), b = cljs.core.rest(b);
-    return a(d, b)
-  };
-  b.cljs$lang$arity$variadic = a;
-  return b
-}();
-jayq.util.clj__GT_js = function clj__GT_js(b) {
-  return cljs.core.string_QMARK_.call(null, b) ? b : cljs.core.keyword_QMARK_.call(null, b) ? cljs.core.name.call(null, b) : cljs.core.map_QMARK_.call(null, b) ? cljs.core.reduce.call(null, function(b, d) {
-    var e = cljs.core.nth.call(null, d, 0, null), f = cljs.core.nth.call(null, d, 1, null);
-    return cljs.core.assoc.call(null, b, clj__GT_js.call(null, e), clj__GT_js.call(null, f))
-  }, cljs.core.ObjMap.EMPTY, b).strobj : cljs.core.coll_QMARK_.call(null, b) ? cljs.core.apply.call(null, cljs.core.array, cljs.core.map.call(null, clj__GT_js, b)) : b
 };
 jayq.core = {};
 jayq.core.crate_meta = function(a) {
@@ -15550,7 +15550,7 @@ goog.net.XhrIo.prototype.formatMsg_ = function(a) {
 goog.debug.entryPointRegistry.register(function(a) {
   goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_ = a(goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_)
 });
-var array_p, explode_p, key_prefix, map_p, namespace_tag, number_p, p, re_svg_tags, re_tag, re_whitespace, string_p, unify_p, whitespace_node_p, xmlns, __hasProp = {}.hasOwnProperty, singult = {coffee:{}};
+var array_p, explode_p, ignore_p, key_prefix, map_p, namespace_tag, number_p, p, re_svg_tags, re_tag, re_whitespace, string_p, unify_p, whitespace_node_p, xmlns, __hasProp = {}.hasOwnProperty, singult = {coffee:{}};
 p = function(a) {
   console.log(a);
   return a
@@ -15573,11 +15573,14 @@ explode_p = function(a) {
 unify_p = function(a) {
   return null != a && a instanceof singult.coffee.Unify
 };
+ignore_p = function(a) {
+  return null != a && a instanceof singult.coffee.Ignore
+};
 array_p = function(a) {
   return null != a && null != a.forEach
 };
 map_p = function(a) {
-  return null != a && !array_p(a) && !unify_p(a) && a instanceof Object
+  return null != a && !array_p(a) && !unify_p(a) && !ignore_p(a) && a instanceof Object
 };
 string_p = function(a) {
   return null != a && null != a.substring
@@ -15608,6 +15611,7 @@ singult.coffee.attr = function(a, b) {
   var c, d, e;
   null != b.style && (singult.coffee.style(a, b.style), delete b.style);
   null != b.properties && (singult.coffee.properties(a, b.properties), delete b.properties);
+  array_p(b["class"]) && (a.setAttribute("class", b["class"].join(" ")), delete b["class"]);
   e = [];
   for(c in b) {
     __hasProp.call(b, c) && (d = b[c], null != d ? e.push(a.setAttribute(c, d)) : e.push(a.removeAttribute(c)))
@@ -15622,33 +15626,36 @@ singult.coffee.canonicalize = function(a) {
 };
 singult.coffee.canonicalize_hiccup = function(a) {
   var b, c, d, e, f;
-  e = a[0];
-  c = map_p(a[1]) ? [a[1], a.slice(2)] : [{}, a.slice(1)];
-  a = c[0];
-  c = c[1];
-  d = e.match(re_tag);
-  f = d[1];
-  e = d[2];
-  d = d[3];
-  null != e && (a.id = e);
-  null != d && (a["class"] = d.replace(/\./g, " ") + (null != a["class"] ? " " + a["class"] : ""));
-  e = namespace_tag(f);
-  f = e[0];
-  e = e[1];
-  b = [];
-  c.forEach(function(a) {
-    if(null != a) {
+  f = a[0];
+  d = map_p(a[1]) ? [a[1], a.slice(2)] : [{}, a.slice(1)];
+  a = d[0];
+  d = d[1];
+  e = f.match(re_tag);
+  f = e[1];
+  b = e[2];
+  e = e[3];
+  null != b && (a.id = b);
+  null != e && (b = e.split("."), array_p(a["class"]) ? a["class"] = a["class"].concat(b) : string_p(a["class"]) ? a["class"] = b.concat([a["class"]]) : null == a["class"] && (a["class"] = b));
+  f = namespace_tag(f);
+  b = f[0];
+  f = f[1];
+  c = [];
+  d.forEach(function(a) {
+    if(a != null) {
       return explode_p(a) ? a.slice(1).forEach(function(a) {
-        return b.push(singult.coffee.canonicalize(a))
-      }) : b.push(singult.coffee.canonicalize(a))
+        return c.push(singult.coffee.canonicalize(a))
+      }) : c.push(singult.coffee.canonicalize(a))
     }
   });
-  return{nsp:f, tag:e, attr:a, children:b}
+  return{nsp:b, tag:f, attr:a, children:c}
 };
 singult.coffee.render = function(a) {
   var b, c;
   if(unify_p(a)) {
     throw Error("Unify must be the first and only child of its parent.");
+  }
+  if(ignore_p(a)) {
+    return null
   }
   if(string_p(a)) {
     return document.createTextNode(a)
@@ -15666,7 +15673,10 @@ singult.coffee.render = function(a) {
     singult.coffee.node_data(e, a);
     return b.appendChild(e)
   }) : a.children.forEach(function(a) {
-    return b.appendChild(singult.coffee.render(a))
+    a = singult.coffee.render(a);
+    if(null != a) {
+      return b.appendChild(a)
+    }
   });
   return b
 };
@@ -15678,6 +15688,9 @@ singult.coffee.Unify = function(a, b, c, d, e, f, g) {
   this.update = e;
   this.exit = f;
   this.force_update_p = g;
+  return this
+};
+singult.coffee.Ignore = function() {
   return this
 };
 singult.coffee.unify_ = function(a, b) {
@@ -15720,36 +15733,40 @@ singult.coffee.merge = function(a, b) {
   if(unify_p(b)) {
     singult.coffee.unify_(a, b)
   }else {
-    if(a.nodeName.toLowerCase() !== b.tag.toLowerCase()) {
-      throw p(a), p(b), "Cannot merge $e into node of different type";
-    }
-    singult.coffee.attr(a, b.attr);
-    if(a.hasChildNodes()) {
-      for(e = d = f = a.childNodes.length - 1;0 >= f ? 0 >= d : 0 <= d;e = 0 >= f ? ++d : --d) {
-        c = a.childNodes[e], whitespace_node_p(c) && a.removeChild(c)
+    if(!ignore_p(b)) {
+      if(a.nodeName.toLowerCase() !== b.tag.toLowerCase()) {
+        throw p(a), p(b), Error("Cannot merge $e into node of different type");
       }
-    }
-    if(unify_p(b.children[0])) {
-      singult.coffee.merge(a, b.children[0])
-    }else {
-      if(a.childNodes.length > b.children.length) {
-        for(e = c = d = a.childNodes.length - 1;0 >= d ? 0 >= c : 0 <= c;e = 0 >= d ? ++c : --c) {
-          a.removeChild(a.childNodes[e])
+      singult.coffee.attr(a, b.attr);
+      if(a.hasChildNodes()) {
+        for(e = d = f = a.childNodes.length - 1;0 >= f ? 0 >= d : 0 <= d;e = 0 >= f ? ++d : --d) {
+          c = a.childNodes[e], whitespace_node_p(c) && a.removeChild(c)
         }
       }
-      for(e = 0;e < b.children.length;) {
-        d = b.children[e] || "";
-        c = a.childNodes[e];
-        if(string_p(d)) {
-          null != c ? c.textContent = d : a.appendChild(document.createTextNode(d))
-        }else {
-          if(map_p(d)) {
-            null != c ? singult.coffee.merge(c, d) : a.appendChild(singult.coffee.render(d))
-          }else {
-            throw p(c), p(d), "Cannot merge children";
+      if(unify_p(b.children[0])) {
+        singult.coffee.merge(a, b.children[0])
+      }else {
+        if(a.childNodes.length > b.children.length) {
+          for(e = c = d = a.childNodes.length - 1;0 >= d ? 0 >= c : 0 <= c;e = 0 >= d ? ++c : --c) {
+            a.removeChild(a.childNodes[e])
           }
         }
-        e += 1
+        for(e = 0;e < b.children.length;) {
+          d = b.children[e] || "";
+          c = a.childNodes[e];
+          if(string_p(d)) {
+            null != c ? c.textContent = d : a.appendChild(document.createTextNode(d))
+          }else {
+            if(!ignore_p(d)) {
+              if(map_p(d)) {
+                null != c ? singult.coffee.merge(c, d) : a.appendChild(singult.coffee.render(d))
+              }else {
+                throw p(c), p(d), Error("Cannot merge children");
+              }
+            }
+          }
+          e += 1
+        }
       }
     }
   }
@@ -15964,8 +15981,10 @@ startlabs.views.jobx.job_summary = function(a, b) {
   cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
     var b = startlabs.views.jobx.linkify.call(null, (new cljs.core.Keyword("\ufdd0'website")).call(null, a));
     return cljs.core.truth_(b) ? b : "#"
-  }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.dateloc", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), " \u2014 ", (new cljs.core.Keyword("\ufdd0'end_date")).call(null, 
-  a)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Read More..."], !0)], !0)
+  }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.dateloc", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), !cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'fulltime?")).call(null, 
+  a), "true") ? [cljs.core.str(" \u2014 "), cljs.core.str((new cljs.core.Keyword("\ufdd0'end_date")).call(null, a))].join("") : null], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'span.label.label-info", 
+  cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'fulltime?")).call(null, a), "true") ? "Fulltime" : "Internship"], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6.employees", cljs.core.PersistentVector.fromArray(["\ufdd0'span.badge.badge-info", (new cljs.core.Keyword("\ufdd0'company_size")).call(null, a)], !0), "Employees"], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("#"), 
+  cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Read More..."], !0)], !0)
 };
 startlabs.views.jobx.job_card = function(a, b) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-info", cljs.core.ObjMap.fromObject(["\ufdd0'onclick"], {"\ufdd0'onclick":[cljs.core.str("_gaq.push(['_trackEvent', 'Jobs', 'More', '"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("']);")].join("")}), cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.more", 
@@ -16655,6 +16674,10 @@ goog.Uri.QueryData.prototype.extend = function(a) {
   }
 };
 goog.dom = {};
+goog.dom.BrowserFeature = {CAN_ADD_NAME_OR_TYPE_ATTRIBUTES:!goog.userAgent.IE || goog.userAgent.isDocumentMode(9), CAN_USE_CHILDREN_ATTRIBUTE:!goog.userAgent.GECKO && !goog.userAgent.IE || goog.userAgent.IE && goog.userAgent.isDocumentMode(9) || goog.userAgent.GECKO && goog.userAgent.isVersion("1.9.1"), CAN_USE_INNER_TEXT:goog.userAgent.IE && !goog.userAgent.isVersion("9"), INNER_HTML_NEEDS_SCOPED_ELEMENT:goog.userAgent.IE};
+goog.dom.TagName = {A:"A", ABBR:"ABBR", ACRONYM:"ACRONYM", ADDRESS:"ADDRESS", APPLET:"APPLET", AREA:"AREA", B:"B", BASE:"BASE", BASEFONT:"BASEFONT", BDO:"BDO", BIG:"BIG", BLOCKQUOTE:"BLOCKQUOTE", BODY:"BODY", BR:"BR", BUTTON:"BUTTON", CANVAS:"CANVAS", CAPTION:"CAPTION", CENTER:"CENTER", CITE:"CITE", CODE:"CODE", COL:"COL", COLGROUP:"COLGROUP", DD:"DD", DEL:"DEL", DFN:"DFN", DIR:"DIR", DIV:"DIV", DL:"DL", DT:"DT", EM:"EM", FIELDSET:"FIELDSET", FONT:"FONT", FORM:"FORM", FRAME:"FRAME", FRAMESET:"FRAMESET", 
+H1:"H1", H2:"H2", H3:"H3", H4:"H4", H5:"H5", H6:"H6", HEAD:"HEAD", HR:"HR", HTML:"HTML", I:"I", IFRAME:"IFRAME", IMG:"IMG", INPUT:"INPUT", INS:"INS", ISINDEX:"ISINDEX", KBD:"KBD", LABEL:"LABEL", LEGEND:"LEGEND", LI:"LI", LINK:"LINK", MAP:"MAP", MENU:"MENU", META:"META", NOFRAMES:"NOFRAMES", NOSCRIPT:"NOSCRIPT", OBJECT:"OBJECT", OL:"OL", OPTGROUP:"OPTGROUP", OPTION:"OPTION", P:"P", PARAM:"PARAM", PRE:"PRE", Q:"Q", S:"S", SAMP:"SAMP", SCRIPT:"SCRIPT", SELECT:"SELECT", SMALL:"SMALL", SPAN:"SPAN", STRIKE:"STRIKE", 
+STRONG:"STRONG", STYLE:"STYLE", SUB:"SUB", SUP:"SUP", TABLE:"TABLE", TBODY:"TBODY", TD:"TD", TEXTAREA:"TEXTAREA", TFOOT:"TFOOT", TH:"TH", THEAD:"THEAD", TITLE:"TITLE", TR:"TR", TT:"TT", U:"U", UL:"UL", VAR:"VAR"};
 goog.dom.classes = {};
 goog.dom.classes.set = function(a, b) {
   a.className = b
@@ -16708,10 +16731,6 @@ goog.dom.classes.toggle = function(a, b) {
   goog.dom.classes.enable(a, b, c);
   return c
 };
-goog.dom.BrowserFeature = {CAN_ADD_NAME_OR_TYPE_ATTRIBUTES:!goog.userAgent.IE || goog.userAgent.isDocumentMode(9), CAN_USE_CHILDREN_ATTRIBUTE:!goog.userAgent.GECKO && !goog.userAgent.IE || goog.userAgent.IE && goog.userAgent.isDocumentMode(9) || goog.userAgent.GECKO && goog.userAgent.isVersion("1.9.1"), CAN_USE_INNER_TEXT:goog.userAgent.IE && !goog.userAgent.isVersion("9"), INNER_HTML_NEEDS_SCOPED_ELEMENT:goog.userAgent.IE};
-goog.dom.TagName = {A:"A", ABBR:"ABBR", ACRONYM:"ACRONYM", ADDRESS:"ADDRESS", APPLET:"APPLET", AREA:"AREA", B:"B", BASE:"BASE", BASEFONT:"BASEFONT", BDO:"BDO", BIG:"BIG", BLOCKQUOTE:"BLOCKQUOTE", BODY:"BODY", BR:"BR", BUTTON:"BUTTON", CANVAS:"CANVAS", CAPTION:"CAPTION", CENTER:"CENTER", CITE:"CITE", CODE:"CODE", COL:"COL", COLGROUP:"COLGROUP", DD:"DD", DEL:"DEL", DFN:"DFN", DIR:"DIR", DIV:"DIV", DL:"DL", DT:"DT", EM:"EM", FIELDSET:"FIELDSET", FONT:"FONT", FORM:"FORM", FRAME:"FRAME", FRAMESET:"FRAMESET", 
-H1:"H1", H2:"H2", H3:"H3", H4:"H4", H5:"H5", H6:"H6", HEAD:"HEAD", HR:"HR", HTML:"HTML", I:"I", IFRAME:"IFRAME", IMG:"IMG", INPUT:"INPUT", INS:"INS", ISINDEX:"ISINDEX", KBD:"KBD", LABEL:"LABEL", LEGEND:"LEGEND", LI:"LI", LINK:"LINK", MAP:"MAP", MENU:"MENU", META:"META", NOFRAMES:"NOFRAMES", NOSCRIPT:"NOSCRIPT", OBJECT:"OBJECT", OL:"OL", OPTGROUP:"OPTGROUP", OPTION:"OPTION", P:"P", PARAM:"PARAM", PRE:"PRE", Q:"Q", S:"S", SAMP:"SAMP", SCRIPT:"SCRIPT", SELECT:"SELECT", SMALL:"SMALL", SPAN:"SPAN", STRIKE:"STRIKE", 
-STRONG:"STRONG", STYLE:"STYLE", SUB:"SUB", SUP:"SUP", TABLE:"TABLE", TBODY:"TBODY", TD:"TD", TEXTAREA:"TEXTAREA", TFOOT:"TFOOT", TH:"TH", THEAD:"THEAD", TITLE:"TITLE", TR:"TR", TT:"TT", U:"U", UL:"UL", VAR:"VAR"};
 goog.math = {};
 goog.math.Coordinate = function(a, b) {
   this.x = goog.isDef(a) ? a : 0;
@@ -18574,13 +18593,6 @@ c2.dom.request_animation_frame = function() {
     }, 10)
   }
 }();
-var fetch = {util:{}};
-fetch.util.clj__GT_js = function clj__GT_js(b) {
-  return cljs.core.string_QMARK_.call(null, b) ? b : cljs.core.keyword_QMARK_.call(null, b) ? cljs.core.name.call(null, b) : cljs.core.map_QMARK_.call(null, b) ? cljs.core.reduce.call(null, function(b, d) {
-    var e = cljs.core.nth.call(null, d, 0, null), f = cljs.core.nth.call(null, d, 1, null);
-    return cljs.core.assoc.call(null, b, clj__GT_js.call(null, e), clj__GT_js.call(null, f))
-  }, cljs.core.ObjMap.EMPTY, b).strobj : cljs.core.coll_QMARK_.call(null, b) ? cljs.core.apply.call(null, cljs.core.array, cljs.core.map.call(null, clj__GT_js, b)) : b
-};
 cljs.reader = {};
 cljs.reader.PushbackReader = {};
 cljs.reader.read_char = function(a) {
@@ -19010,6 +19022,13 @@ cljs.reader.deregister_tag_parser_BANG_ = function(a) {
   cljs.core.swap_BANG_.call(null, cljs.reader._STAR_tag_table_STAR_, cljs.core.dissoc, a);
   return b
 };
+var fetch = {util:{}};
+fetch.util.clj__GT_js = function clj__GT_js(b) {
+  return cljs.core.string_QMARK_.call(null, b) ? b : cljs.core.keyword_QMARK_.call(null, b) ? cljs.core.name.call(null, b) : cljs.core.map_QMARK_.call(null, b) ? cljs.core.reduce.call(null, function(b, d) {
+    var e = cljs.core.nth.call(null, d, 0, null), f = cljs.core.nth.call(null, d, 1, null);
+    return cljs.core.assoc.call(null, b, clj__GT_js.call(null, e), clj__GT_js.call(null, f))
+  }, cljs.core.ObjMap.EMPTY, b).strobj : cljs.core.coll_QMARK_.call(null, b) ? cljs.core.apply.call(null, cljs.core.array, cljs.core.map.call(null, clj__GT_js, b)) : b
+};
 fetch.core = {};
 fetch.core.__GT_method = function(a) {
   return clojure.string.upper_case.call(null, cljs.core.name.call(null, a))
@@ -19146,14 +19165,17 @@ startlabs.jobs.job_with_id = function(a) {
     return cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, b), a)
   }, startlabs.jobs.job_data))
 };
+startlabs.jobs.update_job_card = function() {
+  var a = startlabs.util.form_to_map.call(null, jayq.core.$.call(null, "#job-form"));
+  jayq.core.$.call(null, "#job-preview").html(singult.core.render.call(null, startlabs.views.jobx.job_card.call(null, a, !1)));
+  return jayq.core.$.call(null, "#job-preview .description").html(markdown.mdToHtml.call(null, jayq.core.$.call(null, "#description").val()))
+};
 startlabs.jobs.setup_job_submit = function() {
   jayq.core.$.call(null, ".datepicker").datepicker();
-  var a = jayq.core.$.call(null, "#job-form input, #job-form textarea"), b = function() {
-    jayq.core.$.call(null, "#job-preview").html(singult.core.render.call(null, startlabs.views.jobx.job_card.call(null, startlabs.util.form_to_map.call(null, jayq.core.$.call(null, "#job-form")), !1)));
-    return jayq.core.$.call(null, "#job-preview .description").html(markdown.mdToHtml.call(null, jayq.core.$.call(null, "#description").val()))
-  };
-  jayq.core.bind.call(null, a, "\ufdd0'keyup", b);
-  return jayq.core.bind.call(null, a, "\ufdd0'blur", b)
+  startlabs.jobs.setup_radio_buttons.call(null);
+  var a = jayq.core.$.call(null, "#job-form input, #job-form textarea");
+  jayq.core.bind.call(null, a, "\ufdd0'keyup", startlabs.jobs.update_job_card);
+  return jayq.core.bind.call(null, a, "\ufdd0'blur", startlabs.jobs.update_job_card)
 };
 startlabs.jobs.show_job_details = function(a) {
   a.preventDefault();
@@ -19162,7 +19184,6 @@ startlabs.jobs.show_job_details = function(a) {
 };
 startlabs.jobs.find_jobs = function(a) {
   return function() {
-    window.console.log("searching...");
     return fetch.remotes.remote_callback.call(null, "jobsearch", cljs.core.PersistentVector.fromArray([a], !0), function(a) {
       var c = jayq.core.$.call(null, "#job-list"), d = c.parent();
       cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, (new cljs.core.Keyword("\ufdd0'jobs")).call(null, a));
@@ -19170,6 +19191,27 @@ startlabs.jobs.find_jobs = function(a) {
       return d.html((new cljs.core.Keyword("\ufdd0'html")).call(null, a))
     })
   }
+};
+startlabs.jobs.change_fulltime = function(a) {
+  startlabs.jobs.update_job_card.call(null);
+  var b = jayq.core.$.call(null, "#end_date").parents("tr").eq(0);
+  return cljs.core._EQ_.call(null, a, "true") ? b.hide() : b.show()
+};
+startlabs.jobs.setup_radio_buttons = function() {
+  return jayq.core.$.call(null, "div.btn-group[data-toggle-name=*]").each(function() {
+    var a = jayq.core.$.call(null, this), b = a.parents("form").eq(0), c = a.attr("data-toggle-name"), d = jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(c), cljs.core.str("']")].join(""), b);
+    jayq.core.$.call(null, "button", a).each(function() {
+      var a = jayq.core.$.call(null, this);
+      jayq.core.bind.call(null, a, "\ufdd0'click", function(b) {
+        var c = a.val();
+        b.preventDefault();
+        d.val(c);
+        return startlabs.jobs.change_fulltime.call(null, c)
+      });
+      return cljs.core._EQ_.call(null, a.val(), d.val()) ? a.addClass("active") : null
+    });
+    return startlabs.jobs.change_fulltime.call(null, d.val())
+  })
 };
 startlabs.jobs.setup_jobs_list = function() {
   startlabs.jobs.lmap = startlabs.jobs.L.map("map");
