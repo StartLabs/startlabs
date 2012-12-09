@@ -34,6 +34,7 @@
 (def ^:dynamic lmap nil) ; the leaflet map object
 (def ^:dynamic markers nil) ; the leaflet layergroup containing the markers
 (def ^:dynamic oms nil) ; the overlapping marker spiderfier
+(def ^:dynamic search-timeout nil)
 
 (def geocoder (CM/Geocoder. cloudmade-key))
 
@@ -77,15 +78,6 @@
 (defn geocode [place callback]
   (.getLocations geocoder place callback))
 
-(defn jobs-filter [query]
-  (fn [_]
-    (if (empty? query)
-      job-data
-      (filter (fn [job]
-        (some #(re-find (re-pattern (str "(?i)" query)) %) 
-              (map job [:position :company :location])))
-        job-data))))
-
 (defn job-with-id [id]
   (first 
     (filter 
@@ -101,7 +93,7 @@
               (.html ($ "#job-preview")
                      (render (job-card (u/form-to-map ($ "#job-form")) false)))
               ; singult is escaping the generated markdown :(
-              (.html ($ "#job-preview .description") 
+              (.html ($ "#job-preview .description")
                      (markdown/mdToHtml (.val ($ "#description")))))]
       (jq/bind $elems :keyup update-job-card)
       (jq/bind $elems :blur  update-job-card))))
@@ -111,6 +103,17 @@
   (this-as this
            (-> ($ this) (.find ".read") .toggle)
            (-> ($ this) (.find ".more") .toggle)))
+
+(defn find-jobs [query]
+  (fn []
+    (.log (.-console js/window) "searching...")
+    (fm/remote (jobsearch query) [results]
+               (let [$job-list ($ "#job-list")
+                     parent (.parent $job-list)]
+                 (reset! filtered-jobs (:jobs results))
+                 (.remove $job-list)
+                 (.html parent (:html results))))))
+                                 
 
 (defn setup-jobs-list []
   (def lmap (.map L "map"))
@@ -137,22 +140,21 @@
             (geocode location (add-marker-callback job false))))
   ))))
 
-  (bind! "#job-list"
-    (job-list @filtered-jobs false))
-
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter jobs as you search
     (this-as job-search
       (let [query (str/trim (jq/val ($ job-search)))]
-        (swap! filtered-jobs (jobs-filter query))))
-    ))
+        (js/clearTimeout search-timeout)
+        (set! search-timeout (js/setTimeout (find-jobs query) 500))
+    ))))
 
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
     (.toggle ($ "#map"))))
 
-  (let [$job-list ($ "#job-list")]
-    (jq/on $job-list :click ".job" nil show-job-details))
+  (let [$job-container ($ "#job-container")]
+    (jq/on $job-container :click ".job" nil show-job-details)
+    (jq/on $job-container :click ".more a" nil (fn [e] (.stopPropagation e))))
 	
   (reset! filtered-jobs job-data)
 )

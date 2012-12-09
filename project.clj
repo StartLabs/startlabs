@@ -31,7 +31,7 @@
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.0"]
-                  [com.keminglabs/singult "0.1.4"]
+                  [com.keminglabs/singult "0.1.5-SNAPSHOT"]
                   [fetch "0.1.0-alpha2"]
                   [jayq "0.1.0-alpha4"]
                 ]

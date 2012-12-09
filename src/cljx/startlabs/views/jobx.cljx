@@ -1,12 +1,10 @@
 ^:clj (ns startlabs.views.jobx
-        (:use [c2.core :only [unify]]
-              [hiccup.core :only [html]]
+        (:use [hiccup.core :only [html]]
               [noir.validation :only [is-email?]]
               [markdown :only [md-to-html-string]]))
 
 ^:cljs (ns startlabs.views.jobx
-          (:require [singult.core :as s])
-          (:use [c2.core :only [unify]]))
+          (:require [singult.core :as s]))
 
 ; this is taken straight from lib-noir.validation
 ^:cljs  (defn is-email? [v]

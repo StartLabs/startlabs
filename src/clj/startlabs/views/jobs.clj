@@ -14,7 +14,9 @@
         [clojure.tools.logging :only [info]]
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
+        [hiccup.core :only [html]]
         [noir.core :only [defpage defpartial render url-for]]
+        [noir.fetch.remotes :only [defremote]]
         [startlabs.views.jobx :only [job-card job-list]])
   (:import java.net.URI))
 
@@ -123,10 +125,12 @@
           (job-card (if has-params? params sample-job-fields) false)]
       ]]))
 
+(defn get-all-jobs []
+  (sort-by #(:company %) 
+           (filter #(not= (:removed? %) "true") (job/find-upcoming-jobs))))
 
 (defpartial browse-jobs [has-params?]
-  (let [all-jobs     (sort-by #(:company %) 
-                       (filter #(not= (:removed? %) "true") (job/find-upcoming-jobs)))
+  (let [all-jobs (get-all-jobs)
         show-delete? (user/logged-in?)]
     [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
       ;; sort by date and location.
@@ -144,7 +148,7 @@
               [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
         ]]]
 
-     [:div.row-fluid
+     [:div#job-container.row-fluid
       (if (empty? all-jobs)
         [:h1 "Sorry, no jobs posted currently. Come back later."])
       (job-list all-jobs show-delete?)]
@@ -152,6 +156,20 @@
      [:script#job-data
       (str "window.job_data = " (json/json-str all-jobs) ";")]
      ]))
+
+(defn filter-jobs [query]
+  (let [all-jobs (get-all-jobs)]
+    (if (empty? query)
+      all-jobs
+      (filter (fn [job]
+        (some #(re-find (re-pattern (str "(?i)" query)) %) 
+              (map job [:position :company :location])))
+        all-jobs))))
+
+(defremote jobsearch [query]
+  (let [jobs (filter-jobs query)
+        show-delete? (user/logged-in?)]
+    {:html (html (job-list jobs show-delete?)) :jobs jobs}))
 
 (defn split-sites [sitelist]
   (str/split sitelist #"\s+"))
