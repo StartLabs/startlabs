@@ -93,28 +93,6 @@
   (.html ($ "#job-preview .description")
          (markdown/mdToHtml (.val ($ "#description")))))
 
-(defn setup-job-submit []
-  (.datepicker ($ ".datepicker"))
-  (setup-radio-buttons)
-  (let [$elems ($ "#job-form input, #job-form textarea")]
-    (jq/bind $elems :keyup update-job-card)
-    (jq/bind $elems :blur  update-job-card)))
-
-(defn show-job-details [e]
-  (.preventDefault e)
-  (this-as this
-           (-> ($ this) (.find ".read") .toggle)
-           (-> ($ this) (.find ".more") .toggle)))
-
-(defn find-jobs [query]
-  (fn []
-    (fm/remote (jobsearch query) [results]
-               (let [$job-list ($ "#job-list")
-                     parent (.parent $job-list)]
-                 (reset! filtered-jobs (:jobs results))
-                 (.remove $job-list)
-                 (.html parent (:html results))))))
-
 (defn change-fulltime [val]
   (update-job-card)
   (let [$tr (.eq (.parents ($ "#end_date") "tr") 0)]
@@ -146,6 +124,28 @@
                      (.addClass $btn "active"))))))
 
            (change-fulltime (.val $inp)))))))
+
+(defn setup-job-submit []
+  (.datepicker ($ ".datepicker"))
+  (setup-radio-buttons)
+  (let [$elems ($ "#job-form input, #job-form textarea")]
+    (jq/bind $elems :keyup update-job-card)
+    (jq/bind $elems :blur  update-job-card)))
+
+(defn show-job-details [e]
+  (.preventDefault e)
+  (this-as this
+           (-> ($ this) (.find ".read") .toggle)
+           (-> ($ this) (.find ".more") .toggle)))
+
+(defn find-jobs [query]
+  (fn []
+    (fm/remote (jobsearch query) [results]
+               (let [$job-list ($ "#job-list")
+                     parent (.parent $job-list)]
+                 (reset! filtered-jobs (:jobs results))
+                 (.remove $job-list)
+                 (.html parent (:html results))))))
 
 (defn setup-jobs-list []
   (def lmap (.map L "map"))

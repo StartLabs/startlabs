@@ -19170,6 +19170,27 @@ startlabs.jobs.update_job_card = function() {
   jayq.core.$.call(null, "#job-preview").html(singult.core.render.call(null, startlabs.views.jobx.job_card.call(null, a, !1)));
   return jayq.core.$.call(null, "#job-preview .description").html(markdown.mdToHtml.call(null, jayq.core.$.call(null, "#description").val()))
 };
+startlabs.jobs.change_fulltime = function(a) {
+  startlabs.jobs.update_job_card.call(null);
+  var b = jayq.core.$.call(null, "#end_date").parents("tr").eq(0);
+  return cljs.core._EQ_.call(null, a, "true") ? b.hide() : b.show()
+};
+startlabs.jobs.setup_radio_buttons = function() {
+  return jayq.core.$.call(null, "div.btn-group[data-toggle-name=*]").each(function() {
+    var a = jayq.core.$.call(null, this), b = a.parents("form").eq(0), c = a.attr("data-toggle-name"), d = jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(c), cljs.core.str("']")].join(""), b);
+    jayq.core.$.call(null, "button", a).each(function() {
+      var a = jayq.core.$.call(null, this);
+      jayq.core.bind.call(null, a, "\ufdd0'click", function(b) {
+        var c = a.val();
+        b.preventDefault();
+        d.val(c);
+        return startlabs.jobs.change_fulltime.call(null, c)
+      });
+      return cljs.core._EQ_.call(null, a.val(), d.val()) ? a.addClass("active") : null
+    });
+    return startlabs.jobs.change_fulltime.call(null, d.val())
+  })
+};
 startlabs.jobs.setup_job_submit = function() {
   jayq.core.$.call(null, ".datepicker").datepicker();
   startlabs.jobs.setup_radio_buttons.call(null);
@@ -19191,27 +19212,6 @@ startlabs.jobs.find_jobs = function(a) {
       return d.html((new cljs.core.Keyword("\ufdd0'html")).call(null, a))
     })
   }
-};
-startlabs.jobs.change_fulltime = function(a) {
-  startlabs.jobs.update_job_card.call(null);
-  var b = jayq.core.$.call(null, "#end_date").parents("tr").eq(0);
-  return cljs.core._EQ_.call(null, a, "true") ? b.hide() : b.show()
-};
-startlabs.jobs.setup_radio_buttons = function() {
-  return jayq.core.$.call(null, "div.btn-group[data-toggle-name=*]").each(function() {
-    var a = jayq.core.$.call(null, this), b = a.parents("form").eq(0), c = a.attr("data-toggle-name"), d = jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(c), cljs.core.str("']")].join(""), b);
-    jayq.core.$.call(null, "button", a).each(function() {
-      var a = jayq.core.$.call(null, this);
-      jayq.core.bind.call(null, a, "\ufdd0'click", function(b) {
-        var c = a.val();
-        b.preventDefault();
-        d.val(c);
-        return startlabs.jobs.change_fulltime.call(null, c)
-      });
-      return cljs.core._EQ_.call(null, a.val(), d.val()) ? a.addClass("active") : null
-    });
-    return startlabs.jobs.change_fulltime.call(null, d.val())
-  })
 };
 startlabs.jobs.setup_jobs_list = function() {
   startlabs.jobs.lmap = startlabs.jobs.L.map("map");
