@@ -5,6 +5,7 @@
             [noir.response :as response]
             [noir.validation :as vali]
             [postal.core :as postal]
+            [ring.util.codec :as c]
             [startlabs.models.util :as mu]
             [startlabs.util :as u]
             [startlabs.views.common :as common]
@@ -100,6 +101,16 @@
 \n\nWe prefer candidates who wear green clothing."
    :contact_info "contact@startlabs.org"})
 
+(def job-list-email-body
+  (c/url-encode
+   (str "Please fill out all of the following details for consideration:\n\n"
+        "Startup Name: \n"
+        "Website URL: \n"
+        "Brief Description of your Company: \n\n"
+        "Years since Incorporation: \n"
+        "Number of Employees: \n"
+        "Funding Received (Optional):")))
+
 (defpartial submit-job [has-params? params]
   ;; make the distinction between editing existing values vs. creating a new job
   (let [editing? (not (empty? (:id params)))
@@ -113,7 +124,7 @@
           (if (not editing?)
             [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
              [:strong "your company must be preapproved"] ". Please " 
-             [:a {:href "mailto:team@startlabs.org?subject=Jobs List Request: [Your_Company_Name]"} "email us"] 
+             [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" job-list-email-body)} "email us"] 
              " for consideration for the Jobs List."])
           (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
