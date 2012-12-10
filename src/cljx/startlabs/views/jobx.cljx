@@ -1,19 +1,18 @@
 ^:clj (ns startlabs.views.jobx
-        (:use [c2.core :only [unify]]
-              [hiccup.core :only [html]]
+        (:use [hiccup.core :only [html]]
               [noir.validation :only [is-email?]]
               [markdown :only [md-to-html-string]]))
 
 ^:cljs (ns startlabs.views.jobx
-          (:require [singult.core :as s])
-          (:use [c2.core :only [unify]]))
+         (:require [singult.core :as s]))
 
 ; this is taken straight from lib-noir.validation
 ^:cljs  (defn is-email? [v]
           (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v))
 
 ^:clj  (def markdownify md-to-html-string)
-^:cljs (def markdownify markdown/mdToHtml)
+^:cljs (def converter (Markdown/getSanitizingConverter.))
+^:cljs (defn markdownify [text] (.makeHtml converter text))
 
 (defn is-phone? 
   "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots."
@@ -57,13 +56,20 @@
         {:href (str "#delete-" (:id job-info)) :role "button" :data-toggle "modal"} "Delete"])
 
     [:h2 
-      [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
-      [:small " " (:position job-info)]]
+     [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
+     [:small " " (:position job-info)]]
 
-      [:div.row-fluid.dateloc
-        ; need to format dates
-        [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) " — " (:end_date job-info)]
-        [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]][:a.read {:href (str "#" (:id job-info))} "Read More..." ]])
+   [:div.row-fluid.dateloc
+    ; need to format dates
+    [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) (if (not (= (:fulltime? job-info) "true"))
+                                                                 (str " — " (:end_date job-info)))]
+    [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
+
+   [:div.row-fluid
+    [:div.span6 [:span.label.label-info (if (= (:fulltime? job-info) "true") "Fulltime" "Internship")]]
+    [:div.span6.employees [:span.badge.badge-info (:company_size job-info)] "Employees"]]
+
+   [:a.read {:href (str "#" (:id job-info))} "Read More..." ]])
 
 (defn job-card [job-info show-delete?]
   [:div.job-info {:onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'More', '" (:id job-info) "']);")}

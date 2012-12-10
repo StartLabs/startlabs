@@ -217,6 +217,26 @@
   :db/doc "Indicates whether the job has been removed",
   :db.install/_attribute :db.part/db}
 
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/fulltime?,
+  :db/valueType :db.type/boolean,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Is this a fulltime position?",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/company_size,
+  :db/valueType :db.type/long,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "The current number of employees",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/tags,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/many,
+  :db/doc "Keyword tags associated with a job",
+  :db.install/_attribute :db.part/db}
 
   ;; job whitelist
 

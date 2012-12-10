@@ -6874,3 +6874,7 @@ html,body {
 #job-list a:hover i, #job-list a.active i {
     background-image: url("/bootstrap/img/glyphicons-halflings.png");
 }
+
+.job-summary .employees .badge {
+    margin-right: 8px;
+}

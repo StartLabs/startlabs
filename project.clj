@@ -23,7 +23,7 @@
                   [clj-aws-s3 "0.3.2" 
                     :exclusions [com.amazonaws/aws-java-sdk]]
                   [com.amazonaws/aws-java-sdk "1.3.20"]
-                  [markdown-clj "0.9.8"]
+                  [markdown-clj "0.9.10"]
                   [clj-time "0.4.4"]
                   [com.draines/postal "1.8.0"]
                   [climp "0.1.1"]
@@ -31,7 +31,7 @@
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.0"]
-                  [com.keminglabs/singult "0.1.4"]
+                  [com.keminglabs/singult "0.1.5-SNAPSHOT"]
                   [fetch "0.1.0-alpha2"]
                   [jayq "0.1.0-alpha4"]
                 ]

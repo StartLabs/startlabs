@@ -3,7 +3,7 @@
         [jayq.util :only [clj->js]]
         [singult.core :only [render]]
         [c2.core :only [unify]]
-        [startlabs.views.jobx :only [job-list job-card]])
+        [startlabs.views.jobx :only [job-list job-card markdownify]])
 
   (:require [clojure.string :as str]
             [fetch.remotes :as remotes]
@@ -34,6 +34,7 @@
 (def ^:dynamic lmap nil) ; the leaflet map object
 (def ^:dynamic markers nil) ; the leaflet layergroup containing the markers
 (def ^:dynamic oms nil) ; the overlapping marker spiderfier
+(def ^:dynamic search-timeout nil)
 
 (def geocoder (CM/Geocoder. cloudmade-key))
 
@@ -77,15 +78,6 @@
 (defn geocode [place callback]
   (.getLocations geocoder place callback))
 
-(defn jobs-filter [query]
-  (fn [_]
-    (if (empty? query)
-      job-data
-      (filter (fn [job]
-        (some #(re-find (re-pattern (str "(?i)" query)) %) 
-              (map job [:position :company :location])))
-        job-data))))
-
 (defn job-with-id [id]
   (first 
     (filter 
@@ -93,24 +85,67 @@
       job-data)))
 
 
+(defn update-job-card []
+  (let [job-map (u/form-to-map ($ "#job-form"))]
+    (.html ($ "#job-preview")
+           (render (job-card job-map false))))
+  ; singult is escaping the generated markdown :(
+  (.html ($ "#job-preview .description")
+         (markdownify (.val ($ "#description")))))
+
+(defn change-fulltime [val]
+  (update-job-card)
+  (let [$tr (.eq (.parents ($ "#end_date") "tr") 0)]
+    (if (= val "true")
+      (.hide $tr)
+      (.show $tr))))
+
+(defn setup-radio-buttons []
+  (.each ($ "div.btn-group[data-toggle-name=*]") 
+    (fn [i elem]
+      (this-as this
+        (let [group ($ this)
+               form (.eq (.parents group "form") 0)
+               name (.attr group "data-toggle-name")
+               $inp ($ (str "input[name='" name "']") form)]
+           (.each ($ "button" group) 
+             (fn [i elem]
+               (this-as btn
+                 (let [$btn ($ btn)]
+
+                   (jq/bind $btn :click
+                     (fn [e]
+                       (let [btn-val (.val $btn)]
+                         (.preventDefault e)
+                         (.val $inp btn-val)
+                         (change-fulltime btn-val))))
+                 
+                   (if (= (.val $btn) (.val $inp))
+                     (.addClass $btn "active"))))))
+
+           (change-fulltime (.val $inp)))))))
+
 (defn setup-job-submit []
   (.datepicker ($ ".datepicker"))
-
+  (setup-radio-buttons)
   (let [$elems ($ "#job-form input, #job-form textarea")]
-    (letfn [(update-job-card [e]
-              (.html ($ "#job-preview")
-                     (render (job-card (u/form-to-map ($ "#job-form")) false)))
-              ; singult is escaping the generated markdown :(
-              (.html ($ "#job-preview .description") 
-                     (markdown/mdToHtml (.val ($ "#description")))))]
-      (jq/bind $elems :keyup update-job-card)
-      (jq/bind $elems :blur  update-job-card))))
+    (jq/bind $elems :keyup update-job-card)
+    (jq/bind $elems :blur  update-job-card)))
 
 (defn show-job-details [e]
   (.preventDefault e)
   (this-as this
            (-> ($ this) (.find ".read") .toggle)
            (-> ($ this) (.find ".more") .toggle)))
+
+(defn find-jobs [query]
+  (fn []
+    (fm/remote (jobsearch query) [results]
+               (let [$job-list ($ "#job-list")
+                     parent (.parent $job-list)]
+                 (reset! filtered-jobs (:jobs results))
+                 (.remove $job-list)
+                 (.html parent (:html results))))))
 
 (defn setup-jobs-list []
   (def lmap (.map L "map"))
@@ -137,22 +172,21 @@
             (geocode location (add-marker-callback job false))))
   ))))
 
-  (bind! "#job-list"
-    (job-list @filtered-jobs false))
-
   (jq/bind ($ "#job-search") :keyup (fn [e]
     ; filter jobs as you search
     (this-as job-search
       (let [query (str/trim (jq/val ($ job-search)))]
-        (swap! filtered-jobs (jobs-filter query))))
-    ))
+        (js/clearTimeout search-timeout)
+        (set! search-timeout (js/setTimeout (find-jobs query) 500))
+    ))))
 
   (jq/bind ($ "#map-toggle") :click (fn [e]
     (.preventDefault e)
     (.toggle ($ "#map"))))
 
-  (let [$job-list ($ "#job-list")]
-    (jq/on $job-list :click ".job" nil show-job-details))
+  (let [$job-container ($ "#job-container")]
+    (jq/on $job-container :click ".job" nil show-job-details)
+    (jq/on $job-container :click ".more a" nil (fn [e] (.stopPropagation e))))
 	
   (reset! filtered-jobs job-data)
 )

@@ -62,4 +62,4 @@
 
 (defn empty-rule [[k v]]
   (vali/rule 
-    (vali/has-value? v) [k "This field cannot be empty."]))
+    (or (false? v) (vali/has-value? v)) [k "This field cannot be empty."]))
