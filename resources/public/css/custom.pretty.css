@@ -5460,6 +5460,10 @@ div.centered {
 	padding-top: 20px;
 }
 
+.guestlist-event-136884 img {
+	margin-bottom: 10px;
+}
+
 .center {
     display: block;
     margin-right: auto;
@@ -5471,7 +5475,7 @@ div.centered {
 }
 
 .map {
-	margin: 15px 0 50px;
+	margin: 15px 0;
 	border-radius: 10px;
 	-webkit-box-shadow: 0px 0px 5px 0px #333;
 	box-shadow: 0px 0px 5px 0px #333;
@@ -5622,7 +5626,7 @@ html,body {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -100px;
+    margin: 0 auto -50px;
 }
 
 .push {

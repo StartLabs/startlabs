@@ -28,8 +28,9 @@
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
 	[:div.span2.centered
-	  [:h2.centered "Register For Startup"]
+	  [:h2.centered "Register For"]
 	  [:a.guestlist-event-136884 {:href "#"} [:img {:src "/img/career-fair.png" :width "auto"}]]
+	  [:a {:href "https://guestlistapp.com/events/136884"} "More Information"]
 	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]
        
       (let [event-descr (event/get-latest-event)

@@ -105,8 +105,7 @@
               [:p message]])
 
           content
-        [:div.clear]]]
-          [:div.push]
+        [:div.push]]]
             [:footer.container
               [:p "&copy; 2012 Startlabs. Follow us on "
               [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
