@@ -7,6 +7,3 @@
 [submodule "datomic-free"]
 	path = datomic-free
 	url = https://github.com/sherbondy/datomic-free
-[submodule "resources/pagedown"]
-	path = resources/pagedown
-	url = https://github.com/sherbondy/pagedown.git
