@@ -267,7 +267,7 @@
     (vali/rule (not (or (nil? site-host) (= "" site-host)))
                [:website "Must be a valid website." site-host])
 
-                                        ; also allow submissions from startlabs members
+    ; also allow submissions from startlabs members
     (vali/rule (or (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
                    (re-matches #".*@startlabs.org$" (:email job-params)))
                [:email "Your email address must match the company website."])
@@ -293,7 +293,7 @@
     (not (apply vali/errors? ordered-job-keys))))
 
 (defn fix-job-params [params]
-  (let [website (:website params)
+  (let [website   (:website params)
         fulltime? (if (= (:fulltime? params) "true") true false)
         start-date (mu/parse-date (:start_date params))
         end-date (if start-date
@@ -308,8 +308,9 @@
                    (mu/unparse-date end-date)
                    (:end_date params))})))
 
+(def job-error  "Please correct the form and resubmit.")
 (defn flash-job-error []
-  (session/flash-put! :message [:error "Please correct the form and resubmit."]))
+  (session/flash-put! :message [:error job-error]))
 
 (defn trim-and-fix-params [params]
   (let [trimmed-params (u/trim-vals params)
@@ -417,35 +418,28 @@
         ;; else
         (job-not-found))))
 
-(defn flash-error-and-render [error render-url params]
+(defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])
-  (render render-url params))
+  (response/redirect (str "/job/" job-id "?secret=" (:secret params))))
 
-(defpage [:post "/job/:id"] {:keys [id] :as params}
+(defpage [:post "/job/:id"] {:keys [id secret] :as params}
   (let [fixed-params (trim-and-fix-params params)
-        job-url      (url-for edit-job {:id id})
         job-secret   (job/job-secret id)]
-
-    (try
-      (if (= (:secret fixed-params) job-secret)
-        (if (valid-job? fixed-params)
-          (if (job/update-job id params)
-            (do
-              (session/flash-put! :message [:success "Your job has been updated successfully."])
-              (response/redirect "/jobs"))
+    (if (= (:secret fixed-params) job-secret)
+      (if (valid-job? fixed-params)
+        (if (job/update-job id params)
+          (do
+            (session/flash-put! :message [:success "Your job has been updated successfully."])
+            (response/redirect "/jobs"))
             ; else
-            (flash-error-and-render "Unable to update job. Sorry for the inconvenience." 
-                                    job-url fixed-params))
+          (flash-error-and-render 
+           "Unable to update job. Sorry for the inconvenience." id fixed-params))
 
-          ; invalid job, flash an error message, return to edit page
-          (do (flash-job-error) (render job-url fixed-params)))
+        ; invalid job, flash an error message, return to edit page
+        (flash-error-and-render job-error id fixed-params))
 
-        ; secret does not match job secret
-        (flash-error-and-render "Invalid job secret." job-url fixed-params))
-
-      (catch Exception e
-        ;; else: no idea what's wrong, generic error page
-        (unexpected-error (str [(str e) id fixed-params]))))))
+      ; secret does not match job secret
+      (flash-error-and-render "Invalid job secret." id fixed-params))))
 
 
 (defpage [:post "/job/:id/delete"] {:keys [id]}
