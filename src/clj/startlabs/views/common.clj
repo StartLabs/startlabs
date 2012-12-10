@@ -105,12 +105,11 @@
               [:p message]])
 
           content
-        [:div.clear]]]
-          [:div.push]
-            [:footer.container
-              [:p "&copy; 2012 Startlabs. Follow us on "
-              [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
-              [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]
+         [:div.push]]]
+       [:footer.container
+        [:p "&copy; 2012 Startlabs. Follow us on "
+         [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
+         [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]
 
         [:script {:type "text/javascript"} google-analytics]
 

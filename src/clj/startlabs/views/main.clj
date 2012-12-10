@@ -55,12 +55,13 @@
 
      [:div.row-fluid.push-down
        [:div.span4]
-       [:div.span4
+       [:div.span5
        [:h3 "Join our mailing list to stay in the loop:"]
        [:form {:action "/" :method "post"}
-        [:input#email.span9.pull-left {:name "email" :placeholder "Your email address"
-                                       :value (if (not (empty? email)) email "")}]
-        [:button#submit.btn.btn-primary.span3.pull-right
+        [:input#email.span7 {:name "email" 
+                             :placeholder "Your email address"
+                             :value (if (not (empty? email)) email "")}]
+        [:button#submit.btn.btn-primary.span3.pull-left
          {:type "submit"} "Submit"]
         ]]
        [:div.span4]
