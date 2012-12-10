@@ -412,11 +412,11 @@
 
 (defpage edit-job "/job/:id" {:keys [id] :as params}
   (common/layout
-    (if-let [job-map (job/job-map id)]
-      (let [secret-map (assoc job-map :secret (:secret params))]
-        (submit-job true secret-map))
-        ;; else
-        (job-not-found))))
+   (if-let [job-map (job/job-map id)]
+     (let [secret-map (assoc job-map :secret (:secret params))]
+       (submit-job true secret-map))
+     ;; else
+     (job-not-found))))
 
 (defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])
@@ -425,14 +425,16 @@
 (defpage [:post "/job/:id"] {:keys [id secret] :as params}
   (let [fixed-params (trim-and-fix-params params)
         job-secret   (job/job-secret id)]
-    (if (= (:secret fixed-params) job-secret)
+    (if (or (= (:secret fixed-params) job-secret)
+            (user/logged-in?))
+
       (if (valid-job? fixed-params)
         (if (job/update-job id params)
           (do
             (session/flash-put! :message [:success "Your job has been updated successfully."])
             (response/redirect "/jobs"))
             ; else
-          (flash-error-and-render 
+          (flash-error-and-render
            "Unable to update job. Sorry for the inconvenience." id fixed-params))
 
         ; invalid job, flash an error message, return to edit page

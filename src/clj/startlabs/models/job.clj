@@ -52,7 +52,8 @@
   [job-id new-fact-map]
   (try
     (let [job           (job-with-id job-id)
-          tranny-facts  (util/namespace-and-transform :job new-fact-map)
+          map-no-secret (dissoc new-fact-map :secret) ;; avoid overwriting the secret
+          tranny-facts  (util/namespace-and-transform :job map-no-secret)
           idented-facts (assoc tranny-facts :db/id job)]
       (d/transact @conn (list idented-facts))
       (session/flash-put! :message [:success (str "Updated info successfully!")])
