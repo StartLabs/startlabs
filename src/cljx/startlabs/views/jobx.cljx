@@ -11,7 +11,8 @@
           (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v))
 
 ^:clj  (def markdownify md-to-html-string)
-^:cljs (def markdownify markdown/mdToHtml)
+^:cljs (def converter (Markdown/getSanitizingConverter.))
+^:cljs (defn markdownify [text] (.makeHtml converter text))
 
 (defn is-phone? 
   "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots."

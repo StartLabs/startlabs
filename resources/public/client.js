@@ -15957,7 +15957,10 @@ startlabs.views.jobx = {};
 startlabs.views.jobx.is_email_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i, a)
 };
-startlabs.views.jobx.markdownify = markdown.mdToHtml;
+startlabs.views.jobx.converter = new Markdown.getSanitizingConverter;
+startlabs.views.jobx.markdownify = function(a) {
+  return startlabs.views.jobx.converter.makeHtml(a)
+};
 startlabs.views.jobx.is_phone_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /^[\d-\.\(\)\s]{7,15}$/, a)
 };
@@ -19168,7 +19171,7 @@ startlabs.jobs.job_with_id = function(a) {
 startlabs.jobs.update_job_card = function() {
   var a = startlabs.util.form_to_map.call(null, jayq.core.$.call(null, "#job-form"));
   jayq.core.$.call(null, "#job-preview").html(singult.core.render.call(null, startlabs.views.jobx.job_card.call(null, a, !1)));
-  return jayq.core.$.call(null, "#job-preview .description").html(markdown.mdToHtml.call(null, jayq.core.$.call(null, "#description").val()))
+  return jayq.core.$.call(null, "#job-preview .description").html(startlabs.views.jobx.markdownify.call(null, jayq.core.$.call(null, "#description").val()))
 };
 startlabs.jobs.change_fulltime = function(a) {
   startlabs.jobs.update_job_card.call(null);

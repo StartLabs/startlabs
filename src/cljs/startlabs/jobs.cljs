@@ -3,7 +3,7 @@
         [jayq.util :only [clj->js]]
         [singult.core :only [render]]
         [c2.core :only [unify]]
-        [startlabs.views.jobx :only [job-list job-card]])
+        [startlabs.views.jobx :only [job-list job-card markdownify]])
 
   (:require [clojure.string :as str]
             [fetch.remotes :as remotes]
@@ -91,7 +91,7 @@
            (render (job-card job-map false))))
   ; singult is escaping the generated markdown :(
   (.html ($ "#job-preview .description")
-         (markdown/mdToHtml (.val ($ "#description")))))
+         (markdownify (.val ($ "#description")))))
 
 (defn change-fulltime [val]
   (update-job-card)
