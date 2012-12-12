@@ -6878,3 +6878,8 @@ html,body {
 .job-summary .employees .badge {
     margin-right: 8px;
 }
+
+#email {
+    display: block; 
+    float:left;
+}
