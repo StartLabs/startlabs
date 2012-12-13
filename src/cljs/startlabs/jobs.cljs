@@ -98,11 +98,13 @@
                  (.remove $job-list)
                  (.html parent (:html results))))))
 
-(defn add-marker-callback [result status]
-  (if (= status google.maps.GeocoderStatus.OK)
-    (let [coords (.-location (.-geometry (nth result 0)))
-          marker (google.maps.Marker. (clj->js {:position coords :map gmap}))]
-      (.log js/console (.lat coords)))))
+(defn add-marker-callback [job] 
+  (fn [result status]
+    (if (= status google.maps.GeocoderStatus.OK)
+      (let [coords (.-location (.-geometry (nth result 0)))
+            marker (google.maps.Marker. (clj->js {:position coords :map gmap 
+                                                  :title (str (:company job) ": " (:position job))}))]
+        (.log js/console (.lat coords))))))
 
 (def geocoder (google.maps.Geocoder.))
 
@@ -120,7 +122,7 @@
 
         (doseq [job n]
           (let [location (:location job)]
-            (geocode location add-marker-callback)
+            (geocode location ( add-marker-callback job))
             ))
   ))))
 

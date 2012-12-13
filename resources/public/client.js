@@ -19164,13 +19164,15 @@ startlabs.jobs.find_jobs = function(a) {
     })
   }
 };
-startlabs.jobs.add_marker_callback = function(a, b) {
-  if(cljs.core._EQ_.call(null, b, google.maps.GeocoderStatus.OK)) {
-    var c = cljs.core.nth.call(null, a, 0).geometry.location;
-    new google.maps.Marker(jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'position", "\ufdd0'map"], {"\ufdd0'position":c, "\ufdd0'map":startlabs.jobs.gmap})));
-    return console.log(c.lat())
+startlabs.jobs.add_marker_callback = function(a) {
+  return function(b, c) {
+    if(cljs.core._EQ_.call(null, c, google.maps.GeocoderStatus.OK)) {
+      var d = cljs.core.nth.call(null, b, 0).geometry.location;
+      new google.maps.Marker(jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'position", "\ufdd0'map", "\ufdd0'title"], {"\ufdd0'position":d, "\ufdd0'map":startlabs.jobs.gmap, "\ufdd0'title":[cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a))].join("")})));
+      return console.log(d.lat())
+    }
+    return null
   }
-  return null
 };
 startlabs.jobs.geocoder = new google.maps.Geocoder;
 startlabs.jobs.geocode = function(a, b) {
@@ -19191,7 +19193,7 @@ startlabs.jobs.setup_jobs_list = function() {
       }
       if(a = cljs.core.seq.call(null, e)) {
         for(e = cljs.core.first.call(null, a);;) {
-          if(e = (new cljs.core.Keyword("\ufdd0'location")).call(null, e), startlabs.jobs.geocode.call(null, e, startlabs.jobs.add_marker_callback), e = cljs.core.next.call(null, a)) {
+          if(c = (new cljs.core.Keyword("\ufdd0'location")).call(null, e), startlabs.jobs.geocode.call(null, c, startlabs.jobs.add_marker_callback.call(null, e)), e = cljs.core.next.call(null, a)) {
             a = e, e = cljs.core.first.call(null, a)
           }else {
             return null
