@@ -20,13 +20,14 @@
 ;; 1. A generic cloudmade/leaflet api wrapper
 ;; 2. The jobs-page-specific logic.
 
+(def ^:dynamic gmap nil)
 (def ^:dynamic search-timeout nil)
 
 ; slurp up the job data from the script tag embedded in the page
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
+(def markers (atom []))
 (def filtered-jobs (atom []))
 (def active-job (atom {}))
-
 
 (defn job-with-id [id]
   (first 
@@ -97,16 +98,29 @@
                  (.remove $job-list)
                  (.html parent (:html results))))))
 
-(defn setup-jobs-list []
+(defn add-marker-callback [result status]
+  (if (= status google.maps.GeocoderStatus.OK)
+    (let [coords (.-location (.-geometry (nth result 0)))
+          marker (google.maps.Marker. (clj->js {:position coords :map gmap}))]
+      (.log js/console (.lat coords)))))
 
+(def geocoder (google.maps.Geocoder.))
+
+(defn geocode [location callback]
+  (let [request (clj->js {:address location})]
+    (.geocode geocoder request callback)))
+
+(defn setup-jobs-list []
   ; key, reference, old state, new state
   (add-watch filtered-jobs :mapper (fn [k r o n]
     (if (not= o n)
       (do
+        (doseq [marker @markers]
+          (.setMap marker nil))
 
         (doseq [job n]
           (let [location (:location job)]
-            ;;(geocode location (add-marker-callback job false))
+            (geocode location add-marker-callback)
             ))
   ))))
 
@@ -133,8 +147,6 @@
 ;; maps
 (defn elem-by-id [id]
   (.getElementById js/document id))
-
-(def ^:dynamic gmap nil)
 
 (def map-options (clj->js {:center (google.maps.LatLng. 30 0)
                            :zoom 2

@@ -19105,8 +19105,10 @@ c2.core.unify = function() {
   return b
 }();
 startlabs.jobs = {};
+startlabs.jobs.gmap = null;
 startlabs.jobs.search_timeout = null;
 startlabs.jobs.job_data = cljs.core.js__GT_clj.call(null, window.job_data, "\ufdd0'keywordize-keys", !0);
+startlabs.jobs.markers = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
 startlabs.jobs.filtered_jobs = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
 startlabs.jobs.active_job = cljs.core.atom.call(null, cljs.core.ObjMap.EMPTY);
 startlabs.jobs.job_with_id = function(a) {
@@ -19162,13 +19164,35 @@ startlabs.jobs.find_jobs = function(a) {
     })
   }
 };
+startlabs.jobs.add_marker_callback = function(a, b) {
+  if(cljs.core._EQ_.call(null, b, google.maps.GeocoderStatus.OK)) {
+    var c = cljs.core.nth.call(null, a, 0).geometry.location;
+    new google.maps.Marker(jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'position", "\ufdd0'map"], {"\ufdd0'position":c, "\ufdd0'map":startlabs.jobs.gmap})));
+    return console.log(c.lat())
+  }
+  return null
+};
+startlabs.jobs.geocoder = new google.maps.Geocoder;
+startlabs.jobs.geocode = function(a, b) {
+  var c = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'address"], {"\ufdd0'address":a}));
+  return startlabs.jobs.geocoder.geocode(c, b)
+};
 startlabs.jobs.setup_jobs_list = function() {
   cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'mapper", function(a, c, d, e) {
     if(cljs.core.not_EQ_.call(null, d, e)) {
-      if(c = cljs.core.seq.call(null, e)) {
+      if(c = cljs.core.seq.call(null, cljs.core.deref.call(null, startlabs.jobs.markers))) {
         for(a = cljs.core.first.call(null, c);;) {
-          if((new cljs.core.Keyword("\ufdd0'location")).call(null, a), a = cljs.core.next.call(null, c)) {
+          if(a.setMap(null), a = cljs.core.next.call(null, c)) {
             c = a, a = cljs.core.first.call(null, c)
+          }else {
+            break
+          }
+        }
+      }
+      if(a = cljs.core.seq.call(null, e)) {
+        for(e = cljs.core.first.call(null, a);;) {
+          if(e = (new cljs.core.Keyword("\ufdd0'location")).call(null, e), startlabs.jobs.geocode.call(null, e, startlabs.jobs.add_marker_callback), e = cljs.core.next.call(null, a)) {
+            a = e, e = cljs.core.first.call(null, a)
           }else {
             return null
           }
@@ -19199,7 +19223,6 @@ startlabs.jobs.setup_jobs_list = function() {
 startlabs.jobs.elem_by_id = function(a) {
   return document.getElementById(a)
 };
-startlabs.jobs.gmap = null;
 startlabs.jobs.map_options = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'center", "\ufdd0'zoom", "\ufdd0'mapTypeId"], {"\ufdd0'center":new google.maps.LatLng(30, 0), "\ufdd0'zoom":2, "\ufdd0'mapTypeId":google.maps.MapTypeId.ROADMAP}));
 jayq.core.document_ready.call(null, function() {
   var a = startlabs.jobs.elem_by_id.call(null, "map");
