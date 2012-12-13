@@ -28,8 +28,9 @@
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
 	[:div.span2.centered
-	  [:h2.centered "Register For Startup"]
+	  [:h2.centered "Register For"]
 	  [:a.guestlist-event-136884 {:href "#"} [:img {:src "/img/career-fair.png" :width "auto"}]]
+	  [:a {:href "https://guestlistapp.com/events/136884"} "More Information"]
 	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]
        
       (let [event-descr (event/get-latest-event)
@@ -359,7 +360,8 @@
    ["Boston Seed Capital" "http://www.bostonseed.com"]
    ["OpenView Venture Partners" "http://openviewpartners.com"]
    ["Goodwin Procter" "http://www.goodwinprocter.com"]
-   ["North Bridge Venture Partners" "http://www.nbvp.com"]])
+   ["North Bridge Venture Partners" "http://www.nbvp.com"]
+   ["WilmerHale" "http://www.wilmerhale.com"]])
 
 (defpage "/partners" []
   (common/layout

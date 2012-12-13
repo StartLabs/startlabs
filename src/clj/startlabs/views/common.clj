@@ -105,11 +105,19 @@
               [:p message]])
 
           content
+<<<<<<< HEAD
+        [:div.push]]]
+            [:footer.container
+              [:p "&copy; 2012 Startlabs. Follow us on "
+              [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
+              [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]
+=======
          [:div.push]]]
        [:footer.container
         [:p "&copy; 2012 Startlabs. Follow us on "
          [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
          [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]
+>>>>>>> 48c05868d6a0745142c1ba821b65e0cc30d31d46
 
         [:script {:type "text/javascript"} google-analytics]
 
