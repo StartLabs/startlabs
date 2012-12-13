@@ -104,6 +104,7 @@
       (let [coords (.-location (.-geometry (nth result 0)))
             marker (google.maps.Marker. (clj->js {:position coords :map gmap 
                                                   :title (str (:company job) ": " (:position job))}))]
+        (swap! markers conj marker)
         (.log js/console (.lat coords))))))
 
 (def geocoder (google.maps.Geocoder.))
@@ -119,6 +120,8 @@
       (do
         (doseq [marker @markers]
           (.setMap marker nil))
+        
+        (reset! markers [])
 
         (doseq [job n]
           (let [location (:location job)]
