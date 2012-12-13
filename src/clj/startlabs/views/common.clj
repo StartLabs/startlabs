@@ -117,9 +117,7 @@
                     "/jquery.js"
                     "/bootstrap/js/bootstrap.min.js"
                     "https://api.filepicker.io/v0/filepicker.js"
-                    "http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"
-                    "http://tile.cloudmade.com/wml/latest/web-maps-lite.js"
-                    "/oms.min.js"
+                    (str "//maps.googleapis.com/maps/api/js?key=" (env :google-maps-key) "&sensor=false")
                     "/client.js")
     ])))
 

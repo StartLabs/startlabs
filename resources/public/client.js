@@ -1718,7 +1718,7 @@ cljs.core._invoke = function() {
       throw cljs.core.missing_protocol.call(null, "IFn.-invoke", a);
     }
     return G.call(null, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q, r, t, s, u, z)
-  }, a = function(a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P, Q, R) {
+  }, a = function(a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O, P, Q) {
     switch(arguments.length) {
       case 1:
         return b.call(this, a);
@@ -1751,17 +1751,17 @@ cljs.core._invoke = function() {
       case 15:
         return q.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K);
       case 16:
-        return r.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M);
+        return r.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L);
       case 17:
-        return s.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N);
+        return s.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M);
       case 18:
-        return u.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O);
+        return u.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N);
       case 19:
-        return t.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P);
+        return t.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O);
       case 20:
-        return z.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P, Q);
+        return z.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O, P);
       case 21:
-        return G.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, M, N, O, P, Q, R)
+        return G.call(this, a, v, w, x, y, A, B, C, D, E, F, H, I, J, K, L, M, N, O, P, Q)
     }
     throw"Invalid arity: " + arguments.length;
   };
@@ -19105,64 +19105,10 @@ c2.core.unify = function() {
   return b
 }();
 startlabs.jobs = {};
-startlabs.jobs.cloudmade_key = "fe134333250f494fb51ac8903b83c9fb";
-startlabs.jobs.tile_layer_url = [cljs.core.str("http://{s}.tile.cloudmade.com/"), cljs.core.str(startlabs.jobs.cloudmade_key), cljs.core.str("/997/256/{z}/{x}/{y}.png")].join("");
-startlabs.jobs.CM = CM;
-startlabs.jobs.L = L;
-startlabs.jobs.lmap = null;
-startlabs.jobs.markers = null;
-startlabs.jobs.oms = null;
 startlabs.jobs.search_timeout = null;
-startlabs.jobs.geocoder = new CM.Geocoder(startlabs.jobs.cloudmade_key);
 startlabs.jobs.job_data = cljs.core.js__GT_clj.call(null, window.job_data, "\ufdd0'keywordize-keys", !0);
 startlabs.jobs.filtered_jobs = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
 startlabs.jobs.active_job = cljs.core.atom.call(null, cljs.core.ObjMap.EMPTY);
-startlabs.jobs.latlng = function(a, b) {
-  return new L.LatLng(a, b)
-};
-startlabs.jobs.latlng_bounds = function(a, b) {
-  return new L.LatLngBounds(a, b)
-};
-startlabs.jobs.marker = function() {
-  var a = function(a, b) {
-    var e = cljs.core.nth.call(null, a, 0, null), f = cljs.core.nth.call(null, a, 1, null);
-    return startlabs.jobs.L.marker([e, f], jayq.util.clj__GT_js.call(null, cljs.core.apply.call(null, cljs.core.array_map, b)))
-  }, b = function(b, d) {
-    var e = null;
-    goog.isDef(d) && (e = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0));
-    return a.call(this, b, e)
-  };
-  b.cljs$lang$maxFixedArity = 1;
-  b.cljs$lang$applyTo = function(b) {
-    var d = cljs.core.first(b), b = cljs.core.rest(b);
-    return a(d, b)
-  };
-  b.cljs$lang$arity$variadic = a;
-  return b
-}();
-startlabs.jobs.add_marker_callback = function(a, b) {
-  return function(c) {
-    var c = cljs.core.js__GT_clj.call(null, c, "\ufdd0'keywordize-keys", !0), d = (new cljs.core.Keyword("\ufdd0'bounds")).call(null, c);
-    if(cljs.core.truth_(cljs.core.truth_(d) ? b : d)) {
-      var e = cljs.core.apply.call(null, startlabs.jobs.latlng, cljs.core.map.call(null, function(a) {
-        return cljs.core.nth.call(null, d.call(null, 0), a)
-      }, cljs.core.PersistentVector.fromArray([0, 1], !0))), f = cljs.core.apply.call(null, startlabs.jobs.latlng, cljs.core.map.call(null, function(a) {
-        return cljs.core.nth.call(null, d.call(null, 1), a)
-      }, cljs.core.PersistentVector.fromArray([0, 1], !0)));
-      startlabs.jobs.lmap.fitBounds(startlabs.jobs.latlng_bounds.call(null, e, f))
-    }
-    c = cljs.core.first.call(null, (new cljs.core.Keyword("\ufdd0'features")).call(null, c));
-    c = (new cljs.core.Keyword("\ufdd0'coordinates")).call(null, (new cljs.core.Keyword("\ufdd0'centroid")).call(null, c));
-    c = startlabs.jobs.marker.call(null, c, "\ufdd0'title", [cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a)), cljs.core.str(" ("), cljs.core.str((new cljs.core.Keyword("\ufdd0'location")).call(null, a)), cljs.core.str(")")].join(""));
-    e = (new cljs.core.Keyword("\ufdd0'id")).call(null, a);
-    c.id = e;
-    startlabs.jobs.markers.addLayer(c);
-    return startlabs.jobs.oms.addMarker(c)
-  }
-};
-startlabs.jobs.geocode = function(a, b) {
-  return startlabs.jobs.geocoder.getLocations(a, b)
-};
 startlabs.jobs.job_with_id = function(a) {
   return cljs.core.first.call(null, cljs.core.filter.call(null, function(b) {
     return cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, b), a)
@@ -19217,17 +19163,11 @@ startlabs.jobs.find_jobs = function(a) {
   }
 };
 startlabs.jobs.setup_jobs_list = function() {
-  startlabs.jobs.lmap = startlabs.jobs.L.map("map");
-  startlabs.jobs.lmap.setView([42, -40], 3);
-  startlabs.jobs.markers = new L.LayerGroup;
-  startlabs.jobs.markers.addTo(startlabs.jobs.lmap);
-  startlabs.jobs.L.tileLayer(startlabs.jobs.tile_layer_url, jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'maxZoom"], {"\ufdd0'maxZoom":20}))).addTo(startlabs.jobs.lmap);
-  startlabs.jobs.oms = new OverlappingMarkerSpiderfier(startlabs.jobs.lmap);
   cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'mapper", function(a, c, d, e) {
     if(cljs.core.not_EQ_.call(null, d, e)) {
-      if(startlabs.jobs.markers.clearLayers(), startlabs.jobs.oms.clearMarkers(), startlabs.jobs.oms.clearListeners("click"), c = cljs.core.seq.call(null, e)) {
+      if(c = cljs.core.seq.call(null, e)) {
         for(a = cljs.core.first.call(null, c);;) {
-          if(d = (new cljs.core.Keyword("\ufdd0'location")).call(null, a), startlabs.jobs.geocode.call(null, d, startlabs.jobs.add_marker_callback.call(null, a, !1)), a = cljs.core.next.call(null, c)) {
+          if((new cljs.core.Keyword("\ufdd0'location")).call(null, a), a = cljs.core.next.call(null, c)) {
             c = a, a = cljs.core.first.call(null, c)
           }else {
             return null
@@ -19256,6 +19196,15 @@ startlabs.jobs.setup_jobs_list = function() {
   });
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };
+startlabs.jobs.elem_by_id = function(a) {
+  return document.getElementById(a)
+};
+startlabs.jobs.gmap = null;
+startlabs.jobs.map_options = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'center", "\ufdd0'zoom", "\ufdd0'mapTypeId"], {"\ufdd0'center":new google.maps.LatLng(30, 0), "\ufdd0'zoom":2, "\ufdd0'mapTypeId":google.maps.MapTypeId.ROADMAP}));
+jayq.core.document_ready.call(null, function() {
+  var a = startlabs.jobs.elem_by_id.call(null, "map");
+  return startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options)
+});
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {
   var a = function() {
