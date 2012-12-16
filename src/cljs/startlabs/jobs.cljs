@@ -20,63 +20,14 @@
 ;; 1. A generic cloudmade/leaflet api wrapper
 ;; 2. The jobs-page-specific logic.
 
-(def cloudmade-key "fe134333250f494fb51ac8903b83c9fb")
-
-(def tile-layer-url 
-  (str "http://{s}.tile.cloudmade.com/" cloudmade-key 
-       "/997/256/{z}/{x}/{y}.png"))
-
-; shorthand
-(def CM js/CM)
-(def L js/L)
-
-; the following are initialized in setup-maps
-(def ^:dynamic lmap nil) ; the leaflet map object
-(def ^:dynamic markers nil) ; the leaflet layergroup containing the markers
-(def ^:dynamic oms nil) ; the overlapping marker spiderfier
+(def ^:dynamic gmap nil)
 (def ^:dynamic search-timeout nil)
-
-(def geocoder (CM/Geocoder. cloudmade-key))
 
 ; slurp up the job data from the script tag embedded in the page
 (def job-data (js->clj (.-job_data js/window) :keywordize-keys true))
+(def markers (atom []))
 (def filtered-jobs (atom []))
 (def active-job (atom {}))
-
-(defn latlng [lat lng]
-  (L/LatLng. lat lng))
-
-(defn latlng-bounds [sw ne]
-  (L/LatLngBounds. sw ne))
-
-(defn marker [[lat lng] & opts]
-  (.marker L (array lat lng) 
-             (clj->js (apply array-map opts))))
-
-(defn add-marker-callback [job zoom?]
-  (fn [response]
-    (let [response-map (js->clj response :keywordize-keys true)
-          bounds       (:bounds response-map)]
-
-      (if (and bounds zoom?)
-        (let [south-west   (apply latlng (map #(nth (bounds 0) %) [0 1]))
-              north-east   (apply latlng (map #(nth (bounds 1) %) [0 1]))]
-          (.fitBounds lmap (latlng-bounds south-west north-east))))
-
-      (let [feature    (first (:features response-map))
-            coords     (:coordinates (:centroid feature))
-            new-marker (marker coords :title 
-                         (str (:company job) ": " (:position job) 
-                              " (" (:location job) ")"))
-            job-id     (:id job)]
-        
-        (set! (.-id new-marker) job-id)
-        (.addLayer markers new-marker)
-        (.addMarker oms new-marker)
-))))
-
-(defn geocode [place callback]
-  (.getLocations geocoder place callback))
 
 (defn job-with-id [id]
   (first 
@@ -147,29 +98,32 @@
                  (.remove $job-list)
                  (.html parent (:html results))))))
 
+(defn add-marker-callback [job] 
+  (fn [result status]
+    (if (= status google.maps.GeocoderStatus.OK)
+      (let [coords (.-location (.-geometry (nth result 0)))
+            marker (google.maps.Marker. (clj->js {:position coords :map gmap 
+                                                  :title (str (:company job) ": " (:position job))}))]
+        (.log js/console (.lat coords))))))
+
+(def geocoder (google.maps.Geocoder.))
+
+(defn geocode [location callback]
+  (let [request (clj->js {:address location})]
+    (.geocode geocoder request callback)))
+
 (defn setup-jobs-list []
-  (def lmap (.map L "map"))
-  (.setView lmap (array 42 -40) 3)
-
-  (def markers (L/LayerGroup.))
-  ; add markers layer to map
-  (.addTo markers lmap)
-  ; add tiles to map
-  (.addTo (.tileLayer L tile-layer-url (clj->js {:maxZoom 20})) lmap)
-
-  (def oms (js/OverlappingMarkerSpiderfier. lmap))
-
   ; key, reference, old state, new state
   (add-watch filtered-jobs :mapper (fn [k r o n]
     (if (not= o n)
       (do
-        (.clearLayers markers)
-        (.clearMarkers oms)
-        (.clearListeners oms "click")
+        (doseq [marker @markers]
+          (.setMap marker nil))
 
         (doseq [job n]
           (let [location (:location job)]
-            (geocode location (add-marker-callback job false))))
+            (geocode location ( add-marker-callback job))
+            ))
   ))))
 
   (jq/bind ($ "#job-search") :keyup (fn [e]
@@ -191,3 +145,16 @@
   (reset! filtered-jobs job-data)
 )
 
+
+;; maps
+(defn elem-by-id [id]
+  (.getElementById js/document id))
+
+(def map-options (clj->js {:center (google.maps.LatLng. 30 0)
+                           :zoom 2
+                           :mapTypeId google.maps.MapTypeId.ROADMAP}))
+
+(jm/ready
+ (let [map (elem-by-id "map")]
+   (set! gmap (google.maps.Map. map map-options))
+   ))
