@@ -70,17 +70,17 @@
 
 (defn main []
   (if u/location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change)
-
-  (setup-home)
-  (setup-team))
+  (set! (.-onhashchange js/window) handle-hash-change))
 
 (jm/ready
-  (main)
+ (setup-home)
+ (setup-team)
 
-  (if (u/exists? "#map")
-    (setup-jobs-list))
+ (if (u/exists? "#map")
+   (setup-jobs-list))
 
-  (if (u/exists? "#job-form")
-    (setup-job-submit)))
+ (if (u/exists? "#job-form")
+   (setup-job-submit)))
 
+;; setup hash handling immediately
+(main)

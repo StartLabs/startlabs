@@ -19106,6 +19106,7 @@ c2.core.unify = function() {
 }();
 startlabs.jobs = {};
 startlabs.jobs.gmap = null;
+startlabs.jobs.preview_map = null;
 startlabs.jobs.search_timeout = null;
 startlabs.jobs.job_data = cljs.core.js__GT_clj.call(null, window.job_data, "\ufdd0'keywordize-keys", !0);
 startlabs.jobs.markers = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
@@ -19164,10 +19165,16 @@ startlabs.jobs.find_jobs = function(a) {
     })
   }
 };
+startlabs.jobs.make_marker = function(a) {
+  return new google.maps.Marker(jayq.util.clj__GT_js.call(null, a))
+};
 startlabs.jobs.add_marker_callback = function(a) {
   return function(b, c) {
     if(cljs.core._EQ_.call(null, c, google.maps.GeocoderStatus.OK)) {
-      var d = cljs.core.nth.call(null, b, 0).geometry.location, e = new google.maps.Marker(jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'position", "\ufdd0'map", "\ufdd0'title"], {"\ufdd0'position":d, "\ufdd0'map":startlabs.jobs.gmap, "\ufdd0'title":[cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a))].join("")})));
+      var d = cljs.core.nth.call(null, b, 0).geometry.location, e = startlabs.jobs.make_marker.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'position", "\ufdd0'map", "\ufdd0'title"], {"\ufdd0'position":d, "\ufdd0'map":startlabs.jobs.gmap, "\ufdd0'title":[cljs.core.str((new cljs.core.Keyword("\ufdd0'company")).call(null, a)), cljs.core.str(": "), cljs.core.str((new cljs.core.Keyword("\ufdd0'position")).call(null, a))].join("")}));
+      google.maps.event.addListener.call(null, e, "click", function() {
+        return location.hash = [cljs.core.str("#"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")
+      });
       cljs.core.swap_BANG_.call(null, startlabs.jobs.markers, cljs.core.conj, e);
       return console.log(d.lat())
     }
@@ -19227,9 +19234,15 @@ startlabs.jobs.elem_by_id = function(a) {
   return document.getElementById(a)
 };
 startlabs.jobs.map_options = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'center", "\ufdd0'zoom", "\ufdd0'mapTypeId"], {"\ufdd0'center":new google.maps.LatLng(30, 0), "\ufdd0'zoom":2, "\ufdd0'mapTypeId":google.maps.MapTypeId.ROADMAP}));
+startlabs.jobs.mit = new google.maps.LatLng(42.358449, -71.09122);
 jayq.core.document_ready.call(null, function() {
-  var a = startlabs.jobs.elem_by_id.call(null, "map");
-  return startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options)
+  var a = startlabs.jobs.elem_by_id.call(null, "map"), b = startlabs.jobs.elem_by_id.call(null, "job-location");
+  startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options);
+  startlabs.jobs.preview_map = new google.maps.Map(b, startlabs.jobs.map_options);
+  var c = startlabs.jobs.make_marker.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'map", "\ufdd0'title", "\ufdd0'position", "\ufdd0'draggable"], {"\ufdd0'map":startlabs.jobs.preview_map, "\ufdd0'title":"You can drag me to the right location.", "\ufdd0'position":startlabs.jobs.mit, "\ufdd0'draggable":!0}));
+  return google.maps.event.addListener.call(null, c, "dragend", function() {
+    return console.log(c.getPosition())
+  })
 });
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {
@@ -19291,12 +19304,12 @@ startlabs.main.setup_home = function() {
 };
 startlabs.main.main = function() {
   cljs.core.truth_(startlabs.util.location_hash) && startlabs.main.handle_hash_change.call(null);
-  window.onhashchange = startlabs.main.handle_hash_change;
-  startlabs.main.setup_home.call(null);
-  return startlabs.main.setup_team.call(null)
+  return window.onhashchange = startlabs.main.handle_hash_change
 };
 jayq.core.document_ready.call(null, function() {
-  startlabs.main.main.call(null);
+  startlabs.main.setup_home.call(null);
+  startlabs.main.setup_team.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
   return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) ? startlabs.jobs.setup_job_submit.call(null) : null
 });
+startlabs.main.main.call(null);

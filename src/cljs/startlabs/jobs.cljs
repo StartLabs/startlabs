@@ -21,6 +21,7 @@
 ;; 2. The jobs-page-specific logic.
 
 (def ^:dynamic gmap nil)
+(def ^:dynamic preview-map nil)
 (def ^:dynamic search-timeout nil)
 
 ; slurp up the job data from the script tag embedded in the page
@@ -98,12 +99,20 @@
                  (.remove $job-list)
                  (.html parent (:html results))))))
 
+(defn make-marker [options]
+  ( google.maps.Marker. (clj->js options)))
+
 (defn add-marker-callback [job] 
   (fn [result status]
     (if (= status google.maps.GeocoderStatus.OK)
       (let [coords (.-location (.-geometry (nth result 0)))
-            marker (google.maps.Marker. (clj->js {:position coords :map gmap 
-                                                  :title (str (:company job) ": " (:position job))}))]
+            marker (make-marker {:position coords :map gmap 
+                                 :title (str (:company job) ": " 
+                                             (:position job))})]
+        (google.maps.event.addListener marker "click" 
+          (fn []
+            (set! (.-hash js/location) (str "#" (:id job)))
+            ))
         (swap! markers conj marker)
         (.log js/console (.lat coords))))))
 
@@ -125,7 +134,7 @@
 
         (doseq [job n]
           (let [location (:location job)]
-            (geocode location ( add-marker-callback job))
+            (geocode location (add-marker-callback job))
             ))
   ))))
 
@@ -157,7 +166,22 @@
                            :zoom 2
                            :mapTypeId google.maps.MapTypeId.ROADMAP}))
 
+(def mit (google.maps.LatLng. 42.358449 -71.09122))
+
 (jm/ready
- (let [map (elem-by-id "map")]
+ (let [map (elem-by-id "map")
+       map2 (elem-by-id "job-location")]
    (set! gmap (google.maps.Map. map map-options))
+   (set! preview-map (google.maps.Map. map2 map-options))
+
+   (let [preview-marker (make-marker {:map preview-map
+                                      :title "You can drag me to the right location." 
+                                      :position mit
+                                      :draggable true})]
+     (google.maps.event.addListener preview-marker "dragend" 
+                                    (fn []
+                                      (.log js/console (.getPosition preview-marker))
+                                      ;; here is where we would tweak the lat/lng input
+                                      ))
+     )
    ))
