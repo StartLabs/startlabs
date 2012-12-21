@@ -15,18 +15,22 @@
 
 ;; account-related routes
 
+(defn get-referer []
+  (get-in (ring-request) [:headers "referer"]))
+
 (defpage "/login" []
-  (let [referer (:referer (ring-request))]
+  (let [referer (get-referer)]
+    (session/put! :referer referer)
     (response/redirect (user/get-login-url referer))))
 
 (defpage "/logout" []
   (session/clear!)
-  (response/redirect "/"))
+  (response/redirect (get-referer)))
 
 (defpage "/oauth2callback" []
-  (let [referer (:referer (ring-request))]
+  (let [referer (session/get! :referer)]
     (common/layout
-      [:h1#loading "Fetching credentials..."])))
+     [:h1#loading "Fetching credentials..."])))
 
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
