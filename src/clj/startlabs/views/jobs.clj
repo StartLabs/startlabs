@@ -143,9 +143,10 @@
           (if editing?
             [:input {:type "hidden" :name "secret" :value (:secret params)}])
 
-        [:div#job-preview.span6.clearfix.thumbnail
-          ; generate this in js
+        [:div.span6.clearfix.thumbnail
+         [:div#job-preview
           (job-card (if has-params? params sample-job-fields) false)]
+         [:div#job-location]]
       ]]))
 
 (defn get-all-jobs []

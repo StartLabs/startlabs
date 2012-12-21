@@ -351,16 +351,16 @@
     (str/lower-case (apply str (re-seq #"[A-Z]" company))) ".png"))
 
 ;; CAPITALIZATION IS CRUCIAL!
-(def partners [
-   ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com"]
-   ["NEVCA" "http://www.newenglandvc.org"]
-   ["Highland Capital Partners" "http://www.hcp.com"]
-   ["Atlas Venture" "http://www.atlasventure.com"]
-   ["Bessemer Venture Partners" "http://www.bvp.com"]
+(def partners 
+  [["Atlas Venture" "http://www.atlasventure.com"]
+   ["Bessemer Venture Partners" "http://www.bvp.com"] 
    ["Boston Seed Capital" "http://www.bostonseed.com"]
-   ["OpenView Venture Partners" "http://openviewpartners.com"]
+   ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com"]
    ["Goodwin Procter" "http://www.goodwinprocter.com"]
+   ["Highland Capital Partners" "http://www.hcp.com"] 
+   ["NEVCA" "http://www.newenglandvc.org"] 
    ["North Bridge Venture Partners" "http://www.nbvp.com"]
+   ["OpenView Venture Partners" "http://openviewpartners.com"]
    ["WilmerHale" "http://www.wilmerhale.com"]])
 
 (defpage "/partners" []
