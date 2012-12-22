@@ -2,7 +2,7 @@
   (:use [datomic.api :only [q db ident] :as d]
         [clj-time.core :only [now]]
         [clj-time.coerce :only [to-long to-date]]
-        [startlabs.models.database :only [conn]]
+        [startlabs.models.database :only [*conn*]]
         [startlabs.util :only [stringify-values]])
   (:require [clojure.string :as str]
             [oauth.google :as oa]
@@ -20,7 +20,7 @@
   ; might need to conj :confirmed? false
   (let [job-map-with-id (conj job-map {:id (util/uuid) :secret (util/uuid)})
         tx-data         (util/txify-new-entity :job job-map-with-id)]
-    @(d/transact @conn tx-data)
+    @(d/transact *conn* tx-data)
     job-map-with-id))
 
 (defn job-with-id [job-id]
@@ -28,7 +28,7 @@
 
 (defn job-secret [job-id]
   (ffirst (q '[:find ?secret :in $ ?id :where [?job :job/id ?id]
-                                              [?job :job/secret ?secret]] (db @conn) job-id)))
+                                              [?job :job/secret ?secret]] (db *conn*) job-id)))
 
 (defn job-map [job-id]
   (let [original-map (util/map-for-datom (job-with-id job-id) :job)]
@@ -38,7 +38,7 @@
   (try
     (let [job       (job-with-id job-id)
           field-map {:db/id job field value}]
-      (d/transact @conn (list field-map))
+      (d/transact *conn* (list field-map))
       value)
     (catch Exception e
       (session/flash-put! :message [:error 
@@ -55,7 +55,7 @@
           map-no-secret (dissoc new-fact-map :secret) ;; avoid overwriting the secret
           tranny-facts  (util/namespace-and-transform :job map-no-secret)
           idented-facts (assoc tranny-facts :db/id job)]
-      (d/transact @conn (list idented-facts))
+      (d/transact *conn* (list idented-facts))
       (session/flash-put! :message [:success (str "Updated info successfully!")])
       true)
     (catch Exception e
@@ -78,7 +78,7 @@
   []
   (let [jobs      (q '[:find ?job :where [?job :job/confirmed? true]
                                          [?job :job/end_date ?end]
-                                         [(startlabs.models.job/after-now? ?end)]] (db @conn))
+                                         [(startlabs.models.job/after-now? ?end)]] (db *conn*))
         job-ids   (map first jobs)
         job-maps  (util/maps-for-datoms job-ids :job)
         ;; make sure to remove the secret!
@@ -92,7 +92,7 @@
 
 (defn update-whitelist [whitelist]
   (let [tx-data (util/txify-new-entity :joblist {:whitelist whitelist :updated (to-date (now))})]
-    @(d/transact @conn tx-data)
+    @(d/transact *conn* tx-data)
     whitelist))
 
 (defn get-current-whitelist
@@ -100,7 +100,7 @@
   []
   (let [whitelists (q '[:find ?when ?wl :in $
                         :where [?whitelist :joblist/whitelist ?wl]
-                               [?whitelist :joblist/updated ?when]] (db @conn))
+                               [?whitelist :joblist/updated ?when]] (db *conn*))
         whitelist  (last (sort-by first whitelists))]
     (or (last whitelist) "")))
 

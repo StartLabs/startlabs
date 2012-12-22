@@ -4,17 +4,12 @@
         [clojure.tools.logging :only [log]]))
 
 (def uri  "datomic:free://localhost:4334/startlabs")
-(def conn (atom nil))
+(def ^:dynamic *conn* nil)
 
-(defn- set-conn! []
-  (reset! conn (d/connect uri)))
-
-(defn do-setup [uri schema]
+(defn do-setup [uri]
   (d/create-database uri)
-  (let [schema-tx (read-string (slurp schema))]
-    (set-conn!) ; reset the connection since we just created the database
-    @(d/transact @conn schema-tx)))
+  ;; reset the connection since we just created the database
+  (def ^:dynamic *conn* (d/connect uri)))
 
 (defn do-default-setup []
-  (let [schema "src/clj/startlabs/models/schema.dtm"]
-    (do-setup uri schema)))
+  (do-setup uri))

@@ -2,41 +2,39 @@
   :description "The new Start Labs Pad"
   :url "http://startlabs.org"
   :plugins [[lein-cljsbuild "0.2.7"]
+            [lein-ring "0.7.5"]
             [com.keminglabs/cljx "0.1.4"]]
 
   :dependencies [ ;clj core
                   [org.clojure/clojure "1.4.0"]
-                  [org.clojure/data.json "0.1.3"]
+                  [org.clojure/data.json "0.2.0"]
                   [org.clojure/tools.logging "0.2.4"]
-                  [org.clojure/core.incubator "0.1.1"] ; for -?> goodness
-                  [org.clojure/math.numeric-tower "0.0.1"]
-                  [org.clojure/tools.nrepl "0.2.0-beta9"]
+                  [org.clojure/core.incubator "0.1.2"] ; for -?> goodness
+                  [org.clojure/math.numeric-tower "0.0.2"]
                   
                   ;clj other
-                  [noir "1.3.0-beta10"]
-                  [lib-noir "0.2.0"]
                   [compojure "1.1.3"]
                   [hiccup "1.0.2"]
+                  [lib-noir "0.2.0"]
+                  [org.clojars.cjschroed/sandbar "0.4.0"]
 
-                  [clj-http "0.5.2"]
-                  [oauth-clj "0.0.5"]
-                  [com.datomic/datomic-free "0.8.3524" 
+                  [clj-http "0.6.3"]
+                  [oauth-clj "0.1.0"]
+                  [com.datomic/datomic-free "0.8.3664" 
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
-                  [org.slf4j/slf4j-log4j12 "1.6.4"]
+                  [org.slf4j/slf4j-log4j12 "1.6.6"]
                   [environ "0.3.0"]
-                  [clj-aws-s3 "0.3.2" 
-                    :exclusions [com.amazonaws/aws-java-sdk]]
-                  [com.amazonaws/aws-java-sdk "1.3.20"]
-                  [markdown-clj "0.9.10"]
+                  [clj-aws-s3 "0.3.3"]
+                  [markdown-clj "0.9.12"]
                   [clj-time "0.4.4"]
-                  [com.draines/postal "1.8.0"]
-                  [climp "0.1.1"]
+                  [com.draines/postal "1.9.1"]
+                  [climp "0.1.2"]
                   [abengoa/clj-stripe "1.0.3"]
 
                   ;cljs
                   [com.keminglabs/c2 "0.2.0"]
                   [com.keminglabs/singult "0.1.5-SNAPSHOT"]
-                  [fetch "0.1.0-alpha2"]
+                  ;; [fetch "0.1.0-alpha2"]
                   [jayq "0.3.2"]
                 ]
 
@@ -63,4 +61,13 @@
   ;;generate cljx before JAR
   :hooks [cljx.hooks]
 
-  :main ^{:skip-aot true} startlabs.server)
+  :datomic {:schemas ["conf" ["schema.dtm"]]}
+
+  :profiles {:dev
+             {:datomic {:config "conf/free-transactor-template.properties"
+                        :db-uri "datomic:free://localhost:4334/startlabs"}}}
+  
+  :ring {:handler startlabs.server/app
+         :init startlabs.server/init
+         :port 8000
+         :auto-reload? true})

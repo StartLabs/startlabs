@@ -1,9 +1,8 @@
 (ns startlabs.views.common
-  (:require [noir.session :as session]
+  (:require [sandbar.stateful-session :as session]
             [clojure.string :as str]
             [startlabs.models.user :as user])
-  (:use [noir.core :only [defpartial]]
-        [noir.request :only [ring-request]]
+  (:use [hiccup.def :only [defhtml]]
         [hiccup.page :only [include-css include-js html5]]
         [environ.core :only [env]]))
 
@@ -25,7 +24,7 @@
   [key-str]
   (str/capitalize (str/replace key-str "_" " ")))
 
-(defpartial login-info []
+(defhtml login-info []
   (if-let [info (user/get-my-info)]
     [:li.dropdown.pull-right
       [:a.dropdown-toggle {:data-toggle "dropdown" :href "#"}
@@ -40,7 +39,7 @@
       ]]
     [:li.pull-right [:a {:href "/login"} "Login &rsaquo;"]]))
 
-(defpartial webmaster-link [text]
+(defhtml webmaster-link [text]
   [:a {:href "mailto:ethan@startlabs.org"} text])
 
 ; could autopopulate routes from defpages that are nested only one layer deep.
@@ -60,9 +59,11 @@
 
 (def calendar-rss "http://www.google.com/calendar/feeds/startlabs.org_5peolh5d72ol1r9c7hf624ke9g%40group.calendar.google.com/public/basic")
 
-(defpartial layout [& content]
+;; temporarily breaking request until I make a proper workaround (passing the ring map as an argument to layout,
+;; and making a nice depage macro replacement.
+(defn layout [& content]
   (let [[message-type message] (session/flash-get :message)
-        request (ring-request)]
+        request nil]
     (html5
       [:head
         [:title "StartLabs"]

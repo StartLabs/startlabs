@@ -1,13 +1,13 @@
 (ns startlabs.models.user
   (:use [datomic.api :only [q db ident] :as d]
-        [startlabs.models.database :only [conn]]
+        [startlabs.models.database :only [*conn*]]
         [environ.core :only [env]]
         [startlabs.util :only [stringify-values home-uri]])
   (:require [clojure.string :as str]
-            [oauth.google :as oa]
             [clj-http.client :as client]
             [clj-time.core :as t]
-            [noir.session :as session]
+            [sandbar.stateful-session :as session]
+            [oauth.google :as oa]
             [startlabs.models.util :as util]))
 
 (def redirect-url  
@@ -47,7 +47,7 @@
   (let [userinfo-url (str googleapis-url "userinfo")
         user-data    (get-request-with-token userinfo-url access-token)
         tx-data      (util/txify-new-entity :user user-data)]
-    (d/transact @conn tx-data)))
+    (d/transact *conn* tx-data)))
 
 (defn user-with-id [& args]
   (apply util/elem-with-attr :user/id args))
@@ -59,7 +59,7 @@
   "Finds the user in the database or creates a new one based on their user-id.
    Returns a hash-map of the user's data, with the user/ namespace stripped out."
   [access-token user-id]
-  (let [conn-db      (db @conn)
+  (let [conn-db      (db *conn*)
         user         (user-with-id user-id conn-db)] ; should be a vector with one entry
     (if (not user)
       (try
@@ -82,7 +82,7 @@
 
 (defn find-all-users []
   (let [users     (q  q-ungraduated-users
-                      (db @conn) (t/year (t/now)))
+                      (db *conn*) (t/year (t/now)))
         user-ids  (map first users)
         user-maps (util/maps-for-datoms user-ids :user)]
     (map stringify-values user-maps)))
@@ -97,26 +97,26 @@
     (let [user          (user-with-id user-id)
           tranny-facts  (util/namespace-and-transform :user new-fact-map)
           idented-facts (assoc tranny-facts :db/id user)]
-      (d/transact @conn (list idented-facts))
+      (d/transact *conn* (list idented-facts))
       (session/flash-put! :message [:success (str "Updated info successfully!")]))
     (catch Exception e
       (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
 
 (defn update-my-info [new-fact-map]
-  (let [user-id (session/get :user_id)]
+  (let [user-id (session/session-get :user_id)]
     (if user-id
       (update-user user-id new-fact-map)
       (session/flash-put! :message [:error "Please log back in"]))))
 
 (defn get-my-info []
-  (let [access-token (session/get :access-token)
-        user-id      (session/get :user_id)]
+  (let [access-token (session/session-get :access-token)
+        user-id      (session/session-get :user_id)]
     (if (and access-token user-id)
       (try
         (stringify-values (find-or-create-user access-token user-id))
         (catch Exception e
           (do
-            (session/clear!)
+            (session/destroy-session!)
             (session/flash-put! :error "Invalid session. Try logging in again.")
             e) ;return nil if there's an exception
           ))

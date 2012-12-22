@@ -1,18 +1,19 @@
 (ns startlabs.views.main
-  (:require [startlabs.views.common :as common]
-            [noir.response :as response]
-            [noir.statuses :as status]
-            [noir.session :as session]
-            [noir.validation :as vali]
-            [climp.core :as mc] ; mailchimp
+  (:require [climp.core :as mc] ; mailchimp
             [clojure.string :as str]
+            [noir.response :as response]
+            [noir.validation :as vali]
+            [sandbar.stateful-session :as session]
             [startlabs.models.event :as event]
-            [startlabs.models.user :as user])
-  (:use [noir.core :only [defpage defpartial render]]
-        [markdown :only [md-to-html-string]]
+            [startlabs.models.user :as user]
+            [startlabs.views.common :as common])
+  (:use [compojure.response :only [render]]
+        [hiccup.def :only [defhtml]]
+        [markdown.core :only [md-to-html-string]]
         [environ.core :only [env]]))
 
-(defpage "/" [& [email]]
+;; :get "/"
+(defn home [& [email]]
   (common/layout
     [:h1.slug "Interested in " [:strong "Startups"] "?"]
     [:div.row-fluid
@@ -68,7 +69,8 @@
        [:div.span4]
       ]))
 
-(defpage [:post "/event"] {:keys [description] :as event-map}
+;; :post "/event"
+(defn post-event [{:keys [description] :as event-map}]
   (if (user/logged-in?)
     (event/create-event event-map)
 
@@ -76,7 +78,8 @@
     (session/flash-put! :message [:error "You must be logged in to do that."]))
   (response/redirect "/"))
 
-(defpage [:post "/"] {:keys [email]}
+;; :post "/"
+(defn post-mailing-list [{:keys [email]}]
   (if (not (vali/is-email? email))
     (do
       (session/flash-put! :message [:error "Invalid email address."])
@@ -92,42 +95,46 @@
         (session/flash-put! :message
                             [:error "Unexpected error. Try again later."])))))
 
-(defpage "/about" []
+;; :get "/about"
+(defn about []
   (common/layout
     [:div.row-fluid
-	[:div.span7
-    [:h1 "About Us"]
-    [:div
-      [:p "StartLabs is a non-profit created out of the ideals of collegiate entrepreneurship."]
-      [:p "The goal of StartLabs is to catalyze engineering students to bring technical innovations 
+     [:div.span7
+      [:h1 "About Us"]
+      [:div
+       [:p "StartLabs is a non-profit created out of the ideals of collegiate entrepreneurship."]
+       [:p "The goal of StartLabs is to catalyze engineering students to bring technical innovations 
            to society through entrepreneurship, specifically by having them:"]
-      [:ol
+       [:ol
         [:li "Start their own companies – transforming ideas and class projects into seed-stage ventures."]
         [:li "Work in rapidly expanding companies – place students in internships and full-time positions 
               at promising startups."]]
 
-      [:p "StartLabs runs “experiments” to create people that matter."]
-      [:p [:a {:href "http://www.twitter.com/Start_Labs"} "Follow us on Twitter"] 
-          " to stay in the loop."]]
-	]
-	[:div.span5
-	[:iframe.map {:width "100%" :height "350" :frameborder "0" :scrolling "no" :marginheight "0" :marginwidth "0" :src "https://maps.google.com/maps?f=q&source=s_q&hl=en&amp;geocode=&q=MIT+N52&aq=&sll=42.37839,-71.114729&sspn=0.076719,0.181103&ie=UTF8&hq=&hnear=N52,+Cambridge,+Massachusetts+02139&t=m&z=14&iwloc=A&output=embed"}]][:div.clear]]))
+       [:p "StartLabs runs “experiments” to create people that matter."]
+       [:p [:a {:href "http://www.twitter.com/Start_Labs"} "Follow us on Twitter"] 
+        " to stay in the loop."]]]
+     [:div.span5
+      [:iframe.map {:width "100%" :height "350" :frameborder "0" :scrolling "no" :marginheight "0" :marginwidth "0" 
+                    :src "https://maps.google.com/maps?f=q&source=s_q&hl=en&amp;geocode=&q=MIT+N52&aq=&sll=42.37839,-71.114729&sspn=0.076719,0.181103&ie=UTF8&hq=&hnear=N52,+Cambridge,+Massachusetts+02139&t=m&z=14&iwloc=A&output=embed"}]]
+     [:div.clear]]))
 
-(defpartial ablank [site url]
+(defhtml ablank [site url]
   [:a {:href (str "http://" url)} url])
 
-(defpartial ablank-tr [site url]
+(defhtml ablank-tr [site url]
   [:tr [:td site] [:td (ablank site url)]])
 
-(defpartial ablank-li [url site]
+(defhtml ablank-li [url site]
   [:li [:a {:href url} site]])
 
-(defpartial site-twitter [person site twitter]
+(defhtml site-twitter [person site twitter]
   [:tr [:td person] 
        [:td (if site    [:a {:href site} "Site"])]
        [:td (if twitter [:a {:href (str "https://twitter.com/#!/" twitter)} (str "@" twitter)])]])
 
-(defpage "/resources" []
+;; :get "/resources"
+;; put this in a separate file, jesus. resources.clj
+(defn resources []
   (common/layout
     [:h1.affix "Resources"]
     [:ul#left-nav.nav.nav-tabs.nav-stacked.span3 {:data-spy "affix"}
@@ -351,7 +358,7 @@
     (str/lower-case (apply str (re-seq #"[A-Z]" company))) ".png"))
 
 ;; CAPITALIZATION IS CRUCIAL!
-(def partners 
+(def partner-list
   [["Atlas Venture" "http://www.atlasventure.com"]
    ["Bessemer Venture Partners" "http://www.bvp.com"] 
    ["Boston Seed Capital" "http://www.bostonseed.com"]
@@ -363,7 +370,8 @@
    ["OpenView Venture Partners" "http://openviewpartners.com"]
    ["WilmerHale" "http://www.wilmerhale.com"]])
 
-(defpage "/partners" []
+;; "/partners"
+(defn partners []
   (common/layout
     [:div.row-fluid
     [:div.span1]
@@ -374,7 +382,7 @@
           of technical entrepreneurs:"]
     [:div.row-fluid
       [:ul#partners.thumbnails
-        (for [[partner link] partners]
+        (for [[partner link] partner-list]
           (let [logo-url (logo-for-company partner)]
             [:li.thumbnail.span4
               [:a {:href link} 
@@ -382,7 +390,7 @@
                 [:img.center {:src logo-url :alt partner}]]]))
       ]]][:div.span1]]))
 
-(defpartial four-oh-four [] 
+(defhtml four-oh-four [] 
     [:h1 "Sorry, we lost that one."]
     [:p "We couldn't find the page you requested."]
     [:p "If you got here through a link on another website, then we've
@@ -390,17 +398,8 @@
     [:p "Feel free to contact " (common/webmaster-link "the webmaster") 
         " so we can be aware of the issue."])
 
-(defpartial internal-error []
+(defhtml internal-error []
     [:h1 "Something very bad has happened."]
     [:p "Well this is embarassing. Please notify " (common/webmaster-link "our webmaster") 
       " of the issue."]
     [:p "Sorry for the inconvience."])
-
-(status/set-page! 404 (four-oh-four))
-(status/set-page! 500 (internal-error))
-
-;; Redirect. Dead links = evil
-(defpage "/company" [] (response/redirect "/about"))
-(defpage "/contact" [] (response/redirect "/about"))
-(defpage "/postJob" [] (response/redirect "/jobs"))
-

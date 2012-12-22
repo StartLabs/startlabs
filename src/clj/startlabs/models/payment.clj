@@ -7,7 +7,7 @@
         [clj-time.core :only [now]]
         [clj-time.coerce :only [to-long to-date]]
         [environ.core :only [env]]
-        [startlabs.models.database :only [conn]]
+        [startlabs.models.database :only [*conn*]]
         [startlabs.util :only [stringify-values]]))
 
 (def fee (stripe/money-quantity 25000 "usd"))

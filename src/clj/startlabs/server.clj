@@ -1,45 +1,51 @@
 (ns startlabs.server
-  (:require [noir.server :as server]
-            [noir.session :as session]
+  (:require [compojure.handler :as handler]
+            [compojure.route :as route]
             [clojure.string :as str]
             [startlabs.models.user :as user]
-            [startlabs.models.database :as db])
-  (:use [noir.fetch.remotes :only [defremote]]
+            [startlabs.models.database :as db]
+            [startlabs.views.main :as main])
+  (:use compojure.core
+        [noir.util.middleware :only [wrap-strip-trailing-slash]]
+        [sandbar.stateful-session :only [wrap-stateful-session]]
+        ;; [noir.fetch.remotes :only [defremote]]
         [environ.core :only [env]]))
 
-(defonce noir-server (atom nil))
+;; this belongs in main or user, not server.
+;; (defremote token-info [access-token]
+;;   (let [token-map    (user/get-token-info access-token)
+;;         valid-token? (= (:audience token-map) (env :oauth-client-id))
+;;         lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org")
+;;                           (:verified_email token-map))]
+;;     (if (and valid-token? lab-member?)
+;;       (do
+;;         (session/put! :access-token access-token)
+;;         (doseq [k [:user_id :email]] (session/put! k (k token-map)))
+;;         token-map)
+;;       (do
+;;         (session/flash-put! :message
+;;                             [:error "Invalid login. Make sure you're using your email@startlabs.org."])
+;;         "Invalid login"))))
 
-(defremote token-info [access-token]
-  (let [token-map    (user/get-token-info access-token)
-        valid-token? (= (:audience token-map) (env :oauth-client-id))
-        lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org")
-                          (:verified_email token-map))]
-    (if (and valid-token? lab-member?)
-      (do
-        (session/put! :access-token access-token)
-        (doseq [k [:user_id :email]] (session/put! k (k token-map)))
-        token-map)
-      (do
-        (session/flash-put! :message
-                            [:error "Invalid login. Make sure you're using your email@startlabs.org."])
-        "Invalid login"))))
 
-(server/load-views-ns 'startlabs.views)
+;; add these to the routes
+;;(status/set-page! 404 (four-oh-four))
+;;(status/set-page! 500 (internal-error))
 
-(defn do-main [& [port]]
-  (let [mode (if (env :dev) :dev :prod)
-        port (Integer. (or  port
-                           (env :port)
-                           "8000"))]
-    (db/do-default-setup)
-    (println "THE PORT IS: " port)
+;; Redirect. Dead links = evil
+;; (defpage "/company" [] (response/redirect "/about"))
+;; (defpage "/contact" [] (response/redirect "/about"))
+;; (defpage "/postJob" [] (response/redirect "/jobs"))
 
-    ;; stop exisiting servers
-    (if @noir-server (server/stop @noir-server))
-    (reset! noir-server (server/start port {:mode mode
-                                            :ns 'startlabs}))))
+(defn init []
+  (db/do-default-setup)
+  (println "Database is setup."))
 
-; (do-main)
+(defroutes main-routes
+  (GET "/" [] (main/home))
+  (route/resources "/"))
 
-(defn -main [& args]
-  (apply do-main args))
+(def app
+  (-> (handler/site main-routes)
+      wrap-strip-trailing-slash
+      wrap-stateful-session))

@@ -1,6 +1,6 @@
 (ns startlabs.models.util
   (:use [datomic.api :only [q db ident] :as d]
-        [startlabs.models.database :only [conn]]
+        [startlabs.models.database :only [*conn*]]
         [environ.core :only [env]]
         [clojure.java.io :only [input-stream]]
         [clj-time.coerce :only [to-date]])
@@ -118,7 +118,7 @@
   "Converts the set of [:attr-name valueType-entid] pairs returned by the query
    into a single map of {:attr-name :valueType-ident ...} pairs"
   [desired-ns]
-  (let [conn-db (db @conn)
+  (let [conn-db (db *conn*)
         schema  (q q-schema-attrs conn-db (name desired-ns))]
     (into {} (for [[k v] schema]
                 {k (ident conn-db v)}))))
@@ -126,7 +126,7 @@
 (defn map-of-entity-tuples
   "Like map of entities, but returns a tuple containing the valueType and docstring"
   [desired-ns]
-  (let [conn-db (db @conn)
+  (let [conn-db (db *conn*)
         schema (q q-schema-attrs conn-db (name desired-ns))]
     (into {} (for [[k & vs] schema]
                 {k (cons (ident conn-db (first vs)) (rest vs))}))))
@@ -165,7 +165,7 @@
 
   ([datom-id desired-ns ent-map]
     ; we don't actually use inputs here
-    (let [datom-entity (d/entity (db @conn) datom-id)]
+    (let [datom-entity (d/entity (db *conn*) datom-id)]
       (denamespace-keys (conj ent-map
                               (into {} datom-entity))))))
 
@@ -177,7 +177,7 @@
 
 
 (defn elem-with-attr
-  ([k v] (elem-with-attr k v (db @conn)))
+  ([k v] (elem-with-attr k v (db *conn*)))
   ([k v conn-db]
     (ffirst (q '[:find ?e
                  :in $ ?v ?ns-key
