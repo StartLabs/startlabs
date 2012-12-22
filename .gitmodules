@@ -1,12 +1,6 @@
 [submodule "bootstrap"]
 	path = bootstrap
 	url = https://github.com/sherbondy/bootstrap.git
-[submodule "resources/OMS-Leaflet"]
-	path = resources/OMS-Leaflet
-	url = https://github.com/sherbondy/OverlappingMarkerSpiderfier-Leaflet.git
-[submodule "datomic-free"]
-	path = datomic-free
-	url = https://github.com/sherbondy/datomic-free
 [submodule "resources/pagedown"]
 	path = resources/pagedown
 	url = https://github.com/sherbondy/pagedown.git
