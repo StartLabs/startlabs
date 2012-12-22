@@ -1,16 +1,14 @@
 (ns startlabs.main
   (:use [jayq.core :only [$]]
         [singult.core :only [render]]
-        [startlabs.views.jobx :only [job-card]]
+        [startlabs.views.jobx :only [markdownify]]
         [startlabs.jobs :only [setup-jobs-list setup-job-submit]])
 
-  (:require [fetch.remotes :as remotes]
-            [jayq.core :as jq]
+  (:require [jayq.core :as jq]
             [jayq.util :as util]
             [startlabs.util :as u])
   
-  (:require-macros [fetch.macros :as fm]
-                   [jayq.macros :as jm]))
+  (:require-macros [jayq.macros :as jm]))
 
 ; browser repl for development
 ; (repl/connect "http://localhost:9000/repl")
@@ -28,7 +26,7 @@
       (jq/inner ($ "#bio-preview") 
         (->> $bio
           .val
-          markdown/mdToHtml)))))
+          markdownify)))))
 
 (defn setup-team []
   ;filepicker
@@ -48,29 +46,27 @@
 
 (defn setup-home []
   (jq/bind ($ "#edit-upcoming") :click (fn [e]
-    (.preventDefault e)
-    (.toggleClass ($ "#event-form") "hidden")
-    (.focus ($ "#event-text"))))
+                                         (.preventDefault e)
+                                         (.toggleClass ($ "#event-form") "hidden")
+                                         (.focus ($ "#event-text"))))
 
   (let [$event-info ($ "#event-info")
         $event-text ($ "#event-text")]
     (jq/bind $event-text :keyup (fn [e]
-      (let [new-text (.val $event-text)]
-        (.html $event-info (markdown/mdToHtml new-text)))))))
+                                  (let [new-text (.val $event-text)]
+                                    (.html $event-info (markdownify new-text)))))))
 
 (defn main []
   (if u/location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change))
+  (set! (.-onhashchange js/window) handle-hash-change)
+  (setup-home)
+  (setup-team)
 
-(jm/ready
- (setup-home)
- (setup-team)
+  (if (u/exists? "#map")
+    (setup-jobs-list))
 
- (if (u/exists? "#map")
-   (setup-jobs-list))
+  (if (u/exists? "#job-form")
+    (setup-job-submit)))
 
- (if (u/exists? "#job-form")
-   (setup-job-submit)))
-
-;; setup hash handling immediately
+ ;; setup hash handling immediately
 (main)

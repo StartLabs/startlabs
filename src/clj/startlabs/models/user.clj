@@ -80,14 +80,13 @@
             [(<= ?current-year ?grad-year)]])
 
 (defn find-all-users []
-  (let [users     (q  q-ungraduated-users
-                      (db *conn*) (t/year (t/now)))
+  (let [users     (q q-ungraduated-users
+                     (db *conn*) (t/year (t/now)))
         user-ids  (map first users)
         user-maps (util/maps-for-datoms user-ids :user)]
     (map stringify-values user-maps)))
 
 (defn username [person-info]
-  (println "INFO: " person-info)
   (first (str/split (:email person-info) #"@")))
 
 (defn update-user
@@ -103,7 +102,7 @@
       (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
 
 (defn update-my-info [new-fact-map]
-  (let [user-id (session/session-get :user_id)]
+  (let [user-id (session/session-get :id)]
     (if user-id
       (update-user user-id new-fact-map)
       (session/flash-put! :message [:error "Please log back in"]))))

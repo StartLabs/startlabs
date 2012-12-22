@@ -6,15 +6,13 @@
         [startlabs.views.jobx :only [job-list job-card markdownify]])
 
   (:require [clojure.string :as str]
-            [fetch.remotes :as remotes]
             [jayq.core :as jq]
             [jayq.util :as util]
             [startlabs.util :as u])
 
   (:use-macros [c2.util :only [bind!]])
 
-  (:require-macros [fetch.macros :as fm]
-                   [jayq.macros :as jm]))
+  (:require-macros [jayq.macros :as jm]))
 
 ;; eventually I should split this out into two separate modules:
 ;; 1. A generic cloudmade/leaflet api wrapper
@@ -91,13 +89,14 @@
            (-> ($ this) (.find ".more") .toggle)))
 
 (defn find-jobs [query]
-  (fn []
-    (fm/remote (jobsearch query) [results]
-               (let [$job-list ($ "#job-list")
-                     parent (.parent $job-list)]
-                 (reset! filtered-jobs (:jobs results))
-                 (.remove $job-list)
-                 (.html parent (:html results))))))
+  #(let [$job-list ($ "#job-list")
+         parent (.parent $job-list)]
+     (jq/ajax (str "/jobs.edn?q=" query)
+              {:contentType "text/edn"
+               :success (fn [data status xhr]
+                          (reset! filtered-jobs (:jobs data))
+                          (.remove $job-list)
+                          (.html parent (:html data)))})))
 
 (defn make-marker [options]
   ( google.maps.Marker. (clj->js options)))

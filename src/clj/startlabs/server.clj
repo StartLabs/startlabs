@@ -28,15 +28,21 @@
   (GET "/" [] (main/home))
   (POST "/" [email] (main/post-mailing-list email))
   (POST "/event" [& params] (main/post-event params))
-  (GET "/login" [:as req] (user-views/login req))
-  (GET "/logout" [:as req] (user-views/logout req))
-  (GET "/oauth2callback" [state code] (user-views/oauth-callback state code))
   
   (GET "/about" [] (main/about))
   (GET "/resources" [] (main/resources))
   (GET "/partners" [] (main/partners))
 
+  (GET "/login" [:as req] (user-views/login req))
+  (GET "/logout" [:as req] (user-views/logout req))
+  (GET "/oauth2callback" [state code] (user-views/oauth-callback state code))
+
+  (GET "/me" [] (user-views/get-me))
+  (POST "/me" [& params] (user-views/post-me params))
+
   (GET "/team" [] (user-views/team))
+  (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
+
   (route/resources "/"))
 
 (def app

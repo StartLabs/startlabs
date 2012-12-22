@@ -105,7 +105,6 @@
   (response/redirect "/me"))
 
 
-;; [:get ["/team/:name" :name #"\w+"]]
 (defn get-team-member [name]
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
