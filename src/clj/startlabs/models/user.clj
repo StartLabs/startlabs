@@ -4,6 +4,7 @@
         [environ.core :only [env]]
         [startlabs.util :only [stringify-values home-uri]])
   (:require [clojure.string :as str]
+            [clojure.data.json :as json]
             [clj-http.client :as client]
             [clj-time.core :as t]
             [sandbar.stateful-session :as session]
@@ -11,11 +12,7 @@
             [startlabs.models.util :as util]))
 
 (def redirect-url  
-  (if (env :dev)
-    (str (home-uri) "/oauth2callback")
-    "http://www.startlabs.org/oauth2callback"))
-
-(def googleapis-url "https://www.googleapis.com/oauth2/v1/")
+  (str (home-uri) "/oauth2callback"))
 
 (defn scope-strings [scopes origin]
   (apply concat ; flatten the output
@@ -33,20 +30,22 @@
       :response_type "token"
       :state referer)))
 
-(defn get-request-with-token [url access-token]
-  (let [response (client/get url {:query-params {"access_token" access-token} :as :json})]
-    (:body response)))
+(defn get-user-info [access-token]
+  (let [response (client/get "https://www.googleapis.com/oauth2/v1/userinfo" 
+                             {:query-params {:access_token access-token}}
+                             {:as :json})]
+    (json/read-str (:body response) :key-fn keyword)))
 
-(defn get-token-info [access-token]
-  (let [tokeninfo-url (str googleapis-url "tokeninfo")
-        response-body (get-request-with-token tokeninfo-url access-token)]
-    response-body))
+(defn get-access-token [code]
+  (oa/oauth-access-token (env :oauth-client-id)
+                         (env :oauth-client-secret)
+                         code
+                         redirect-url))
 
 (defn create-user [access-token user-id]
   "Need to make this more flexible: should handle the case of new fields"
-  (let [userinfo-url (str googleapis-url "userinfo")
-        user-data    (get-request-with-token userinfo-url access-token)
-        tx-data      (util/txify-new-entity :user user-data)]
+  (let [user-data (get-user-info access-token)
+        tx-data   (util/txify-new-entity :user user-data)]
     (d/transact *conn* tx-data)))
 
 (defn user-with-id [& args]
@@ -88,6 +87,7 @@
     (map stringify-values user-maps)))
 
 (defn username [person-info]
+  (println "INFO: " person-info)
   (first (str/split (:email person-info) #"@")))
 
 (defn update-user
@@ -110,7 +110,7 @@
 
 (defn get-my-info []
   (let [access-token (session/session-get :access-token)
-        user-id      (session/session-get :user_id)]
+        user-id      (session/session-get :id)]
     (if (and access-token user-id)
       (try
         (stringify-values (find-or-create-user access-token user-id))

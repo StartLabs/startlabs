@@ -79,11 +79,11 @@
   (response/redirect "/"))
 
 ;; :post "/"
-(defn post-mailing-list [{:keys [email]}]
+(defn post-mailing-list [email]
   (if (not (vali/is-email? email))
     (do
       (session/flash-put! :message [:error "Invalid email address."])
-      (render "/" [email]))
+      (render home email))
     (try
       (let [list-id (env :mc_list_id)]
         (binding [mc/*mc-api-key* (env :mc_api_key)]

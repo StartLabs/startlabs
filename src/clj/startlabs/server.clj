@@ -4,29 +4,12 @@
             [clojure.string :as str]
             [startlabs.models.user :as user]
             [startlabs.models.database :as db]
-            [startlabs.views.main :as main])
+            [startlabs.views.main :as main]
+            [startlabs.views.user :as user-views])
   (:use compojure.core
+        [noir.validation :only [wrap-noir-validation]]
         [noir.util.middleware :only [wrap-strip-trailing-slash]]
-        [sandbar.stateful-session :only [wrap-stateful-session]]
-        ;; [noir.fetch.remotes :only [defremote]]
-        [environ.core :only [env]]))
-
-;; this belongs in main or user, not server.
-;; (defremote token-info [access-token]
-;;   (let [token-map    (user/get-token-info access-token)
-;;         valid-token? (= (:audience token-map) (env :oauth-client-id))
-;;         lab-member?  (and (= (last (str/split (:email token-map) #"@")) "startlabs.org")
-;;                           (:verified_email token-map))]
-;;     (if (and valid-token? lab-member?)
-;;       (do
-;;         (session/put! :access-token access-token)
-;;         (doseq [k [:user_id :email]] (session/put! k (k token-map)))
-;;         token-map)
-;;       (do
-;;         (session/flash-put! :message
-;;                             [:error "Invalid login. Make sure you're using your email@startlabs.org."])
-;;         "Invalid login"))))
-
+        [sandbar.stateful-session :only [wrap-stateful-session]]))
 
 ;; add these to the routes
 ;;(status/set-page! 404 (four-oh-four))
@@ -43,9 +26,21 @@
 
 (defroutes main-routes
   (GET "/" [] (main/home))
+  (POST "/" [email] (main/post-mailing-list email))
+  (POST "/event" [& params] (main/post-event params))
+  (GET "/login" [:as req] (user-views/login req))
+  (GET "/logout" [:as req] (user-views/logout req))
+  (GET "/oauth2callback" [state code] (user-views/oauth-callback state code))
+  
+  (GET "/about" [] (main/about))
+  (GET "/resources" [] (main/resources))
+  (GET "/partners" [] (main/partners))
+
+  (GET "/team" [] (user-views/team))
   (route/resources "/"))
 
 (def app
   (-> (handler/site main-routes)
+      wrap-noir-validation
       wrap-strip-trailing-slash
       wrap-stateful-session))

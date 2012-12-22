@@ -1,40 +1,49 @@
 (ns startlabs.views.user
-  (:require [startlabs.views.common :as common]
-            [startlabs.models.user :as user]
-            [noir.session :as session]
+  (:require [clojure.string :as str]
             [noir.response :as response]
             [noir.validation :as vali]
-            [clojure.string :as str]
+            [sandbar.stateful-session :as session]
+            [startlabs.models.user :as user]
             [startlabs.models.util :as mu]
+            [startlabs.views.common :as common]
             [startlabs.util :as u])
-
-  (:use [clojure.core.incubator]
-        [noir.core :only [defpage defpartial render url-for]]
-        [noir.request :only [ring-request]]
-        [markdown :only [md-to-html-string]]))
-
+  (:use [compojure.response :only [render]]
+        [clojure.core.incubator]
+        [environ.core :only [env]]
+        [hiccup.def :only [defhtml]]
+        [markdown.core :only [md-to-html-string]]))  
 ;; account-related routes
 
-(defn get-referer []
-  (get-in (ring-request) [:headers "referer"]))
+(defn get-referer [req]
+  (get-in req [:headers "referer"]))
 
-(defpage "/login" []
-  (let [referer (get-referer)]
-    (session/put! :referer referer)
+(defn login [req]
+  (let [referer (get-referer req)]
+    (session/session-put! :referer referer)
     (response/redirect (user/get-login-url referer))))
 
-(defpage "/logout" []
-  (session/clear!)
-  (response/redirect (get-referer)))
+(defn logout [req]
+  (session/destroy-session!)
+  (response/redirect (get-referer req)))
 
-(defpage "/oauth2callback" []
-  (let [referer (session/get! :referer)]
-    (common/layout
-     [:h1#loading "Fetching credentials..."])))
+(defn oauth-callback [state code]
+  (let [access-token (:access-token (user/get-access-token code))
+        user-info    (user/get-user-info access-token)
+        lab-member?  (and (= (last (str/split (:email user-info) #"@")) "startlabs.org")
+                          (:verified_email user-info))]
+    (if lab-member?
+      (do
+        (session/session-put! :access-token access-token)
+        (doseq [k [:id :email]]
+          (session/session-put! k (k user-info))))
+      (do
+        (session/flash-put! :message
+                            [:error "Invalid login. Make sure you're using your email@startlabs.org."])))
+    (response/redirect state)))
 
 (def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
 
-(defpartial user-table [info-map editable?]
+(defhtml user-table [info-map editable?]
   [:table.table
     [:tbody
       (for [key editable-attrs]
@@ -61,7 +70,7 @@
                     [:img#preview.pull-right {:src value :width 50 :height 50}]])]]
           ]))]])
 
-(defpage [:get ["/me"]] []
+(defn get-me []
   (if-let [my-info (user/get-my-info)]
     (common/layout
       [:h1 "Edit my info"]
@@ -75,7 +84,7 @@
     (conj m {:link (u/httpify-url link)})
     m))
 
-(defpage [:post "/me"] params
+(defn post-me [params]
   (try
     (let [params    (correct-link params) ; prefix link with http:// if necessary
           my-info   (user/get-my-info)
@@ -96,7 +105,8 @@
   (response/redirect "/me"))
 
 
-(defpage [:get ["/team/:name" :name #"\w+"]] {:keys [name]}
+;; [:get ["/team/:name" :name #"\w+"]]
+(defn get-team-member [name]
   (let [email       (str name "@startlabs.org")
         member-info (user/find-user-with-email email)]
     (common/layout
@@ -105,7 +115,7 @@
         (user-table member-info false)
         [:p "We could not find a user with the email address: " email]))))
 
-(defpartial team-member [person]
+(defhtml team-member [person]
   (let [person    (u/nil-empty-str-values person)
         major     (:studying person)
         grad-year (:graduation_year person)]
@@ -119,7 +129,7 @@
              (if grad-year (str "Class of " grad-year))]
         [:p  (md-to-html-string (:bio person))]]]))
 
-(defpage "/team" []
+(defn team []
   (common/layout
     [:div.row-fluid
       [:div.span12
@@ -127,7 +137,8 @@
         [:ul#team.thumbnails
           (for [person (shuffle (user/find-all-users))]
             (team-member person)
-          )]]][:div.clear ]))
+          )]]]
+    [:div.clear]))
 
 
 

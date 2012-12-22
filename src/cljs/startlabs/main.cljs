@@ -15,19 +15,9 @@
 ; browser repl for development
 ; (repl/connect "http://localhost:9000/repl")
 
-; haven't got redirect uri working yet
 (defn handle-hash-change [& e]
-  (let [hash-vals    (u/mapify-hash)
-        access-token (:access_token hash-vals)
-        expiration   (:expires_in hash-vals)
-        redirect-uri (or (:state hash-vals) "/")]
-    (if access-token
-      (do
-        (jq/text ($ "#loading") "Verifying credentials...")
-        (fm/remote (token-info access-token) [result]
-          (u/log (util/clj->js result))
-          (u/redirect! redirect-uri)
-        )))))
+  (let [hash-vals    (u/mapify-hash)]
+    (.log js/console (str "Hash changed: " hash-vals))))
 
 (defn swap-picture-preview []
   (jq/attr ($ "#preview") "src" (jq/val ($ "#picture"))))
