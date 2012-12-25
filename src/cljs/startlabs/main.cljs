@@ -1,6 +1,5 @@
 (ns startlabs.main
   (:use [jayq.core :only [$]]
-        [singult.core :only [render]]
         [startlabs.views.jobx :only [markdownify]]
         [startlabs.jobs :only [setup-jobs-list setup-job-submit]])
 
@@ -15,7 +14,7 @@
 
 (defn handle-hash-change [& e]
   (let [hash-vals    (u/mapify-hash)]
-    (.log js/console (str "Hash changed: " hash-vals))))
+    (u/log (str "Hash changed: " hash-vals))))
 
 (defn swap-picture-preview []
   (jq/attr ($ "#preview") "src" (jq/val ($ "#picture"))))

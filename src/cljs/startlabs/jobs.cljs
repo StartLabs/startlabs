@@ -1,16 +1,13 @@
 (ns startlabs.jobs
   (:use [jayq.core :only [$]]
         [jayq.util :only [clj->js]]
-        [singult.core :only [render]]
-        [c2.core :only [unify]]
+        [crate.core :only [html]]
         [startlabs.views.jobx :only [job-list job-card markdownify]])
 
   (:require [clojure.string :as str]
             [jayq.core :as jq]
             [jayq.util :as util]
             [startlabs.util :as u])
-
-  (:use-macros [c2.util :only [bind!]])
 
   (:require-macros [jayq.macros :as jm]))
 
@@ -38,7 +35,7 @@
 (defn update-job-card []
   (let [job-map (u/form-to-map ($ "#job-form"))]
     (.html ($ "#job-preview")
-           (render (job-card job-map false))))
+           (html (job-card job-map false))))
   ; singult is escaping the generated markdown :(
   (.html ($ "#job-preview .description")
          (markdownify (.val ($ "#description")))))

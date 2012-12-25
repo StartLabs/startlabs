@@ -1,15 +1,14 @@
 (ns startlabs.models.job
-  (:use [datomic.api :only [q db ident] :as d]
-        [clj-time.core :only [now]]
+  (:use [clj-time.core :only [now]]
         [clj-time.coerce :only [to-long to-date]]
+        [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [*conn*]]
         [startlabs.util :only [stringify-values]])
   (:require [clojure.string :as str]
-            [oauth.google :as oa]
             [clj-http.client :as client]
-            [noir.session :as session]
-            [startlabs.models.util :as util]
-            [hiccup.core :as h])
+            [sandbar.stateful-session :as session]
+            [oauth.google :as oa]
+            [startlabs.models.util :as util])
   (:import java.net.URI))
 
 (defn job-fields []
@@ -88,7 +87,6 @@
 
 
 ;; whitelist
-
 
 (defn update-whitelist [whitelist]
   (let [tx-data (util/txify-new-entity :joblist {:whitelist whitelist :updated (to-date (now))})]

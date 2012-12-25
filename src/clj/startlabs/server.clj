@@ -4,8 +4,10 @@
             [clojure.string :as str]
             [startlabs.models.user :as user]
             [startlabs.models.database :as db]
+            [startlabs.views.jobs :as jobs]
             [startlabs.views.main :as main]
             [startlabs.views.user :as user-views])
+
   (:use compojure.core
         [noir.validation :only [wrap-noir-validation]]
         [noir.util.middleware :only [wrap-strip-trailing-slash]]
@@ -42,6 +44,8 @@
 
   (GET "/team" [] (user-views/team))
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
+
+  (GET "/jobs" [& params] (jobs/get-jobs params))
 
   (route/resources "/"))
 

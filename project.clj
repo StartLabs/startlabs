@@ -32,8 +32,7 @@
                   [abengoa/clj-stripe "1.0.3"]
 
                   ;cljs
-                  [com.keminglabs/c2 "0.2.0"]
-                  [com.keminglabs/singult "0.1.5-SNAPSHOT"]
+                  [crate "0.2.3"]
                   [jayq "0.3.2"]
                 ]
 

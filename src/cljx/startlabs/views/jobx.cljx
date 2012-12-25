@@ -3,8 +3,7 @@
               [noir.validation :only [is-email?]]
               [markdown.core :only [md-to-html-string]]))
 
-^:cljs (ns startlabs.views.jobx
-         (:require [singult.core :as s]))
+^:cljs (ns startlabs.views.jobx)
 
 ; this is taken straight from lib-noir.validation
 ^:cljs  (defn is-email? [v]

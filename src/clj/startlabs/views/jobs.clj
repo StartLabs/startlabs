@@ -1,34 +1,37 @@
 (ns startlabs.views.jobs
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
-            [noir.session :as session]
             [noir.response :as response]
             [noir.validation :as vali]
             [postal.core :as postal]
             [ring.util.codec :as c]
+            [ring.util.response :as rr]
+            [sandbar.stateful-session :as session]
             [startlabs.models.util :as mu]
-            [startlabs.util :as u]
-            [startlabs.views.common :as common]
             [startlabs.models.job :as job]
-            [startlabs.models.user :as user])
-  (:use [clojure.core.incubator]
+            [startlabs.models.user :as user]
+            [startlabs.util :as u]
+            [startlabs.views.common :as common])
+
+  (:use [compojure.response :only [render]]
+        [clojure.core.incubator]
         [clojure.tools.logging :only [info]]
         [clj-time.core :only [now plus months]]
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [hiccup.core :only [html]]
-        [noir.core :only [defpage defpartial render url-for]]
-        [noir.fetch.remotes :only [defremote]]
+        [hiccup.def :only [defhtml]]
         [startlabs.views.jobx :only [job-card job-list]])
+
   (:import java.net.URI))
 
 ;; jobs
 
 (defn edit-link [job-map]
-  (str (u/home-uri) (url-for edit-job {:id (:id job-map)}) "?secret=" (:secret job-map)))
+  (str (u/home-uri) "/jobs/" (:id job-map) "?secret=" (:secret job-map)))
 
-(defpartial job-email-body [job-map]
-  (let [conf-link     (str (u/home-uri) (url-for confirm-job {:id (:id job-map)}))
+(defhtml job-email-body [job-map]
+  (let [conf-link     (str (u/home-uri) "/job/" (:id job-map) "/confirm")
         the-edit-link (edit-link job-map)]
     [:div
       [:p "Hey there,"]
@@ -57,7 +60,7 @@
   [:company :position :location :website :fulltime? :start_date :end_date 
    :company_size :description :contact_info :email])
 
-(defmulti input-for-field (fn [field type docs v] 
+(defmulti input-for-field (fn [field type docs v]
   (keyword (name type))) :default :string)
 
 (defmethod input-for-field :string [field type docs v]
@@ -81,10 +84,10 @@
          [:button.btn {:value val :data-toggle "button"} k]))
      [:input {:type "hidden" :name field :id field :value str-v}]]))
 
-(defpartial error-item [[first-error]]
+(defhtml error-item [[first-error]]
   [:span.help-block first-error])
 
-(defpartial fields-from-schema [schema ordered-keys params]
+(defhtml fields-from-schema [schema ordered-keys params]
   [:table.table
     [:tbody
       (for [field ordered-keys]
@@ -122,7 +125,7 @@
         "Number of Employees: \n"
         "Funding Received (Optional):")))
 
-(defpartial submit-job [has-params? params]
+(defhtml submit-job [has-params? params]
   ;; make the distinction between editing existing values vs. creating a new job
   (let [editing? (not (empty? (:id params)))
         heading  (if editing? "Edit Job" "Submit a Job")
@@ -150,10 +153,11 @@
       ]]))
 
 (defn get-all-jobs []
-  (sort-by #(:company %) 
-           (filter #(not= (:removed? %) "true") (job/find-upcoming-jobs))))
+  (sort-by #(:company %)
+           (filter #(not= (:removed? %) "true")
+                   (job/find-upcoming-jobs))))
 
-(defpartial browse-jobs [has-params?]
+(defhtml browse-jobs [has-params?]
   (let [all-jobs (get-all-jobs)
         show-delete? (user/logged-in?)]
     [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
@@ -178,7 +182,7 @@
       (job-list all-jobs show-delete?)]
 				  
      [:script#job-data
-      (str "window.job_data = " (json/json-str all-jobs) ";")]
+      (str "window.job_data = " (json/write-str all-jobs) ";")]
      ]))
 
 (defn filter-jobs [query]
@@ -190,15 +194,20 @@
               (map job [:position :company :location])))
         all-jobs))))
 
-(defremote jobsearch [query]
+;; /jobs.edn?q=...
+(defn jobsearch [query]
   (let [jobs (filter-jobs query)
-        show-delete? (user/logged-in?)]
-    {:html (html (job-list jobs show-delete?)) :jobs jobs}))
+        show-delete? (user/logged-in?)
+        body (str {:html (html (job-list jobs show-delete?)) 
+                   :jobs jobs})]
+    (-> (rr/response body)
+        (rr/content-type "text/edn"))))
 
 (defn split-sites [sitelist]
   (str/split sitelist #"\s+"))
 
-(defpage [:post "/whitelist"] {:keys [the-list]}
+;; [:post "/whitelist"]
+(defn post-whitelist [{:keys [the-list]}]
   (if (user/logged-in?)
     (do
       (job/update-whitelist the-list)
@@ -209,7 +218,7 @@
 
   (response/redirect "/jobs"))
 
-(defpartial whitelist []
+(defhtml whitelist []
   (let [whitelist (job/get-current-whitelist)]
     [:div#whitelist {:class "tab-pane"}
       [:h2 "Company Whitelist"]
@@ -228,7 +237,8 @@
        [:input.btn.btn-primary.span3 {:type "submit"}]]]
      ]))
 
-(defpage [:get "/jobs"] {:as params}
+;; /jobs
+(defn get-jobs [& [params]]
   (let [has-params? (not (empty? params))]
     (common/layout
       [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
@@ -316,9 +326,10 @@
 (defn trim-and-fix-params [params]
   (let [trimmed-params (u/trim-vals params)
         fixed-params   (fix-job-params trimmed-params)]
-      fixed-params))
+    fixed-params))
 
-(defpage [:post "/jobs"] {:as params}
+;; /jobs
+(defn post-jobs [params]
   (let [fixed-params (trim-and-fix-params params)]
     (if (valid-job? fixed-params)
       (try
@@ -330,27 +341,27 @@
             (do
               (session/flash-put! 
                 :message [:error "Trouble sending confirmation email:" (:message email-res)])
-              (render "/jobs" fixed-params))))
+              (render get-jobs fixed-params))))
 
         (catch Exception e
           (session/flash-put! :message [:error (str "Trouble connecting to the database:" e)])
-          (render "/jobs" fixed-params)))
+          (render get-jobs fixed-params)))
 
       (do ;invalid job, flash an error message
         (flash-job-error)
-        (render "/jobs" fixed-params)))))
+        (render get-jobs fixed-params)))))
 
-(defpage "/jobs/success" []
+;; /jobs/success
+(defn job-success []
   (common/layout
     [:h1 "Submission Received"]
     [:p "Please, check your email for a confirmation link."]))
 
 
 
-
 ;; individual job editing
 
-(defpartial unexpected-error [& [error]]
+(defhtml unexpected-error [& [error]]
   [:div
     [:h1 "Something went wrong."]
     (if error
@@ -358,7 +369,7 @@
     [:p  "Sorry for the inconvenience. Please contact the "
       (common/webmaster-link "webmaster") "."]])
 
-(defpartial job-not-found []
+(defhtml job-not-found []
   [:div
     [:h1 "Job not found"]
 
@@ -367,7 +378,7 @@
       (common/webmaster-link "webmaster") "."]])
 
 
-(defpartial job-edit-email-body [job-map]
+(defhtml job-edit-email-body [job-map]
   (let [the-link (edit-link job-map)]
     [:div
       [:p "Hey there,"]
@@ -390,7 +401,8 @@
 
 
 ;; going here triggers an edit link to be sent to the author of the listing
-(defpage [:get "/job/:id/edit"] {:keys [id]}
+;; [:get "/job/:id/edit"] 
+(defn send-edit-link [id]
   (common/layout
     (if (user/logged-in?)
       (if-let [job-map (job/job-map id)]
@@ -410,8 +422,8 @@
       ;;else
       (response/redirect "/jobs"))))
 
-
-(defpage edit-job "/job/:id" {:keys [id] :as params}
+;; "/job/:id"
+(defn get-edit-job [{:keys [id] :as params}]
   (common/layout
    (if-let [job-map (job/job-map id)]
      (let [secret-map (assoc job-map :secret (:secret params))]
@@ -421,9 +433,10 @@
 
 (defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])
-  (response/redirect (str "/job/" job-id "?secret=" (:secret params))))
+  (render get-edit-job params))
 
-(defpage [:post "/job/:id"] {:keys [id secret] :as params}
+;;[:post "/job/:id"]
+(defn post-edit-job [{:keys [id secret] :as params}]
   (let [fixed-params (trim-and-fix-params params)
         job-secret   (job/job-secret id)]
     (if (or (= (:secret fixed-params) job-secret)
@@ -445,17 +458,18 @@
       (flash-error-and-render "Invalid job secret." id fixed-params))))
 
 
-(defpage [:post "/job/:id/delete"] {:keys [id]}
+;; [:post "/job/:id/delete"] 
+(defn delete-job [id]
   (if (user/logged-in?)
     (if (job/remove-job id)
       (session/flash-put! :message [:success "The job has been removed."]))
-
-    (do
-      (session/flash-put! :message [:error "You cannot delete that job!"])))
-
+    ;; else
+    (session/flash-put! :message [:error "You cannot delete that job!"]))
   (response/redirect "/jobs"))
 
-(defpage confirm-job "/job/:id/confirm" {:keys [id]}
+
+;; "/job/:id/confirm" {:keys [id]}
+(defn confirm-job [id]
   (common/layout
     (if (job/confirm-job id)
       [:div
