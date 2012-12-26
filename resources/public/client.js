@@ -12978,8 +12978,8 @@ startlabs.views.jobx.job_delete_modal = function(a) {
   "\ufdd0'data-dismiss", "\ufdd0'aria-hidden"], {"\ufdd0'href":"#", "\ufdd0'data-dismiss":"modal", "\ufdd0'aria-hidden":!0}), "Whoops, never mind."], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'input.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'type", "\ufdd0'value"], {"\ufdd0'type":"submit", "\ufdd0'value":"Yes, Remove it."})], !0)], !0)], !0)
 };
 startlabs.views.jobx.job_summary = function(a, b) {
-  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-summary", cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'a.btn.btn-danger.pull-right", cljs.core.ObjMap.fromObject(["\ufdd0'href", "\ufdd0'role", "\ufdd0'data-toggle"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button", "\ufdd0'data-toggle":"modal"}), "Delete"], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", 
-  cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
+  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-summary", cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.pull-right", cljs.core.PersistentVector.fromArray(["\ufdd0'a.edit-link", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Edit"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'href", 
+  "\ufdd0'role", "\ufdd0'data-toggle"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button", "\ufdd0'data-toggle":"modal"}), "Delete"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
     var b = startlabs.views.jobx.linkify.call(null, (new cljs.core.Keyword("\ufdd0'website")).call(null, a));
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.dateloc", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), !cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'fulltime?")).call(null, 
@@ -12989,7 +12989,7 @@ startlabs.views.jobx.job_summary = function(a, b) {
 };
 startlabs.views.jobx.job_card = function(a, b) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-info", cljs.core.ObjMap.fromObject(["\ufdd0'onclick"], {"\ufdd0'onclick":[cljs.core.str("_gaq.push(['_trackEvent', 'Jobs', 'More', '"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("']);")].join("")}), cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.more", 
-  cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("/edit")].join("")}), "Send edit link to author"], 
+  cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("/edit")].join("")}), "Resend edit link to author"], 
   !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href", "\ufdd0'onclick"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b), "\ufdd0'onclick":[cljs.core.str("_gaq.push(['_trackEvent', 'Jobs', 'Contact', '"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("']);")].join("")}), b], !0)
@@ -15620,6 +15620,9 @@ startlabs.jobs.setup_jobs_list = function() {
   });
   var a = jayq.core.$.call(null, "#job-container");
   jayq.core.on.call(null, a, "\ufdd0'click", ".job", null, startlabs.jobs.show_job_details);
+  jayq.core.on.call(null, a, "\ufdd0'click", ".edit-link", null, function(a) {
+    return a.stopPropagation()
+  });
   jayq.core.on.call(null, a, "\ufdd0'click", ".more a", null, function(a) {
     return a.stopPropagation()
   });
@@ -15632,8 +15635,8 @@ startlabs.jobs.map_options = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fr
 startlabs.jobs.mit = new google.maps.LatLng(42.358449, -71.09122);
 jayq.core.document_ready.call(null, function() {
   var a = startlabs.jobs.elem_by_id.call(null, "map"), b = startlabs.jobs.elem_by_id.call(null, "job-location");
-  startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options);
-  startlabs.jobs.preview_map = new google.maps.Map(b, startlabs.jobs.map_options);
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, a)) && (startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options));
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, b)) && (startlabs.jobs.preview_map = (new google.maps.Map(b, startlabs.jobs.map_options)).call(null));
   var c = startlabs.jobs.make_marker.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'map", "\ufdd0'title", "\ufdd0'position", "\ufdd0'draggable"], {"\ufdd0'map":startlabs.jobs.preview_map, "\ufdd0'title":"You can drag me to the right location.", "\ufdd0'position":startlabs.jobs.mit, "\ufdd0'draggable":!0}));
   return google.maps.event.addListener.call(null, c, "dragend", function() {
     return console.log(c.getPosition())

@@ -28,7 +28,7 @@
 ;; jobs
 
 (defn edit-link [job-map]
-  (str (u/home-uri) "/jobs/" (:id job-map) "?secret=" (:secret job-map)))
+  (str (u/home-uri) "/job/" (:id job-map) "?secret=" (:secret job-map)))
 
 (defhtml job-email-body [job-map]
   (let [conf-link     (str (u/home-uri) "/job/" (:id job-map) "/confirm")
@@ -207,7 +207,7 @@
   (str/split sitelist #"\s+"))
 
 ;; [:post "/whitelist"]
-(defn post-whitelist [{:keys [the-list]}]
+(defn post-whitelist [the-list]
   (if (user/logged-in?)
     (do
       (job/update-whitelist the-list)
@@ -355,7 +355,7 @@
 (defn job-success []
   (common/layout
     [:h1 "Submission Received"]
-    [:p "Please, check your email for a confirmation link."]))
+    [:p "Please check your email for a confirmation link."]))
 
 
 
@@ -402,7 +402,7 @@
 
 ;; going here triggers an edit link to be sent to the author of the listing
 ;; [:get "/job/:id/edit"] 
-(defn send-edit-link [id]
+(defn resend-edit-link [id]
   (common/layout
     (if (user/logged-in?)
       (if-let [job-map (job/job-map id)]
@@ -431,6 +431,7 @@
      ;; else
      (job-not-found))))
 
+
 (defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])
   (render get-edit-job params))
@@ -457,7 +458,6 @@
       ; secret does not match job secret
       (flash-error-and-render "Invalid job secret." id fixed-params))))
 
-
 ;; [:post "/job/:id/delete"] 
 (defn delete-job [id]
   (if (user/logged-in?)
@@ -471,11 +471,11 @@
 ;; "/job/:id/confirm" {:keys [id]}
 (defn confirm-job [id]
   (common/layout
-    (if (job/confirm-job id)
-      [:div
-        [:h1 "Thanks for Confirming"]
-        [:p "Your listing should now be posted."]
-        [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
+   (if (job/confirm-job id)
+     [:div
+      [:h1 "Thanks for Confirming"]
+      [:p "Your listing should now be posted."]
+      [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
 
-      ;; else
-      (unexpected-error))))
+     ;; else
+     (unexpected-error))))

@@ -6888,3 +6888,12 @@ html,body {
     width: auto;
     height: 320px;
 }
+
+.edit-link {
+    margin-right: 12px;
+    color: #ff0000;
+    font-size: 16px;
+}
+.edit-link:hover {
+    color: #aa0000;
+}

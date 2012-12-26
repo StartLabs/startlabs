@@ -14,17 +14,13 @@
         [markdown.core :only [md-to-html-string]]))  
 ;; account-related routes
 
-(defn get-referer [req]
-  (get-in req [:headers "referer"]))
+(defn login [referer]
+  (session/session-put! :referer referer)
+  (response/redirect (user/get-login-url referer)))
 
-(defn login [req]
-  (let [referer (get-referer req)]
-    (session/session-put! :referer referer)
-    (response/redirect (user/get-login-url referer))))
-
-(defn logout [req]
+(defn logout [referer]
   (session/destroy-session!)
-  (response/redirect (get-referer req)))
+  (response/redirect referer))
 
 (defn oauth-callback [state code]
   (let [access-token (:access-token (user/get-access-token code))

@@ -148,6 +148,7 @@
 
   (let [$job-container ($ "#job-container")]
     (jq/on $job-container :click ".job" nil show-job-details)
+    (jq/on $job-container :click ".edit-link" nil (fn [e] (.stopPropagation e)))
     (jq/on $job-container :click ".more a" nil (fn [e] (.stopPropagation e))))
 	
   (reset! filtered-jobs job-data)
@@ -167,8 +168,8 @@
 (jm/ready
  (let [map (elem-by-id "map")
        map2 (elem-by-id "job-location")]
-   (set! gmap (google.maps.Map. map map-options))
-   (set! preview-map (google.maps.Map. map2 map-options))
+   (if (u/exists? map) (set! gmap (google.maps.Map. map map-options)))
+   (if (u/exists? map2) ((set! preview-map (google.maps.Map. map2 map-options))))
 
    (let [preview-marker (make-marker {:map preview-map
                                       :title "You can drag me to the right location." 

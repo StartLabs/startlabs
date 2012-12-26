@@ -48,11 +48,13 @@
       [:a.btn {:href "#" :data-dismiss "modal" :aria-hidden true} "Whoops, never mind."]
       [:input.btn.btn-danger {:type "submit" :value "Yes, Remove it."}]]])
 
-(defn job-summary [job-info show-delete?]
+(defn job-summary [job-info editable?]
   [:div.job-summary
-    (if show-delete?
-      [:a.btn.btn-danger.pull-right 
-        {:href (str "#delete-" (:id job-info)) :role "button" :data-toggle "modal"} "Delete"])
+    (if editable?
+      [:div.pull-right
+       [:a.edit-link {:href (str "/job/" (:id job-info))} "Edit"]
+       [:a.btn.btn-danger
+        {:href (str "#delete-" (:id job-info)) :role "button" :data-toggle "modal"} "Delete"]])
 
     [:h2 
      [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
@@ -70,17 +72,17 @@
 
    [:a.read {:href (str "#" (:id job-info))} "Read More..." ]])
 
-(defn job-card [job-info show-delete?]
+(defn job-card [job-info editable?]
   [:div.job-info {:onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'More', '" (:id job-info) "']);")}
-    (if show-delete? (job-delete-modal job-info))
-    (job-summary job-info show-delete?)
+    (if editable? (job-delete-modal job-info))
+    (job-summary job-info editable?)
     
     [:div.row-fluid.more
       [:div.description
         (markdownify (:description job-info))]
 
-      (if show-delete?
-        [:p [:a {:href (str "/job/" (:id job-info) "/edit")} "Send edit link to author"]])
+      (if editable?
+        [:p [:a {:href (str "/job/" (:id job-info) "/edit")} "Resend edit link to author"]])
 
       [:div.well.well-small
         "Contact: "
@@ -90,14 +92,14 @@
           [:a {:href (linkify contact-info) :onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'Contact', '" (:id job-info) "']);")}
            contact-info])]]])
 
-(defn half-list [half-jobs show-delete?]
+(defn half-list [half-jobs editable?]
   [:div.span6
    (for [job half-jobs]
      [:div.job.thumbnail {:id (:id job)}
-      (job-card job show-delete?)])])
+      (job-card job editable?)])])
 
-(defn job-list [jobs show-delete?]
+(defn job-list [jobs editable?]
   (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)]
     [:div#job-list.span12
-     (half-list left-jobs show-delete?)
-     (half-list right-jobs show-delete?)]))
+     (half-list left-jobs editable?)
+     (half-list right-jobs editable?)]))
