@@ -46,7 +46,7 @@
       [:p "This will hide it from the listing."]]
     [:form.modal-footer {:action (str "/job/" (:id job) "/delete") :method "post"}
       [:a.btn {:href "#" :data-dismiss "modal" :aria-hidden true} "Whoops, never mind."]
-      [:input.btn.btn-danger {:type "submit" :value "Yes, Remove it."}]]])
+      [:button.btn.btn-danger {:type "submit"} "Yes, Remove it."]]])
 
 (defn job-summary [job-info editable?]
   [:div.job-summary

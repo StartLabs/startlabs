@@ -425,12 +425,15 @@
 ;; "/job/:id"
 (defn get-edit-job [{:keys [id] :as params}]
   (common/layout
-   (if-let [job-map (job/job-map id)]
+   ;; params either contains previously submitted (invalid) params that require editing
+   ;; or it only contains {:id id} if the user just arrived at the edit page.
+   (if-let [job-map (if (> (count params) 1) 
+                      params
+                      (job/job-map id))]
      (let [secret-map (assoc job-map :secret (:secret params))]
        (submit-job true secret-map))
      ;; else
      (job-not-found))))
-
 
 (defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])
