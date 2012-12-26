@@ -6,6 +6,7 @@
             [startlabs.models.database :as db]
             [startlabs.views.jobs :as jobs]
             [startlabs.views.main :as main]
+            [startlabs.views.resources :as resources]
             [startlabs.views.user :as user-views])
 
   (:use compojure.core
@@ -32,7 +33,7 @@
   (POST "/event" [& params] (main/post-event params))
   
   (GET "/about" [] (main/about))
-  (GET "/resources" [] (main/resources))
+  (GET "/resources" [] (resources/resources))
   (GET "/partners" [] (main/partners))
 
   (GET "/login" [:as req] (user-views/login req))
