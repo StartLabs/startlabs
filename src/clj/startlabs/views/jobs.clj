@@ -195,7 +195,7 @@
         all-jobs))))
 
 ;; /jobs.edn?q=...
-(defn jobsearch [query]
+(defn job-search [query]
   (let [jobs (filter-jobs query)
         show-delete? (user/logged-in?)
         body (str {:html (html (job-list jobs show-delete?)) 

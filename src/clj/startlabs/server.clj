@@ -61,6 +61,7 @@
 
   (GET "/jobs" [& params] (jobs/get-jobs params))
   (POST "/jobs" [& params] (jobs/post-jobs params))
+  (GET "/jobs.edn" [q] (jobs/job-search q))
   (GET "/jobs/success" [] (jobs/job-success))
 
   (POST "/whitelist" [the-list] (jobs/post-whitelist the-list))
