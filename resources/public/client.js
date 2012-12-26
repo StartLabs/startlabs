@@ -13012,7 +13012,7 @@ startlabs.views.jobx.half_list = function(a, b) {
 };
 startlabs.views.jobx.job_list = function(a, b) {
   var c = cljs.core.split_at.call(null, cljs.core.count.call(null, a) / 2, a), d = cljs.core.nth.call(null, c, 0, null), c = cljs.core.nth.call(null, c, 1, null);
-  return cljs.core.PersistentVector.fromArray(["\ufdd0'div#job-list.span12", startlabs.views.jobx.half_list.call(null, d, b), startlabs.views.jobx.half_list.call(null, c, b)], !0)
+  return cljs.core.empty_QMARK_.call(null, d) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div#job-list.span12", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", "No jobs found. Try revising your query."], !0)], !0) : cljs.core.PersistentVector.fromArray(["\ufdd0'div#job-list.span12", startlabs.views.jobx.half_list.call(null, d, b), startlabs.views.jobx.half_list.call(null, c, b)], !0)
 };
 goog.userAgent.ASSUME_IE = !1;
 goog.userAgent.ASSUME_GECKO = !1;

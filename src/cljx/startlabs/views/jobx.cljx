@@ -100,6 +100,9 @@
 
 (defn job-list [jobs editable?]
   (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)]
-    [:div#job-list.span12
-     (half-list left-jobs editable?)
-     (half-list right-jobs editable?)]))
+    (if (empty? left-jobs)
+      [:div#job-list.span12
+       [:h2 "No jobs found. Try revising your query."]]
+      [:div#job-list.span12
+       (half-list left-jobs editable?)
+       (half-list right-jobs editable?)])))
