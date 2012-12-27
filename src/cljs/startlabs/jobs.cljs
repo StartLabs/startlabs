@@ -92,10 +92,11 @@
      (jq/ajax (str "/jobs.edn?q=" query)
               {:contentType :text/edn
                :success (fn [data status xhr]
-                          (let [data (reader/read-string data)]
-                            (reset! filtered-jobs (:jobs data))
-                            (.remove $job-list)
-                            (.html parent (:html data))))})))
+                            (let [data (reader/read-string data)]
+                              (reset! filtered-jobs (:jobs data))
+                              (.remove $job-list)
+                              (.html parent (:html data))))
+               })))
 
 (defn make-marker [options]
   ( google.maps.Marker. (clj->js options)))

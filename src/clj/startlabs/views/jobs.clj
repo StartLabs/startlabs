@@ -125,31 +125,32 @@
         "Number of Employees: \n"
         "Funding Received (Optional):")))
 
-(defhtml submit-job [has-params? params]
+(defhtml submit-job [params]
   ;; make the distinction between editing existing values vs. creating a new job
-  (let [editing? (not (empty? (:id params)))
-        heading  (if editing? "Edit Job" "Submit a Job")
-        action   (if editing? (str "/job/" (:id params)) "/jobs")]
+  (let [has-params? (not (empty? params))
+        editing?    (not (empty? (:id params)))
+        heading     (if editing? "Edit Job" "Submit a Job")
+        action      (if editing? (str "/job/" (:id params)) "/job/new")]
 
-    [:div#submit {:class (u/cond-class "tab-pane" [has-params? "active"])}
-	  [:h1 heading]
-      [:form#job-form.row-fluid {:method "post" :action action}
-        [:div.span6
-          (if (not editing?)
-            [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
-             [:strong "your company must be preapproved"] ". Please " 
-             [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" 
-                             job-list-email-body)} "email us"] 
-             " for consideration for the Jobs List."])
-          (fields-from-schema (job/job-fields) ordered-job-keys params)]
+    [:div#submit
+     [:h1 heading]
+     [:form#job-form.row-fluid {:method "post" :action action}
+      [:div.span6
+       (if (not editing?)
+         [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
+          [:strong "your company must be preapproved"] ". Please " 
+          [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" 
+                          job-list-email-body)} "email us"] 
+          " for consideration for the Jobs List."])
+       (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
-          (if editing?
-            [:input {:type "hidden" :name "secret" :value (:secret params)}])
+      (if editing?
+        [:input {:type "hidden" :name "secret" :value (:secret params)}])
 
-        [:div.span6.clearfix.thumbnail
-         [:div#job-preview
-          (job-card (if has-params? params sample-job-fields) false)]
-         [:div#job-location]]
+      [:div.span6.clearfix.thumbnail
+       [:div#job-preview
+        (job-card (if has-params? params sample-job-fields) false)]
+       [:div#job-location]]
       ]]))
 
 (defn get-all-jobs []
@@ -157,23 +158,23 @@
            (filter #(not= (:removed? %) "true")
                    (job/find-upcoming-jobs))))
 
-(defhtml browse-jobs [has-params?]
+(defhtml browse-jobs []
   (let [all-jobs (get-all-jobs)
         show-delete? (user/logged-in?)]
-    [:div#browse {:class (u/cond-class "tab-pane" [(not has-params?) "active"])}
-      ;; sort by date and location.
-      ;; search descriptions and company names
-      [:h1 "Browse Startup Jobs"]
-
-      [:div#map-box.row-fluid
-        [:div#map.thumbnail]
-        [:div.navbar
-          [:div.navbar-inner
-            [:form.navbar-search.pull-left {:action "#"}
-             [:input#job-search.search-query
-              {:type "text" :placeholder "Search"}]]
-            [:ul.nav.pull-right
-              [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
+    [:div#browse
+     ;; sort by date and location.
+     ;; search descriptions and company names
+     [:h1 "Browse Startup Jobs"]
+     
+     [:div#map-box.row-fluid
+      [:div#map.thumbnail]
+      [:div.navbar
+       [:div.navbar-inner
+        [:form.navbar-search.pull-left {:action "#"}
+         [:input#job-search.search-query
+          {:type "text" :placeholder "Search"}]]
+        [:ul.nav.pull-right
+         [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
         ]]]
 
      [:div#job-container.row-fluid
@@ -206,6 +207,15 @@
 (defn split-sites [sitelist]
   (str/split sitelist #"\s+"))
 
+(defhtml nav-buttons [active-tab]
+   [:div#job-toggle.btn-group.pull-right
+    [:a {:class (u/cond-class "btn" [(= active-tab :jobs) "active"]) :href "/jobs"}
+     "Browse Available"]
+    (if (user/logged-in?)
+      [:a {:class (u/cond-class "btn" [(= active-tab :whitelist) "active"]) :href "/whitelist"} "Whitelist"])
+    [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) :href "/job/new"}
+     "Submit a Job"]])
+
 ;; [:post "/whitelist"]
 (defn post-whitelist [the-list]
   (if (user/logged-in?)
@@ -215,49 +225,36 @@
     ;else
     (do
       (session/flash-put! :message [:error "You must be logged in to change the whitelist."])))
-
   (response/redirect "/jobs"))
 
-(defhtml whitelist []
-  (let [whitelist (job/get-current-whitelist)]
-    [:div#whitelist {:class "tab-pane"}
+;; [:get /whitelist]
+(defn get-whitelist []
+  (common/layout
+   (nav-buttons :whitelist)
+   (let [whitelist (job/get-current-whitelist)]
+     [:div#whitelist
       [:h2 "Company Whitelist"]
 
       [:div.well
-        [:p "Just put each company domain name on a new line."]
-        [:p "Do not include the http:// or the www."]]
+       [:p "Just put each company domain name on a new line."]
+       [:p "Do not include the http:// or the www."]]
 
       [:form {:action "/whitelist" :method "post"}
-        [:div.span6.pull-left
-          [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
-            whitelist]
+       [:div.span6.pull-left
+        [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
+         whitelist]
         [:input.btn.btn-primary.span3 {:type "submit"}]]
 
-      [:div.span5
-       [:input.btn.btn-primary.span3 {:type "submit"}]]]
-     ]))
+       [:div.span5
+        [:input.btn.btn-primary.span3 {:type "submit"}]]]
+      ])))
 
-;; /jobs
-(defn get-jobs [& [params]]
-  (let [has-params? (not (empty? params))]
-    (common/layout
-      [:div#job-toggle.btn-group.pull-right {:data-toggle "buttons-radio"}
-       [:a {:class (u/cond-class "btn" [(not has-params?) "active"])
-            :href "#browse" :data-toggle "tab"}
-        "Browse Available"]
-       
-       (if (user/logged-in?)
-         [:a {:class "btn" :href "#whitelist" :data-toggle "tab"} "Whitelist"])
-       
-       [:a {:class (u/cond-class "btn" [has-params? "active"])
-            :href "#submit" :data-toggle "tab"}
-          "Submit a Job"]]
-      [:div.clearfix]
+;; [:get /jobs]
+(defn get-jobs []
+  (common/layout
+   (nav-buttons :jobs)
+   [:div (browse-jobs)]))
 
-      [:div.tab-content
-       (browse-jobs has-params?)
-       (whitelist)
-       (submit-job has-params? params)])))
 
 (defn get-hostname [url]
   (try
@@ -328,8 +325,14 @@
         fixed-params   (fix-job-params trimmed-params)]
     fixed-params))
 
-;; /jobs
-(defn post-jobs [params]
+;; [:get /job/new]
+(defn get-new-job [& [params]]
+  (common/layout
+   (nav-buttons :new-job)
+   (submit-job params)))
+
+;; [:post /job/new]
+(defn post-new-job [params]
   (let [fixed-params (trim-and-fix-params params)]
     (if (valid-job? fixed-params)
       (try
@@ -349,9 +352,9 @@
 
       (do ;invalid job, flash an error message
         (flash-job-error)
-        (render get-jobs fixed-params)))))
+        (render get-new-job fixed-params)))))
 
-;; /jobs/success
+;; [:get /job/success]
 (defn job-success []
   (common/layout
     [:h1 "Submission Received"]
@@ -422,7 +425,7 @@
       ;;else
       (response/redirect "/jobs"))))
 
-;; "/job/:id"
+;; [:get "/job/:id"]
 (defn get-edit-job [{:keys [id] :as params}]
   (common/layout
    ;; params either contains previously submitted (invalid) params that require editing
@@ -431,7 +434,7 @@
                       params
                       (job/job-map id))]
      (let [secret-map (assoc job-map :secret (:secret params))]
-       (submit-job true secret-map))
+       (submit-job secret-map))
      ;; else
      (job-not-found))))
 
@@ -460,6 +463,7 @@
 
       ; secret does not match job secret
       (flash-error-and-render "Invalid job secret." id fixed-params))))
+
 
 ;; [:post "/job/:id/delete"] 
 (defn delete-job [id]

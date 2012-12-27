@@ -59,12 +59,15 @@
   (GET "/team" [] (user-views/team))
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
 
-  (GET "/jobs" [& params] (jobs/get-jobs params))
-  (POST "/jobs" [& params] (jobs/post-jobs params))
+  (GET "/jobs" [] (jobs/get-jobs))
   (GET "/jobs.edn" [q] (jobs/job-search q))
-  (GET "/jobs/success" [] (jobs/job-success))
 
+  (GET "/whitelist" [] (jobs/get-whitelist))
   (POST "/whitelist" [the-list] (jobs/post-whitelist the-list))
+
+  (GET "/job/new" [& params] (jobs/get-new-job params))
+  (POST "/job/new" [& params] (jobs/post-new-job params))
+  (GET "/job/success" [] (jobs/job-success))
 
   (context "/job/:id" [id] job-routes)
 
