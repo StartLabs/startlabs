@@ -15,6 +15,7 @@
 
   (:use [compojure.response :only [render]]
         [clojure.core.incubator]
+        [clojure.math.numeric-tower :only [abs]]
         [clojure.tools.logging :only [info]]
         [clj-time.core :only [now plus months]]
         [clj-time.coerce :only [to-long]]
@@ -150,7 +151,8 @@
         [:input {:type "hidden" :name "secret" :value (:secret params)}])
 
       (for [hidden-key hidden-job-keys]
-        [:input {:type "hidden" :name (name hidden-key) :value (hidden-key params)}])
+        (let [hname (name hidden-key)]
+          [:input {:type "hidden" :name hname :id hname :value (hidden-key params)}]))
 
       [:div.span6.clearfix.thumbnail
        [:div#job-preview
@@ -227,11 +229,12 @@
   (if (user/logged-in?)
     (do
       (job/update-whitelist the-list)
-      (session/flash-put! :message [:success "The whitelist has been updated successfully."]))
+      (session/flash-put! :message [:success "The whitelist has been updated successfully."])
+      (response/redirect "/whitelist"))
     ;else
     (do
-      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])))
-  (response/redirect "/jobs"))
+      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])
+      (response/redirect "/jobs"))))
 
 ;; [:get /whitelist]
 (defn get-whitelist []
@@ -292,6 +295,10 @@
     (vali/rule (vali/valid-number? (:company_size job-params))
                [:company_size "The company size must be a valid number."])
 
+    (vali/rule (and (<= (abs (Float/parseFloat (:latitude job-params))) 90)
+                    (<= (abs (Float/parseFloat (:longitude job-params))) 180))
+               [:location "The latitude/longitude of the location are invalid."])
+
     (doseq [date [:start_date :end_date]]
       (vali/rule
        (mu/parse-date (date job-params))
@@ -346,15 +353,15 @@
               email-res (send-confirmation-email job-info)]
           (if (= (:error email-res) :SUCCESS)
             (do
-              (response/redirect "/jobs/success"))
+              (response/redirect "/job/success"))
             (do
               (session/flash-put! 
                 :message [:error "Trouble sending confirmation email:" (:message email-res)])
-              (render get-jobs fixed-params))))
+              (render get-new-job fixed-params))))
 
         (catch Exception e
           (session/flash-put! :message [:error (str "Trouble connecting to the database:" e)])
-          (render get-jobs fixed-params)))
+          (render get-new-job fixed-params)))
 
       (do ;invalid job, flash an error message
         (flash-job-error)

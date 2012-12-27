@@ -56,6 +56,9 @@
 (defmethod transform-attr [String :db.type/long] [attr _]
   (Integer/parseInt attr))
 
+(defmethod transform-attr [String :db.type/float] [attr _]
+  (Float/parseFloat attr))
+
 (defmethod transform-attr [String :db.type/instant] [attr _]
   (to-date (parse-date attr)))
 
