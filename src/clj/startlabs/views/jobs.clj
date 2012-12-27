@@ -295,9 +295,12 @@
     (vali/rule (vali/valid-number? (:company_size job-params))
                [:company_size "The company size must be a valid number."])
 
-    (vali/rule (and (<= (abs (Float/parseFloat (:latitude job-params))) 90)
-                    (<= (abs (Float/parseFloat (:longitude job-params))) 180))
-               [:location "The latitude/longitude of the location are invalid."])
+    (try
+      (let [err [:location "The latitude/longitude of the location are invalid."]]
+        (vali/rule (and (<= (abs (Float/parseFloat (:latitude job-params))) 90)
+                        (<= (abs (Float/parseFloat (:longitude job-params))) 180))
+                   err))
+        (catch Exception err))
 
     (doseq [date [:start_date :end_date]]
       (vali/rule
