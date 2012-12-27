@@ -60,6 +60,8 @@
   [:company :position :location :website :fulltime? :start_date :end_date 
    :company_size :description :contact_info :email])
 
+(def hidden-job-keys [:longitude :latitude])
+
 (defmulti input-for-field (fn [field type docs v]
   (keyword (name type))) :default :string)
 
@@ -147,9 +149,13 @@
       (if editing?
         [:input {:type "hidden" :name "secret" :value (:secret params)}])
 
+      (for [hidden-key hidden-job-keys]
+        [:input {:type "hidden" :name (name hidden-key) :value (hidden-key params)}])
+
       [:div.span6.clearfix.thumbnail
        [:div#job-preview
         (job-card (if has-params? params sample-job-fields) false)]
+       [:h3.centered "Job Location Preview (Drag Pin to Relocate)"]
        [:div#job-location]]
       ]]))
 

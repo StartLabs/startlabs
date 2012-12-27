@@ -172,7 +172,7 @@
  (let [map (elem-by-id "map")
        map2 (elem-by-id "job-location")]
    (if (u/exists? map) (set! gmap (google.maps.Map. map map-options)))
-   (if (u/exists? map2) ((set! preview-map (google.maps.Map. map2 map-options))))
+   (if (u/exists? map2) (set! preview-map (google.maps.Map. map2 map-options)))
 
    (let [preview-marker (make-marker {:map preview-map
                                       :title "You can drag me to the right location." 

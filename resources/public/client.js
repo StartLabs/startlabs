@@ -16066,7 +16066,7 @@ startlabs.jobs.mit = new google.maps.LatLng(42.358449, -71.09122);
 jayq.core.document_ready.call(null, function() {
   var a = startlabs.jobs.elem_by_id.call(null, "map"), b = startlabs.jobs.elem_by_id.call(null, "job-location");
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, a)) && (startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options));
-  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, b)) && (startlabs.jobs.preview_map = (new google.maps.Map(b, startlabs.jobs.map_options)).call(null));
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, b)) && (startlabs.jobs.preview_map = new google.maps.Map(b, startlabs.jobs.map_options));
   var c = startlabs.jobs.make_marker.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'map", "\ufdd0'title", "\ufdd0'position", "\ufdd0'draggable"], {"\ufdd0'map":startlabs.jobs.preview_map, "\ufdd0'title":"You can drag me to the right location.", "\ufdd0'position":startlabs.jobs.mit, "\ufdd0'draggable":!0}));
   return google.maps.event.addListener.call(null, c, "dragend", function() {
     return console.log(c.getPosition())

@@ -2475,11 +2475,11 @@ table .span24 {
 }
 
 #job-list.well {
-	margin: 0 -10px;
+    margin: 0 -10px;
 }
 
 .clear {
-	clear: both;
+    clear: both;
 }
 
 .well blockquote {
@@ -4596,13 +4596,13 @@ button.btn.btn-mini,input[type="submit"].btn.btn-mini {
 }
 
 #team .thumbnail {
-	padding: 5px 15px;
-	text-align: left;
-	min-height: 240px;
+    padding: 5px 15px;
+    text-align: left;
+    min-height: 240px;
 }
 
 #email {
-	padding: 0.2em 0.5em;
+    padding: 0.2em 0.5em;
 }
 
 a.thumbnail:hover {
@@ -5077,14 +5077,14 @@ a.label:hover,a.badge:hover {
     line-height: 33px;
     color: inherit;
 }/*!
- * Datepicker for Bootstrap
- *
- * Copyright 2012 Stefan Petre
- * Improvements by Andrew Rowls
- * Licensed under the Apache License v2.0
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- */.datepicker {
+  * Datepicker for Bootstrap
+  *
+  * Copyright 2012 Stefan Petre
+  * Improvements by Andrew Rowls
+  * Licensed under the Apache License v2.0
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  */.datepicker {
     top: 0;
     left: 0;
     padding: 4px;
@@ -5391,22 +5391,22 @@ footer {
 }
 
 #job-preview .more {
-	display: block;
+    display: block;
 }
 
 #job-preview .read {
-	display: none;
+    display: none;
 }
 
 .job-info .more {
-	border-top: 1px solid #ccc;
-	padding-top: 8px;
-	display: none;
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+    display: none;
 }
 
 .job-info small {
-	display: inline-block;
-	padding: 0 0 .3em .4em;
+    display: inline-block;
+    padding: 0 0 .3em .4em;
     font-size: 20px;
     color: #222;
 }
@@ -5429,7 +5429,7 @@ footer {
 .job-info .dateloc {
     padding-top: 6px;
     border-top: 1px solid #ccc;
-	min-height: 24px;
+    min-height: 24px;
 }
 
 .bootcamp {
@@ -5448,20 +5448,16 @@ footer {
     top: 1px;
 }
 
-h2.centered {
-	text-align: center;
-}
-
-div.centered {
-	text-align: center;
+.centered {
+    text-align: center;
 }
 
 .push-down {
-	padding-top: 20px;
+    padding-top: 20px;
 }
 
 .guestlist-event-136884 img {
-	margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .center {
@@ -5475,10 +5471,10 @@ div.centered {
 }
 
 .map {
-	margin: 15px 0;
-	border-radius: 10px;
-	-webkit-box-shadow: 0px 0px 5px 0px #333;
-	box-shadow: 0px 0px 5px 0px #333;
+    margin: 15px 0;
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 0px 5px 0px #333;
+    box-shadow: 0px 0px 5px 0px #333;
 }
 
 #map-box .navbar {
@@ -5502,35 +5498,35 @@ div.centered {
 }
 
 #team .holder {
-	float: left;
-	overflow: hidden;
+    float: left;
+    overflow: hidden;
     max-width: 181px;
-	height: 220px;
-	padding: 10px 0;
-	margin-right: 20px;
-	display: table-cell;
-	text-align: center;
-	vertical-align: middle;
+    height: 220px;
+    padding: 10px 0;
+    margin-right: 20px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
 }
 
 #team .holder * {
-	vertical-align: middle;
+    vertical-align: middle;
 }
 
 #team .holder span {
-	display: inline-block;
-	height: 100%;
-	width: 1px;
+    display: inline-block;
+    height: 100%;
+    width: 1px;
 }
 
 #team img {
-	width: auto;
-	max-height: 220px;
-	max-width: 180px;
+    width: auto;
+    max-height: 220px;
+    max-width: 180px;
 }
 
 #team {
-	font-size: 0.9em;
+    font-size: 0.9em;
 }
 
 #partners {
@@ -5573,7 +5569,7 @@ div.centered {
 
     h1.slug {
         font-size: 64px;
-		padding-top: 10px;
+	padding-top: 10px;
     }
 
     h1.affix {
@@ -5873,10 +5869,10 @@ html,body {
         -moz-box-sizing: border-box;
         box-sizing: border-box;
     }
-	
-	#job-list [class*="span"]:nth-child(2n + 1), #team [class*="span"]:nth-child(2n + 1) {
-		margin-left: 0;
-	}
+    
+    #job-list [class*="span"]:nth-child(2n + 1), #team [class*="span"]:nth-child(2n + 1) {
+	margin-left: 0;
+    }
 
     .row-fluid [class*="span"]:first-child {
         margin-left: 0;
@@ -6810,29 +6806,29 @@ html,body {
 
 #upcoming-events #edit-upcoming {
     display: none;
-  }
+}
 
 #upcoming-events:hover #edit-upcoming {
-  display: block;
+    display: block;
 }
 
 #active-job > div {
     display: none;
 }
-  
+
 #active-job > div.active {
     display: block;
 }
 
 .job-info {
-	padding: 10px 20px;
+    padding: 10px 20px;
 }
 .job-info h2 {
-	text-align: left;
+    text-align: left;
 }
 
 #job-list {
-  overflow: hidden;
+    overflow: hidden;
 }
 
 #job-list i {
@@ -6840,31 +6836,31 @@ html,body {
 }
 
 #job-list .job {
-  display: block;
-  cursor: pointer;
-  padding: 10px;
-  margin-bottom: 10px;
-  position: relative;
-  text-decoration: none;
-  text-shadow: none;
-  color: #222;
-  background: #fff;
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    text-decoration: none;
+    text-shadow: none;
+    color: #222;
+    background: #fff;
 }
 
 #job-list .job h2 {
     font-size: 24px;
     text-align: left;
-	color: #5ab40a;
-	margin: 0 0 5px 0;
+    color: #5ab40a;
+    margin: 0 0 5px 0;
 }
 
 
 #job-list .job h2 small {
-  color: #000;
+    color: #000;
 }
 
 #job-list .job .description {
-	color: #222;
+    color: #222;
 }
 
 #job-list .job:hover small, #job-list .job.active small {
