@@ -23,28 +23,19 @@
   (response/redirect referer))
 
 (defn oauth-callback [state code]
-  (let [access-token (:access-token (user/get-access-token code))
-        user-info    (user/get-user-info access-token)
-        lab-member?  (and (= (last (str/split (:email user-info) #"@")) "startlabs.org")
-                          (:verified_email user-info))]
-    (if lab-member?
-      (do
-        (session/session-put! :access-token access-token)
-        (doseq [k [:id :email]]
-          (session/session-put! k (k user-info))))
-      (do
-        (session/flash-put! :message
-                            [:error "Invalid login. Make sure you're using your email@startlabs.org."])))
-    (response/redirect state)))
+  (if (not (user/verify-code code))
+    (session/flash-put! :message
+                        [:error "Invalid login. Make sure you're using your email@startlabs.org."]))
+  (response/redirect state))
 
-(def editable-attrs [:name :role :bio :link :studying :graduation_year :picture])
+(def editable-attrs [:name :role :bio :link :studying :graduation-year :picture])
 
 (defhtml user-table [info-map editable?]
   [:table.table
     [:tbody
       (for [key editable-attrs]
         (let [key-str  (name key)
-              key-word (common/phrasify key-str)
+              key-word (u/phrasify key-str)
               value    (key info-map)
               inp-elem (if (= key :bio) :textarea :input)]
           [:tr
@@ -64,7 +55,7 @@
                   [:div
                     (if editable? [:a#new-picture.pull-left.btn {:href "#"} "Upload Picture"])
                     [:img#preview.pull-right {:src value :width 50 :height 50}]])]]
-          ]))]])
+           ]))]])
 
 (defn get-me []
   (if-let [my-info (user/get-my-info)]
@@ -100,20 +91,58 @@
 
   (response/redirect "/me"))
 
+(defn authorize-analytics [referer]
+  (if-let [my-info (user/get-my-info)]
+    ;; indicate in the database the user id for analytics
+    (do
+      
+      (session/flash-put! :message [:success "Your account is now set as the analytics provider."]))
+
+    (session/flash-put! :message [:error "You must be logged in to authorize analytics."]))
+  (response/redirect referer))
 
 (defn get-team-member [name]
-  (let [email       (str name "@startlabs.org")
-        member-info (user/find-user-with-email email)]
-    (common/layout
-      [:h1 (or (:name member-info) "User Does Not Exist")]
+  (let [my-info     (user/get-my-info)
+        email       (str name "@startlabs.org")
+        member-info (user/find-user-with-email email)
+        me?         (= email (:email my-info))]
+    (common/layout       
+      [:h1 (or (:name member-info) "User Does Not Exist")
+       (if me?
+         [:a.btn.btn-primary.pull-right 
+          {:href "/analytics/authorize"} "Use my credentials for analytics."])]
+
+      (if me?
+        ;; show session data for debugging
+        [:div
+         [:table.table
+          (for [k [:access-token :refresh-token :expiration]]
+            [:tr 
+             [:td (u/phrasify k)]
+             [:td (u/stringify-value (k my-info))]])
+          [:tr
+           [:td]
+           [:td [:a.btn {:href "/me/refresh"} "Refresh Token"]]]]])
+          
       (if (some #(not (nil? %)) (vals member-info))
         (user-table member-info false)
         [:p "We could not find a user with the email address: " email]))))
 
+(defn refresh-me [referer]
+  (if-let [my-info (user/get-my-info)]
+    (let [refresh-token  (:refresh-token my-info)
+          user-id        (:id my-info)
+          new-oauth-map  (user/refresh-access-token refresh-token)]
+      (user/refresh-user user-id new-oauth-map)
+      (session/flash-put! :message [:success "Your access token has been refreshed."]))
+    (do
+      (session/flash-put! :message [:error "You are not currently logged in."])))
+  (response/redirect referer))
+
 (defhtml team-member [person]
   (let [person    (u/nil-empty-str-values person)
         major     (:studying person)
-        grad-year (:graduation_year person)]
+        grad-year (:graduation-year person)]
     [:li.span6
       [:div.thumbnail
         [:div.holder [:span " "][:img {:src (:picture person)}]]

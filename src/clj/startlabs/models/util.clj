@@ -62,6 +62,9 @@
 (defmethod transform-attr [String :db.type/instant] [attr _]
   (to-date (parse-date attr)))
 
+(defmethod transform-attr [org.joda.time.DateTime :db.type/instant] [attr _]
+  (to-date attr))
+
 (defmethod transform-attr [String :db.type/boolean] [attr _]
   (if (= (str/lower-case attr) "true") 
     true 
@@ -163,14 +166,15 @@
 
 (defn map-for-datom
   "Takes as input a single datomic entity id (the output of ffirsting query)"
+
   ([datom-id desired-ns]
     (map-for-datom datom-id desired-ns (entity-map-with-nil-vals desired-ns)))
 
   ([datom-id desired-ns ent-map]
     ; we don't actually use inputs here
-    (let [datom-entity (d/entity (db *conn*) datom-id)]
-      (denamespace-keys (conj ent-map
-                              (into {} datom-entity))))))
+     (let [datom-entity (d/entity (db *conn*) datom-id)]
+       (denamespace-keys (conj ent-map
+                               (into {} datom-entity))))))
 
 (defn maps-for-datoms
   "Expects that all datoms have the same schema"

@@ -12,4 +12,5 @@
   (def ^:dynamic *conn* (d/connect uri)))
 
 (defn do-default-setup []
+  (println "Connecting to db...")
   (do-setup uri))

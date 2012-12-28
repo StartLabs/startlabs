@@ -1,7 +1,8 @@
 (ns startlabs.models.user
   (:use [datomic.api :only [q db ident] :as d]
-        [startlabs.models.database :only [*conn*]]
         [environ.core :only [env]]
+        [oauth.io :only [request]]
+        [startlabs.models.database :only [*conn*]]
         [startlabs.util :only [stringify-values home-uri]])
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
@@ -23,18 +24,16 @@
   (str/join " " (scope-strings scopes origin)))
 
 (defn get-login-url [referer]
-  (let [scopes {:userinfo [:email :profile]}
+  (let [scopes {:userinfo [:email :profile] :analytics [:readonly]}
         scope-origin "https://www.googleapis.com/auth/"]
     (oa/oauth-authorization-url (env :oauth-client-id) redirect-url 
-      :scope (joined-scope-strings scopes scope-origin) 
-      :response_type "token"
+      :scope (joined-scope-strings scopes scope-origin)
+      :response_type "code"
+      :access_type "offline"
       :state referer)))
 
 (defn get-user-info [access-token]
-  (let [response (client/get "https://www.googleapis.com/oauth2/v1/userinfo" 
-                             {:query-params {:access_token access-token}}
-                             {:as :json})]
-    (json/read-str (:body response) :key-fn keyword)))
+  (oa/user-info (oa/oauth-client access-token)))
 
 (defn get-access-token [code]
   (oa/oauth-access-token (env :oauth-client-id)
@@ -42,11 +41,40 @@
                          code
                          redirect-url))
 
-(defn create-user [access-token user-id]
+(defn expiration-to-date
+  "Takes the expires_in response from access token requests
+   and converts it to a date."
+  [seconds]
+  (t/plus (t/now) (t/secs seconds)))
+
+;; this should eventually be rolled into oauth-clj
+(defn oauth-refresh-token
+  "Obtain the OAuth access token from a refresh token."
+  [url client-id client-secret refresh-token]
+  (request
+   {:method :post
+    :url url
+    :form-params
+    {"client_id" client-id
+     "client_secret" client-secret
+     "refresh_token" refresh-token
+     "grant_type" "refresh_token"}}))
+
+(defn refresh-access-token [refresh-token]
+  (oauth-refresh-token oa/*oauth-access-token-url*
+                       (env :oauth-client-id)
+                       (env :oauth-client-secret)
+                       refresh-token))
+
+(defn create-user [user-info]
   "Need to make this more flexible: should handle the case of new fields"
-  (let [user-data (get-user-info access-token)
-        tx-data   (util/txify-new-entity :user user-data)]
-    (d/transact *conn* tx-data)))
+  (try
+    (let [tx-data (util/txify-new-entity :user user-info)]
+      @(d/transact *conn* tx-data)
+      user-info)
+
+    (catch Exception e
+      (session/flash-put! :message [:error (str "Trouble creating user: " e)]))))
 
 (defn user-with-id [& args]
   (apply util/elem-with-attr :user/id args))
@@ -54,29 +82,67 @@
 (defn user-with-email [& args]
   (apply util/elem-with-attr :user/email args))
 
+;; these actually return maps with attributes
+(defn find-user-with-email [email]
+  (util/map-for-datom (user-with-email email) :user))
+
+(defn find-user-with-id [id]
+  (util/map-for-datom (user-with-id id) :user))
+
+(defn update-user
+  "Expects new-fact-map to *not* already be namespaced with user/"
+  [user-id new-fact-map]
+  (try
+    (let [user          (user-with-id user-id)
+          tranny-facts  (util/namespace-and-transform :user new-fact-map)
+          idented-facts (assoc tranny-facts :db/id user)]
+      @(d/transact *conn* (list idented-facts)))
+    (catch Exception e
+      (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
+
+(defn refresh-user [user-id oauth-map]
+  (let [user-map           (find-user-with-id user-id)
+        real-refresh-token (or (:refresh-token oauth-map)
+                               (:refresh-token user-map))
+        expiration-date    (expiration-to-date (:expires-in oauth-map))
+        update-map         {:access-token (:access-token oauth-map)
+                            :refresh-token real-refresh-token
+                            :expiration expiration-date}]
+    (update-user user-id update-map)
+    (merge user-map update-map)))
+
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id.
    Returns a hash-map of the user's data, with the user/ namespace stripped out."
-  [access-token user-id]
-  (let [conn-db      (db *conn*)
-        user         (user-with-id user-id conn-db)] ; should be a vector with one entry
+  [user-info oauth-map]
+  (let [user-id (:id user-info)
+        user    (user-with-id user-id)] ;user should be a vector with one entry
     (if (not user)
-      (try
-        @(create-user access-token user-id) ; dereferencing forces the transaction to return
-        (find-or-create-user access-token user-id) ; now we should be able to find the user
-        (catch Exception e ; transaction may fail, returning an ExecutionException
-          (session/flash-put! :message [:error (str "Trouble connecting to the database: " e)])))
-      ; else return the user's data from the db
-      (util/map-for-datom user :user))))
+      (create-user user-info))
+    ; now return the user's data from the db, 
+    ; but update the access token and expiration first
+    (refresh-user user-id oauth-map)))
 
-(defn find-user-with-email [email]
-  (util/map-for-datom (user-with-email email) :user))
+(defn verify-code [code]
+  (let [oauth-map     (get-access-token code)
+        access-token  (:access-token oauth-map)
+        user-info     (get-user-info access-token) ;; we only do this to get the user id
+        lab-member?   (and (= (last (str/split (:email user-info) #"@")) "startlabs.org")
+                           (:verified-email user-info))]
+
+    (if lab-member?
+      (do
+        (find-or-create-user user-info oauth-map)
+        (doseq [k [:id :email]]
+          (session/session-put! k (k user-info)))))
+    
+    lab-member?))
 
 (def q-ungraduated-users
   '[:find ?user 
     :in $ ?current-year
     :where  [?user :user/id _]
-            [?user :user/graduation_year ?grad-year]
+            [?user :user/graduation-year ?grad-year]
             [(<= ?current-year ?grad-year)]])
 
 (defn find-all-users []
@@ -89,38 +155,26 @@
 (defn username [person-info]
   (first (str/split (:email person-info) #"@")))
 
-(defn update-user
-  "Expects new-fact-map to *not* already be namespaced with user/"
-  [user-id new-fact-map]
-  (try
-    (let [user          (user-with-id user-id)
-          tranny-facts  (util/namespace-and-transform :user new-fact-map)
-          idented-facts (assoc tranny-facts :db/id user)]
-      (d/transact *conn* (list idented-facts))
-      (session/flash-put! :message [:success (str "Updated info successfully!")]))
-    (catch Exception e
-      (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
-
 (defn update-my-info [new-fact-map]
   (let [user-id (session/session-get :id)]
     (if user-id
-      (update-user user-id new-fact-map)
+      (do
+        (update-user user-id new-fact-map)
+        (session/flash-put! :message [:success (str "Updated info successfully!")]))
+      
       (session/flash-put! :message [:error "Please log back in"]))))
 
 (defn get-my-info []
-  (let [access-token (session/session-get :access-token)
-        user-id      (session/session-get :id)]
-    (if (and access-token user-id)
-      (try
-        (stringify-values (find-or-create-user access-token user-id))
-        (catch Exception e
-          (do
-            (session/destroy-session!)
-            (session/flash-put! :error "Invalid session. Try logging in again.")
-            e) ;return nil if there's an exception
-          ))
-      ; lack of else clause = implicit nil
-      )))
+  (try
+    (if-let [user-id (session/session-get :id)]
+      (stringify-values (find-user-with-id user-id))
+      nil)
+
+    (catch Exception e
+      (do
+        (session/destroy-session!)
+        (session/flash-put! :message [:error "Invalid session. Try logging in again."])))
+    ))
 
 (defn logged-in? []
   (not (nil? (get-my-info))))

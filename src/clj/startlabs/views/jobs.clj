@@ -100,7 +100,7 @@
               error?      (vali/on-error field (fn [_] true))
               v           (or (field params) "")]
           [:tr {:class (if error? "error")}
-            [:td [:label {:for field} (common/phrasify field-name)]]
+            [:td [:label {:for field} (u/phrasify field-name)]]
             [:td
               ; dispatch input based on type
               (input-for-field field type docs v)

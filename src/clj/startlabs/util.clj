@@ -7,6 +7,11 @@
         [environ.core :only [env]])
   (:import java.util.Date))
 
+(defn phrasify 
+  "Convert an underscore-delimited phrase into capitalized words."
+  [key-str]
+  (str/capitalize (str/replace (name key-str) #"[_-]" " ")))
+
 (defn stringify-value [val]
   (condp = (type val)
     clojure.lang.Keyword (name val)

@@ -19,11 +19,6 @@
   (str "http://fonts.googleapis.com/css?family="
     (str/join "|" (apply fonts faces))))
 
-(defn phrasify 
-  "Convert an underscore-delimited phrase into capitalized words."
-  [key-str]
-  (str/capitalize (str/replace key-str "_" " ")))
-
 (defhtml login-info []
   (if-let [info (user/get-my-info)]
     [:li.dropdown.pull-right
@@ -36,7 +31,7 @@
         [:li [:a {:href "/me"} "Edit Profile"]]
         [:li.divider]
         [:li [:a {:href "/logout"} "Logout"]]
-      ]]
+       ]]
     [:li.pull-right [:a {:href "/login"} "Login &rsaquo;"]]))
 
 (defhtml webmaster-link [text]

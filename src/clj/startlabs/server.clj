@@ -55,6 +55,7 @@
 
   (GET "/me" [] (user-views/get-me))
   (POST "/me" [& params] (user-views/post-me params))
+  (GET "/me/refresh" [:as req] (user-views/refresh-me (get-referer req)))
 
   (GET "/team" [] (user-views/team))
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
@@ -68,6 +69,8 @@
   (GET "/job/new" [& params] (jobs/get-new-job params))
   (POST "/job/new" [& params] (jobs/post-new-job params))
   (GET "/job/success" [] (jobs/job-success))
+
+  (GET "/analytics/authorize" [:as req] (user-views/authorize-analytics (get-referer req)))
 
   (context "/job/:id" [id] job-routes)
 

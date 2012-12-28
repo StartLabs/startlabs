@@ -30,7 +30,7 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :user/given_name,
+  :db/ident :user/given-name,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Example value: Fred",
@@ -44,14 +44,14 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :user/verified_email,
+  :db/ident :user/verified-email,
   :db/valueType :db.type/boolean,
   :db/cardinality :db.cardinality/one,
   :db/doc "Example value: true",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :user/family_name,
+  :db/ident :user/family-name,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Example value: Example",
@@ -79,7 +79,7 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :user/graduation_year,
+  :db/ident :user/graduation-year,
   :db/valueType :db.type/long,
   :db/cardinality :db.cardinality/one,
   :db/doc "Example value: 2014",
@@ -106,6 +106,27 @@
   :db/fulltext true,
   :db/cardinality :db.cardinality/one,
   :db/doc "E.g. Computer Science"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/access-token,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "OAuth access token"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/refresh-token,
+  :db/valueType :db.type/string,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "OAuth refresh token"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :user/expiration,
+  :db/valueType :db.type/instant,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "OAuth expiration date"
   :db.install/_attribute :db.part/db}
 
    ;; user/gender enum values
