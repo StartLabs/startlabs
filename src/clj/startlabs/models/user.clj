@@ -100,16 +100,21 @@
     (catch Exception e
       (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
 
-(defn refresh-user [user-id oauth-map]
-  (let [user-map           (find-user-with-id user-id)
-        real-refresh-token (or (:refresh-token oauth-map)
-                               (:refresh-token user-map))
+(defn refresh-user [user-map oauth-map]
+  (let [real-refresh-token (or (:refresh-token oauth-map)
+                               (:refresh-token user-map)
+                               "")
         expiration-date    (expiration-to-date (:expires-in oauth-map))
         update-map         {:access-token (:access-token oauth-map)
                             :refresh-token real-refresh-token
                             :expiration expiration-date}]
-    (update-user user-id update-map)
+    (update-user (:id user-map) update-map)
     (merge user-map update-map)))
+
+(defn refresh-user-with-info [user-info]
+  (let [refresh-token  (:refresh-token user-info)
+        new-oauth-map  (refresh-access-token refresh-token)]
+    (refresh-user user-info new-oauth-map)))
 
 (defn find-or-create-user
   "Finds the user in the database or creates a new one based on their user-id.
@@ -121,7 +126,7 @@
       (create-user user-info))
     ; now return the user's data from the db, 
     ; but update the access token and expiration first
-    (refresh-user user-id oauth-map)))
+    (refresh-user user-info oauth-map)))
 
 (defn verify-code [code]
   (let [oauth-map     (get-access-token code)
@@ -171,10 +176,7 @@
       nil)
 
     (catch Exception e
-      (do
-        (session/destroy-session!)
-        (session/flash-put! :message [:error "Invalid session. Try logging in again."])))
-    ))
+      nil)))
 
 (defn logged-in? []
   (not (nil? (get-my-info))))

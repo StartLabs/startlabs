@@ -3,6 +3,7 @@
             [noir.response :as response]
             [noir.validation :as vali]
             [sandbar.stateful-session :as session]
+            [startlabs.models.analytics :as analytics]
             [startlabs.models.user :as user]
             [startlabs.models.util :as mu]
             [startlabs.views.common :as common]
@@ -95,7 +96,7 @@
   (if-let [my-info (user/get-my-info)]
     ;; indicate in the database the user id for analytics
     (do
-      
+      (analytics/set-analytics-user (user/user-with-id (:id my-info)))
       (session/flash-put! :message [:success "Your account is now set as the analytics provider."]))
 
     (session/flash-put! :message [:error "You must be logged in to authorize analytics."]))
@@ -116,6 +117,12 @@
         ;; show session data for debugging
         [:div
          [:table.table
+          (if (empty? (:refresh-token my-info))
+            [:div.well
+             [:p "Please go to " 
+              [:a {:href "https://accounts.google.com/IssuedAuthSubTokens"} "The Google Accounts Site"]
+              ", Revoke Access for StartLabs, Log Out, then Log In to get a new refresh token."]])
+                                 
           (for [k [:access-token :refresh-token :expiration]]
             [:tr 
              [:td (u/phrasify k)]
@@ -130,10 +137,8 @@
 
 (defn refresh-me [referer]
   (if-let [my-info (user/get-my-info)]
-    (let [refresh-token  (:refresh-token my-info)
-          user-id        (:id my-info)
-          new-oauth-map  (user/refresh-access-token refresh-token)]
-      (user/refresh-user user-id new-oauth-map)
+    (do
+      (user/refresh-user-with-info my-info)
       (session/flash-put! :message [:success "Your access token has been refreshed."]))
     (do
       (session/flash-put! :message [:error "You are not currently logged in."])))
@@ -163,6 +168,3 @@
             (team-member person)
           )]]]
     [:div.clear]))
-
-
-

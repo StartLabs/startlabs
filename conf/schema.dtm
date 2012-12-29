@@ -344,5 +344,16 @@
   :db/cardinality :db.cardinality/one,
   :db/doc "The payment date",
   :db.install/_attribute :db.part/db}
+
+
+  ;; analytics user
+
+ {:db/id #db/id[:db.part/db],
+  :db/ident :analytics/user,
+  :db/unique :db.unique/identity,
+  :db/valueType :db.type/ref,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "The person whose auth info we use for the Google Analytics API",
+  :db.install/_attribute :db.part/db}
   
 ]

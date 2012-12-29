@@ -95,16 +95,18 @@
         (session/flash-put! :message
                             [:error "Unexpected error. Try again later."])))))
 
-(defhtml four-oh-four [] 
-    [:h1 "Sorry, we lost that one."]
-    [:p "We couldn't find the page you requested."]
-    [:p "If you got here through a link on another website, then we've
-         probably made a mistake."]
-    [:p "Feel free to contact " (common/webmaster-link "the webmaster") 
-        " so we can be aware of the issue."])
+(defn internal-error []
+  (common/layout
+   [:h1 "Something very bad has happened."]
+   [:p "Well this is embarassing. Please notify " (common/webmaster-link "our webmaster") 
+    " of the issue."]
+   [:p "Sorry for the inconvience."]))
 
-(defhtml internal-error []
-    [:h1 "Something very bad has happened."]
-    [:p "Well this is embarassing. Please notify " (common/webmaster-link "our webmaster") 
-      " of the issue."]
-    [:p "Sorry for the inconvience."])
+(defn four-oh-four []
+  (common/layout
+   [:h1 "Sorry, we lost that one."]
+   [:p "We couldn't find the page you requested."]
+   [:p "If you got here through a link on another website, then we've
+         probably made a mistake."]
+   [:p "Feel free to contact " (common/webmaster-link "the webmaster") 
+    " so we can be aware of the issue."]))

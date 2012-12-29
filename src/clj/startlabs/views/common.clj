@@ -116,5 +116,3 @@
                     (str "//maps.googleapis.com/maps/api/js?key=" (env :google-maps-key) "&sensor=false")
                     "/client.js")
     ])))
-
-

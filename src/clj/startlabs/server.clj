@@ -2,6 +2,7 @@
   (:require [compojure.handler :as handler]
             [compojure.route :as route]
             [clojure.string :as str]
+            [noir.response :as response]
             [startlabs.models.user :as user]
             [startlabs.models.database :as db]
             [startlabs.views.about :as about]
@@ -19,11 +20,6 @@
 ;; add these to the routes
 ;;(status/set-page! 404 (four-oh-four))
 ;;(status/set-page! 500 (internal-error))
-
-;; Redirect. Dead links = evil
-;; (defpage "/company" [] (response/redirect "/about"))
-;; (defpage "/contact" [] (response/redirect "/about"))
-;; (defpage "/postJob" [] (response/redirect "/jobs"))
 
 (defn init []
   (db/do-default-setup)
@@ -70,11 +66,18 @@
   (POST "/job/new" [& params] (jobs/post-new-job params))
   (GET "/job/success" [] (jobs/job-success))
 
-  (GET "/analytics/authorize" [:as req] (user-views/authorize-analytics (get-referer req)))
-
   (context "/job/:id" [id] job-routes)
 
-  (route/resources "/"))
+  (GET "/analytics/authorize" [:as req] (user-views/authorize-analytics (get-referer req)))
+
+  ;; Redirect. Dead links = evil
+  (GET "/company" [] (response/redirect "/about"))
+  (GET "/contact" [] (response/redirect "/about"))
+  (GET "/postJob" [] (response/redirect "/jobs"))
+
+  (route/resources "/")
+
+  (route/not-found (main/four-oh-four)))
 
 (def app
   (-> (handler/site main-routes)
