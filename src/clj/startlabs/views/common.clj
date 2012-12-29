@@ -114,5 +114,6 @@
                     "/bootstrap/js/bootstrap.min.js"
                     "https://api.filepicker.io/v0/filepicker.js"
                     (str "//maps.googleapis.com/maps/api/js?key=" (env :google-maps-key) "&sensor=false")
+                    "https://www.google.com/jsapi"
                     "/client.js")
     ])))

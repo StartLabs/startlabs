@@ -18,8 +18,11 @@
   :stripe-secret-key "STRIPE_SECRET_KEY"
   :stripe-pub-key "STRIPE_PUBLIC_KEY"
 
+  ;; google maps api
+  :google-maps-key "GOOGLE_MAPS_API_KEY"
+
+  ;; google analytics reporting api
+  :google-analytics-id "ANALYTICS_SITE_ID"
+
   :dev  true
-  :port "8000"
-  ;; for remote debugging, etc.
-  :nrepl-port "0000"
 }

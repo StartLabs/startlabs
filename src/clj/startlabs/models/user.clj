@@ -126,21 +126,21 @@
       (create-user user-info))
     ; now return the user's data from the db, 
     ; but update the access token and expiration first
-    (refresh-user user-info oauth-map)))
+    (let [user-info (find-user-with-id user-id)]
+      (refresh-user user-info oauth-map))))
 
 (defn verify-code [code]
   (let [oauth-map     (get-access-token code)
         access-token  (:access-token oauth-map)
-        user-info     (get-user-info access-token) ;; we only do this to get the user id
-        lab-member?   (and (= (last (str/split (:email user-info) #"@")) "startlabs.org")
+        user-info     (get-user-info access-token)
+        lab-member?   (and (= (last (str/split (:email user-info) #"@")) 
+                              "startlabs.org")
                            (:verified-email user-info))]
-
     (if lab-member?
       (do
         (find-or-create-user user-info oauth-map)
         (doseq [k [:id :email]]
           (session/session-put! k (k user-info)))))
-    
     lab-member?))
 
 (def q-ungraduated-users

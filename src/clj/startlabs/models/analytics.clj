@@ -8,6 +8,7 @@
             [clojure.data.json :as json]
             [clj-http.client :as client]
             [clj-time.core :as t]
+            [clj-time.format :as tf]
             [sandbar.stateful-session :as session]
             [startlabs.models.user :as user]
             [startlabs.models.util :as util]))
@@ -18,11 +19,94 @@
 
 (defn get-analytics-token []
   (let [user-info (util/map-for-datom (second (get-analytics-ent)) :user)]
-    ;; if the current access token has expired, fetch a new one
-    (if (t/before? (from-date (:expiration user-info)) (t/now))
-      (:access-token (user/refresh-user-with-info user-info))
-      ;; otherwise, just return the current one
-      (:access-token user-info))))
+    (if (util/after-now? (:expiration user-info))
+      ;; return the current access token if valid
+      (:access-token user-info)
+      ;; if expired, fetch a new one
+      (:access-token (user/refresh-user-with-info user-info)))))
+
+(defn ga [s]
+  (if ;ignore dates and pre-formatted strings
+      (and (string? s)
+           (or (re-find #"^-?ga:" s)
+               (re-matches #"\d{4}-\d{2}-\d{2}" s)))
+    s
+    (let [sname  (name s)
+          rsname (str/replace sname #"^-" "")
+          neg?   (not= sname rsname)]
+      (str (if neg? "-") "ga:" rsname))))
+
+(def analytics-url "https://www.googleapis.com/analytics/v3/data/ga")
+
+(def default-params
+  {:ids (env :google-analytics-id)
+   :dimensions [:eventAction :date]
+   :metrics [:uniqueEvents :totalEvents]
+   :sort [:date]})
+
+(defn params-to-string [params]
+  (apply merge 
+         (for [[k vs] params]
+           (let [vs (map ga (flatten [vs]))]
+             {k (str/join "," vs)}))))
+
+(def google-date-format "YYYY-MM-dd")
+(def google-date-formatter (tf/formatter google-date-format))
+
+(defn unparse-date [date]
+  (tf/unparse google-date-formatter date))
+
+(defn a-month-ago []
+  (unparse-date (t/minus (t/now) (t/months 1))))
+
+(defn analytics-link [job-id start-date end-date]
+  (let [access-token  (get-analytics-token)
+        custom-params  {:filters    [(str "ga:eventLabel==" job-id)]
+                        :start-date [start-date]
+                        :end-date   [end-date]}]
+    (str analytics-url "?access_token=" access-token "&"
+       (client/generate-query-string 
+        (params-to-string (merge default-params custom-params))))))
+
+(defn analytics-for-job [job-id & [start-date end-date]]
+  (let [start-date (or start-date (a-month-ago))
+        end-date   (or end-date (unparse-date (t/now)))
+        link       (analytics-link job-id start-date end-date)]
+    (let [response (client/get link {:as :json})]
+      (if (= (:status response) 200)
+        (:body response)
+        []))))
+
+;; (pprint (analytics-for-job "3bfd1881-0909-4ab7-80d0-be3d3b775a49"))
+
+(defn data-map
+  "Convert columns from the analytics api into an intermediate
+   hash-map, keyed by date."
+  [data]
+  (let [rows (:rows data)
+        m (atom {})]
+    (doseq [[event date unique total] rows]
+      (let [event-map {(str event "-unique") unique
+                       (str event "-total") total}]
+        (if-let [elem (get @m date)]
+          (do
+            (swap! m assoc date (merge elem event-map)))
+          (do
+            (swap! m assoc date event-map)))))
+    @m))
+
+(defn data-array [data col-headers]
+  (let [results (data-map data)
+        all-headers (cons "Date" col-headers)]
+    (cons all-headers
+          (sort-by first
+                   (for [[k v] results]
+                     (into []
+                           (cons k (for [header col-headers]
+                               (get v header 0)))))))))
+
+;; (pprint (data-array (analytics-for-job "3bfd1881-0909-4ab7-80d0-be3d3b775a49")
+;;                   ["More-unique" "More-total" "Contact-unique" "Contact-total"]))
 
 (defn set-analytics-user
   "Expects a user entity"

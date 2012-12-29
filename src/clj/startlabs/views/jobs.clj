@@ -7,9 +7,10 @@
             [ring.util.codec :as c]
             [ring.util.response :as rr]
             [sandbar.stateful-session :as session]
-            [startlabs.models.util :as mu]
+            [startlabs.models.analytics :as analytics]
             [startlabs.models.job :as job]
             [startlabs.models.user :as user]
+            [startlabs.models.util :as mu]
             [startlabs.util :as u]
             [startlabs.views.common :as common])
 
@@ -317,12 +318,12 @@
     (not (apply vali/errors? ordered-job-keys))))
 
 (defn fix-job-params [params]
-  (let [website   (:website params)
-        fulltime? (if (= (:fulltime? params) "true") true false)
+  (let [website    (:website params)
+        fulltime?  (if (= (:fulltime? params) "true") true false)
         start-date (mu/parse-date (:start_date params))
-        end-date (if start-date
-                   (plus start-date (months 6)) 
-                   (plus (now) (months 6)))]
+        end-date   (if start-date
+                     (plus start-date (months 6)) 
+                     (plus (now) (months 6)))]
     (conj params
       {:website (if (not (empty? website)) 
         (u/httpify-url website) 
@@ -441,18 +442,60 @@
       ;;else
       (response/redirect "/jobs"))))
 
+(defhtml job-analytics [id]
+  (let [data       (analytics/analytics-for-job id)
+        date-fmt   (str/lower-case analytics/google-date-format)
+        start-date (get-in data [:query :start-date])
+        end-date   (get-in data [:query :end-date])]
+    [:div#analytics.tab-pane
+     [:h1 "Job Analytics"]
+
+     [:div.row-fluid
+      [:form.form-horizontal.span6 {:method "GET"}
+       (for [[k v] [[:a-start-date start-date] [:a-end-date end-date]]]
+         (let [kn (name k)]
+           [:div.control-group
+            [:label.control-label {:for kn} (u/phrasify k)]
+            [:div.controls
+             [:input.datepicker {:type "text" :data-date-format date-fmt
+                                 :value v :placeholder date-fmt
+                                 :id kn :name kn}]]]))]
+      [:div.span6
+       [:div.row-fluid
+        [:div.span6.thumbnail
+         [:h1.centered (get-in data [:totalsForAllResults :ga:uniqueEvents])]
+         [:h2.centered "Unique Events"]]
+        [:div.span6.thumbnail
+         [:h1.centered (get-in data [:totalsForAllResults :ga:totalEvents])]
+         [:h2.centered "Total Events"]]
+        ]]
+      ]
+
+     [:div#analytics-chart.row-fluid]
+     [:script#analytics-data {:type "text/edn"}
+      (str data)]]
+    ))
+
 ;; [:get "/job/:id"]
 (defn get-edit-job [{:keys [id] :as params}]
   (common/layout
+   [:div.tab-content
+    [:div.btn-group.pull-right {:data-toggle "buttons-radio"}
+     [:a.btn.active {:href "#edit" :data-toggle "tab"} "Edit Job"]
+     [:a.btn {:href "#analytics" :data-toggle "tab"} "Analytics"]]
+
    ;; params either contains previously submitted (invalid) params that require editing
    ;; or it only contains {:id id} if the user just arrived at the edit page.
-   (if-let [job-map (if (> (count params) 1) 
-                      params
-                      (job/job-map id))]
-     (let [secret-map (assoc job-map :secret (:secret params))]
-       (submit-job secret-map))
-     ;; else
-     (job-not-found))))
+    [:div#edit.tab-pane.active
+     (if-let [job-map (if (> (count params) 1) 
+                        params
+                        (job/job-map id))]
+       (let [secret-map (assoc job-map :secret (:secret params))]
+         (submit-job secret-map))
+       ;; else
+       (job-not-found))]
+    
+    (job-analytics id)]))
 
 (defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])

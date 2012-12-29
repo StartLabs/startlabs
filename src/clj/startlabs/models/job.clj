@@ -67,17 +67,12 @@
 (defn remove-job [job-id]
   (update-job-field job-id :job/removed? true "Trouble deleting job"))
 
-(defn after-now?
-  "Determines if the provided date is in the future."
-  [date]
-  (> (to-long date) (to-long (now))))
-
 (defn find-upcoming-jobs 
   "returns all confirmed, non-removed jobs whose start dates are after a certain date"
   []
   (let [jobs      (q '[:find ?job :where [?job :job/confirmed? true]
                                          [?job :job/end_date ?end]
-                                         [(startlabs.models.job/after-now? ?end)]] (db *conn*))
+                                         [(startlabs.models.util/after-now? ?end)]] (db *conn*))
         job-ids   (map first jobs)
         job-maps  (util/maps-for-datoms job-ids :job)
         ;; make sure to remove the secret!

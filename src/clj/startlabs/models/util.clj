@@ -3,7 +3,8 @@
         [startlabs.models.database :only [*conn*]]
         [environ.core :only [env]]
         [clojure.java.io :only [input-stream]]
-        [clj-time.coerce :only [to-date]])
+        [clj-time.core :only [after? now]]
+        [clj-time.coerce :only [to-long to-date]])
   (:require [clojure.string :as str]
             [clj-time.format :as t]
             [aws.sdk.s3 :as s3])
@@ -18,7 +19,8 @@
         bucket-name "startlabs"]
     (with-open [picture-file (input-stream temp-url)]
       (s3/put-object aws-creds bucket-name file-name picture-file)
-      (s3/update-object-acl aws-creds bucket-name file-name (s3/grant :all-users :read))
+      (s3/update-object-acl aws-creds bucket-name file-name 
+                            (s3/grant :all-users :read))
       (str "https://s3.amazonaws.com/" bucket-name "/" file-name))))
 
 
@@ -33,6 +35,11 @@
 
 (defn unparse-date [the-date]
   (t/unparse default-date-formatter the-date))
+
+(defn after-now?
+  "Determines if the provided date is in the future."
+  [date]
+  (> (to-long date) (to-long (now))))
 
 (defn uuid []
   (str (java.util.UUID/randomUUID)))

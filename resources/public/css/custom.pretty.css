@@ -6893,3 +6893,8 @@ html,body {
 .edit-link:hover {
     color: #aa0000;
 }
+
+#analytics-chart {
+    height: 480px;
+    background: #fff;
+}
