@@ -16110,6 +16110,18 @@ startlabs.jobs.update_location = function() {
   var a = jayq.core.$.call(null, "#location").val();
   return startlabs.jobs.geocode.call(null, a, startlabs.jobs.grab_coords.call(null, startlabs.jobs.update_preview_marker))
 };
+startlabs.jobs.draw_chart = function(a) {
+  return function() {
+    var b = google.visualization.arrayToDataTable.call(null, a), c = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'title"], {"\ufdd0'title":"Contact and Read More Click Events"}));
+    return(new google.visualization.LineChart(startlabs.jobs.elem_by_id.call(null, "analytics-chart"))).draw(b, c)
+  }
+};
+startlabs.jobs.setup_job_analytics = function() {
+  var a = cljs.reader.read_string.call(null, jayq.core.$.call(null, "#analytics-data").text()), b = jayq.util.clj__GT_js.call(null, (new cljs.core.Keyword("\ufdd0'table")).call(null, a));
+  startlabs.util.log.call(null, (new cljs.core.Keyword("\ufdd0'unique-events")).call(null, a));
+  google.load.call(null, "visualization", "1", jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'packages"], {"\ufdd0'packages":cljs.core.PersistentVector.fromArray(["corechart"], !0)})));
+  return google.setOnLoadCallback.call(null, startlabs.jobs.draw_chart.call(null, b))
+};
 startlabs.jobs.setup_job_submit = function() {
   var a = startlabs.jobs.elem_by_id.call(null, "job-location"), b = jayq.core.$.call(null, "#latitude"), c = jayq.core.$.call(null, "#longitude"), d = cljs.core.truth_(startlabs.jobs.have_values_QMARK_.call(null, b, c)) ? startlabs.jobs.lat_lng.call(null, b.val(), c.val()) : startlabs.jobs.mit;
   startlabs.jobs.preview_map = new google.maps.Map(a, startlabs.jobs.map_options);
@@ -16123,7 +16135,8 @@ startlabs.jobs.setup_job_submit = function() {
   startlabs.jobs.setup_radio_buttons.call(null);
   a = jayq.core.$.call(null, "#job-form");
   jayq.core.on.call(null, a, cljs.core.PersistentVector.fromArray(["\ufdd0'keyup", "\ufdd0'blur", "\ufdd0'change"], !0), "input, textarea", null, startlabs.jobs.update_job_card);
-  return jayq.core.on.call(null, a, "\ufdd0'blur", "#location", null, startlabs.jobs.update_location)
+  jayq.core.on.call(null, a, "\ufdd0'blur", "#location", null, startlabs.jobs.update_location);
+  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, jayq.core.$.call(null, "#analytics"))) ? startlabs.jobs.setup_job_analytics.call(null) : null
 };
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {

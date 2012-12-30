@@ -79,6 +79,8 @@
 
 ;; (pprint (analytics-for-job "3bfd1881-0909-4ab7-80d0-be3d3b775a49"))
 
+;; this is brittle, and will require revision if we tweak the
+;; analytics query to include more stats...
 (defn data-map
   "Convert columns from the analytics api into an intermediate
    hash-map, keyed by date."
@@ -86,8 +88,8 @@
   (let [rows (:rows data)
         m (atom {})]
     (doseq [[event date unique total] rows]
-      (let [event-map {(str event "-unique") unique
-                       (str event "-total") total}]
+      (let [event-map {(str (str/lower-case event) "-unique") (Integer. unique)
+                       (str (str/lower-case event) "-total")  (Integer. total)}]
         (if-let [elem (get @m date)]
           (do
             (swap! m assoc date (merge elem event-map)))
@@ -95,18 +97,28 @@
             (swap! m assoc date event-map)))))
     @m))
 
-(defn data-array [data col-headers]
+(defn data-array [data headers]
   (let [results (data-map data)
-        all-headers (cons "Date" col-headers)]
-    (cons all-headers
+        rheaders (rest headers)]
+    (cons headers
           (sort-by first
                    (for [[k v] results]
-                     (into []
-                           (cons k (for [header col-headers]
-                               (get v header 0)))))))))
+                     (cons k (for [header rheaders]
+                               (get v header 0))))))))
 
-;; (pprint (data-array (analytics-for-job "3bfd1881-0909-4ab7-80d0-be3d3b775a49")
-;;                   ["More-unique" "More-total" "Contact-unique" "Contact-total"]))
+(defn google-chart-array [data]
+  (data-array data
+              ["date" 
+               "more-unique" "more-total" 
+               "contact-unique" "contact-total"]))
+
+(defn google-chart-map [job-id]
+  (let [data (analytics-for-job job-id)]
+    {:unique-events (get-in data [:totalsForAllResults :ga:uniqueEvents])
+     :total-events  (get-in data [:totalsForAllResults :ga:totalEvents])
+     :start-date    (get-in data [:query :start-date])
+     :end-date      (get-in data [:query :end-date])
+     :table         (google-chart-array data)}))
 
 (defn set-analytics-user
   "Expects a user entity"

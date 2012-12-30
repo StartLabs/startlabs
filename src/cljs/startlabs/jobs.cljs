@@ -211,6 +211,21 @@
   (let [location (.val ($ "#location"))]
     (geocode location (grab-coords update-preview-marker))))
 
+(defn draw-chart [table]
+  (fn []
+    (let [data (google.visualization.arrayToDataTable table)
+          options (clj->js {:title "Contact and Read More Click Events"})
+          chart (google.visualization.LineChart. (elem-by-id "analytics-chart"))]
+      (.draw chart data options))))
+
+(defn setup-job-analytics []
+  (let [analytics-data (reader/read-string (.text ($ "#analytics-data")))
+        analytics-table (clj->js (:table analytics-data))]
+    (u/log (:unique-events analytics-data))
+    
+    (do
+      (google.load "visualization" "1" (clj->js {:packages ["corechart"]}))
+      (google.setOnLoadCallback (draw-chart analytics-table)))))
 
 (defn setup-job-submit []
   (let [preview-map-elem (elem-by-id "job-location")
@@ -240,7 +255,10 @@
 
   (let [$job-form ($ "#job-form")]
     (jq/on $job-form [:keyup :blur :change] "input, textarea" nil update-job-card)
-    (jq/on $job-form :blur "#location" nil update-location)))
+    (jq/on $job-form :blur "#location" nil update-location))
+
+  (if (u/exists? ($ "#analytics"))
+    (setup-job-analytics)))
 
 ;; three things:
 ;; 1. If lat/lng is set on load, add marker corresponding to lat lng.

@@ -443,10 +443,10 @@
       (response/redirect "/jobs"))))
 
 (defhtml job-analytics [id]
-  (let [data       (analytics/analytics-for-job id)
+  (let [data       (analytics/google-chart-map id)
         date-fmt   (str/lower-case analytics/google-date-format)
-        start-date (get-in data [:query :start-date])
-        end-date   (get-in data [:query :end-date])]
+        start-date (:start-date data)
+        end-date   (:end-date data)]
     [:div#analytics.tab-pane
      [:h1 "Job Analytics"]
 
@@ -463,10 +463,10 @@
       [:div.span6
        [:div.row-fluid
         [:div.span6.thumbnail
-         [:h1.centered (get-in data [:totalsForAllResults :ga:uniqueEvents])]
+         [:h1.centered (:unique-events data)]
          [:h2.centered "Unique Events"]]
         [:div.span6.thumbnail
-         [:h1.centered (get-in data [:totalsForAllResults :ga:totalEvents])]
+         [:h1.centered (:total-events data)]
          [:h2.centered "Total Events"]]
         ]]
       ]
