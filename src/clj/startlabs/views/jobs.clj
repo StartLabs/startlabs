@@ -471,7 +471,7 @@
         ]]
       ]
 
-     [:div#analytics-chart.row-fluid]
+     [:div#analytics-chart.span12]
      [:script#analytics-data {:type "text/edn"}
       (str data)]]
     ))

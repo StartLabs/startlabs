@@ -211,18 +211,34 @@
   (let [location (.val ($ "#location"))]
     (geocode location (grab-coords update-preview-marker))))
 
+;; looks like I need to separately specify the columns and rows. No biggie.
 (defn draw-chart [table]
   (fn []
-    (let [data (google.visualization.arrayToDataTable table)
-          options (clj->js {:title "Contact and Read More Click Events"})
-          chart (google.visualization.LineChart. (elem-by-id "analytics-chart"))]
+    (let [$elem   ($ "#analytics-chart")
+          cols    (first table)
+          rows    (clj->js (rest table))
+          data    (google.visualization.DataTable.)
+          options (clj->js {:title  "Click Events by Date"
+                            :width  (.width $elem)
+                            :height (.height $elem)})
+          chart   (google.visualization.LineChart. (first $elem))]
+      (doseq [col cols]
+        (.addColumn data (if (= col "date") "date" "number") col))
+      (.addRows data rows)
       (.draw chart data options))))
 
+(defn datify [table]
+  (cons (first table) ;; extract the headers
+        (for [[date & rest] (rest table)]
+          ;; months in javascript are zero indexed, wtf.
+          (let [date-obj (js/Date. (js/parseInt (.substring date 0 4) 10)
+                                   (dec (js/parseInt (.substring date 4 6) 10))
+                                   (js/parseInt (.substring date 6 8) 10))]
+            (cons date-obj rest)))))
+
 (defn setup-job-analytics []
-  (let [analytics-data (reader/read-string (.text ($ "#analytics-data")))
-        analytics-table (clj->js (:table analytics-data))]
-    (u/log (:unique-events analytics-data))
-    
+  (let [analytics-data  (reader/read-string (.text ($ "#analytics-data")))
+        analytics-table (datify (:table analytics-data))]
     (do
       (google.load "visualization" "1" (clj->js {:packages ["corechart"]}))
       (google.setOnLoadCallback (draw-chart analytics-table)))))

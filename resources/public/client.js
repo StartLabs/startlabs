@@ -16112,15 +16112,43 @@ startlabs.jobs.update_location = function() {
 };
 startlabs.jobs.draw_chart = function(a) {
   return function() {
-    var b = google.visualization.arrayToDataTable.call(null, a), c = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'title"], {"\ufdd0'title":"Contact and Read More Click Events"}));
-    return(new google.visualization.LineChart(startlabs.jobs.elem_by_id.call(null, "analytics-chart"))).draw(b, c)
+    var b = jayq.core.$.call(null, "#analytics-chart"), c = cljs.core.first.call(null, a), d = jayq.util.clj__GT_js.call(null, cljs.core.rest.call(null, a)), e = new google.visualization.DataTable, f = jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'title", "\ufdd0'width", "\ufdd0'height"], {"\ufdd0'title":"Click Events by Date", "\ufdd0'width":b.width(), "\ufdd0'height":b.height()})), b = new google.visualization.LineChart(cljs.core.first.call(null, b)), g = cljs.core.seq.call(null, 
+    c);
+    if(g) {
+      for(c = cljs.core.first.call(null, g);;) {
+        if(e.addColumn(cljs.core._EQ_.call(null, c, "date") ? "date" : "number", c), c = cljs.core.next.call(null, g)) {
+          g = c, c = cljs.core.first.call(null, g)
+        }else {
+          break
+        }
+      }
+    }
+    e.addRows(d);
+    return b.draw(e, f)
   }
 };
+startlabs.jobs.datify = function(a) {
+  return cljs.core.cons.call(null, cljs.core.first.call(null, a), function() {
+    return function c(a) {
+      return new cljs.core.LazySeq(null, !1, function() {
+        for(;;) {
+          if(cljs.core.seq.call(null, a)) {
+            var e = cljs.core.first.call(null, a), f = cljs.core.nth.call(null, e, 0, null), g = cljs.core.nthnext.call(null, e, 1);
+            return cljs.core.cons.call(null, function() {
+              var a = new Date(parseInt(f.substring(0, 4), 10), parseInt(f.substring(4, 6), 10) - 1, parseInt(f.substring(6, 8), 10));
+              return cljs.core.cons.call(null, a, g)
+            }(), c.call(null, cljs.core.rest.call(null, a)))
+          }
+          return null
+        }
+      }, null)
+    }.call(null, cljs.core.rest.call(null, a))
+  }())
+};
 startlabs.jobs.setup_job_analytics = function() {
-  var a = cljs.reader.read_string.call(null, jayq.core.$.call(null, "#analytics-data").text()), b = jayq.util.clj__GT_js.call(null, (new cljs.core.Keyword("\ufdd0'table")).call(null, a));
-  startlabs.util.log.call(null, (new cljs.core.Keyword("\ufdd0'unique-events")).call(null, a));
+  var a = cljs.reader.read_string.call(null, jayq.core.$.call(null, "#analytics-data").text()), a = startlabs.jobs.datify.call(null, (new cljs.core.Keyword("\ufdd0'table")).call(null, a));
   google.load.call(null, "visualization", "1", jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'packages"], {"\ufdd0'packages":cljs.core.PersistentVector.fromArray(["corechart"], !0)})));
-  return google.setOnLoadCallback.call(null, startlabs.jobs.draw_chart.call(null, b))
+  return google.setOnLoadCallback.call(null, startlabs.jobs.draw_chart.call(null, a))
 };
 startlabs.jobs.setup_job_submit = function() {
   var a = startlabs.jobs.elem_by_id.call(null, "job-location"), b = jayq.core.$.call(null, "#latitude"), c = jayq.core.$.call(null, "#longitude"), d = cljs.core.truth_(startlabs.jobs.have_values_QMARK_.call(null, b, c)) ? startlabs.jobs.lat_lng.call(null, b.val(), c.val()) : startlabs.jobs.mit;
