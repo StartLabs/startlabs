@@ -34,7 +34,9 @@
   (POST "/" [& params] (jobs/post-edit-job params))
   (POST "/delete" [id] (jobs/delete-job id))
   (GET "/confirm" [id] (jobs/confirm-job id))
-  (GET "/edit" [id] (jobs/resend-edit-link id)))
+  (GET "/edit" [id] (jobs/resend-edit-link id))
+  (GET "/analytics" [id a-start-date a-end-date]
+       (jobs/get-job-analytics id a-start-date a-end-date)))
 
 (defroutes main-routes
   (GET "/" [] (main/home))
@@ -68,7 +70,8 @@
 
   (context "/job/:id" [id] job-routes)
 
-  (GET "/analytics/authorize" [:as req] (user-views/authorize-analytics (get-referer req)))
+  (GET "/analytics/authorize" [:as req] 
+       (user-views/authorize-analytics (get-referer req)))
 
   ;; Redirect. Dead links = evil
   (GET "/company" [] (response/redirect "/about"))

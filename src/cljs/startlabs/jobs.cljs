@@ -152,6 +152,90 @@
 )
 
 
+;;
+;; JOB ANALYTICS
+;;
+
+(def analytics-data (atom {}))
+(def analytics-table (atom []))
+
+
+;; looks like I need to separately specify the columns and rows. No biggie.
+(defn draw-chart [& args]
+    (let [$elem    ($ "#analytics-chart")
+          ; need $content because analytics-chart initially has no width
+          $content ($ "#content") 
+          table    @analytics-table
+          cols     (first table)
+          rows     (clj->js (rest table))
+          data     (google.visualization.DataTable.)
+          options  (clj->js {:title  "Click Events by Date"
+                             :width  (.width $content)
+                             :height (.height $elem)})
+          chart   (google.visualization.LineChart. (first $elem))]
+      (doseq [col cols]
+        (.addColumn data (if (= col "date") "date" "number") col))
+      (.addRows data rows)
+      (.draw chart data options)))
+
+(defn datify [table]
+  (cons (first table) ;; extract the headers
+        (for [[date & rest] (rest table)]
+          ;; months in javascript are zero indexed, wtf.
+          (let [date-obj (js/Date. (js/parseInt (.substring date 0 4) 10)
+                                   (dec (js/parseInt (.substring date 4 6) 10))
+                                   (js/parseInt (.substring date 6 8) 10))]
+            (cons date-obj rest)))))
+
+(defn reset-analytics! [data]
+  (reset! analytics-data data))
+
+(defn render-fail [msg]
+  (html
+   [:div#ajax-fail.alert.alert-error
+    [:button.close {:type "button" :data-dismiss "alert"} "x"]
+    [:strong "Error: "] msg]))
+
+(defn check-for-failure [xhr status]
+  (if (not= status "success")
+    (do
+      (.remove ($ "#ajax-fail"))
+      (.prepend ($ "#content") 
+        (render-fail (str "Unable to update analytics. "
+                          "Make sure the start and end dates are valid."))))))
+
+(defn setup-job-analytics []                                
+  ;; must redraw the chart when the window changes size
+  (.resize ($ js/window) draw-chart)
+
+  (jq/on ($ "#analytics") :changeDate "#a-start-date, #a-end-date" 
+    (fn [e]
+      (this-as this
+        (let [$form  (.parents ($ this) "form")
+              action (.attr $form "action")
+              url (str action "?" (.serialize $form))]
+          (jq/ajax url
+                   {:contentType :text/edn
+                    :success (fn [data status xhr]
+                               (let [data (reader/read-string data)]
+                                 (reset-analytics! data)))
+                    :complete check-for-failure})))))
+
+  (add-watch analytics-data :redraw-analytics
+             (fn [k r o n]
+               (doseq [field [:unique-events :total-events]]
+                 (let [$elem ($ (str "#" (name field)))
+                       value (field n)]
+                   (.text $elem value)))
+               
+               (reset! analytics-table (datify (:table n)))))
+
+  (add-watch analytics-table :redraw-chart draw-chart)
+
+  (let [analytics-data  (reader/read-string (.text ($ "#analytics-data")))]
+    (google.load "visualization" "1" (clj->js {:packages ["corechart"]}))
+    (google.setOnLoadCallback #(reset-analytics! analytics-data))))
+
 
 
 ;;
@@ -210,38 +294,6 @@
 (defn update-location []
   (let [location (.val ($ "#location"))]
     (geocode location (grab-coords update-preview-marker))))
-
-;; looks like I need to separately specify the columns and rows. No biggie.
-(defn draw-chart [table]
-  (fn []
-    (let [$elem   ($ "#analytics-chart")
-          cols    (first table)
-          rows    (clj->js (rest table))
-          data    (google.visualization.DataTable.)
-          options (clj->js {:title  "Click Events by Date"
-                            :width  (.width $elem)
-                            :height (.height $elem)})
-          chart   (google.visualization.LineChart. (first $elem))]
-      (doseq [col cols]
-        (.addColumn data (if (= col "date") "date" "number") col))
-      (.addRows data rows)
-      (.draw chart data options))))
-
-(defn datify [table]
-  (cons (first table) ;; extract the headers
-        (for [[date & rest] (rest table)]
-          ;; months in javascript are zero indexed, wtf.
-          (let [date-obj (js/Date. (js/parseInt (.substring date 0 4) 10)
-                                   (dec (js/parseInt (.substring date 4 6) 10))
-                                   (js/parseInt (.substring date 6 8) 10))]
-            (cons date-obj rest)))))
-
-(defn setup-job-analytics []
-  (let [analytics-data  (reader/read-string (.text ($ "#analytics-data")))
-        analytics-table (datify (:table analytics-data))]
-    (do
-      (google.load "visualization" "1" (clj->js {:packages ["corechart"]}))
-      (google.setOnLoadCallback (draw-chart analytics-table)))))
 
 (defn setup-job-submit []
   (let [preview-map-elem (elem-by-id "job-location")

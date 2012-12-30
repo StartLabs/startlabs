@@ -88,8 +88,8 @@
   (let [rows (:rows data)
         m (atom {})]
     (doseq [[event date unique total] rows]
-      (let [event-map {(str (str/lower-case event) "-unique") (Integer. unique)
-                       (str (str/lower-case event) "-total")  (Integer. total)}]
+      (let [event-map {(str (str/capitalize event) " Unique") (Integer. unique)
+                       (str (str/capitalize event) " Total")  (Integer. total)}]
         (if-let [elem (get @m date)]
           (do
             (swap! m assoc date (merge elem event-map)))
@@ -109,11 +109,13 @@
 (defn google-chart-array [data]
   (data-array data
               ["date" 
-               "more-unique" "more-total" 
-               "contact-unique" "contact-total"]))
+               "More Unique" "More Total" 
+               "Contact Unique" "Contact Total"]))
 
-(defn google-chart-map [job-id]
-  (let [data (analytics-for-job job-id)]
+(defn google-chart-map 
+  "expects job-id & [start-date, end-date]. See analytics-for-job"
+  [id & [start end]]
+  (let [data (analytics-for-job id start end)]
     {:unique-events (get-in data [:totalsForAllResults :ga:uniqueEvents])
      :total-events  (get-in data [:totalsForAllResults :ga:totalEvents])
      :start-date    (get-in data [:query :start-date])

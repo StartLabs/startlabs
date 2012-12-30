@@ -451,30 +451,41 @@
      [:h1 "Job Analytics"]
 
      [:div.row-fluid
-      [:form.form-horizontal.span6 {:method "GET"}
-       (for [[k v] [[:a-start-date start-date] [:a-end-date end-date]]]
-         (let [kn (name k)]
-           [:div.control-group
-            [:label.control-label {:for kn} (u/phrasify k)]
-            [:div.controls
-             [:input.datepicker {:type "text" :data-date-format date-fmt
-                                 :value v :placeholder date-fmt
-                                 :id kn :name kn}]]]))]
+      [:form.form-horizontal.span6 {:method "GET" 
+                                    :action (str "/job/" id "/analytics")}
+       (for [[n v l] [["a-start-date" start-date "Start Date"] 
+                      ["a-end-date" end-date "End Date"]]]
+         [:div.control-group
+          [:label.control-label {:for n} l]
+          [:div.controls
+           [:input.datepicker {:type "text" :data-date-format date-fmt
+                               :value v :placeholder date-fmt
+                               :id n :name n}]]])]
       [:div.span6
        [:div.row-fluid
         [:div.span6.thumbnail
-         [:h1.centered (:unique-events data)]
+         [:h1#unique-events.centered (:unique-events data)]
          [:h2.centered "Unique Events"]]
         [:div.span6.thumbnail
-         [:h1.centered (:total-events data)]
+         [:h1#total-events.centered (:total-events data)]
          [:h2.centered "Total Events"]]
         ]]
-      ]
 
-     [:div#analytics-chart.span12]
+      [:div#analytics-chart.span12]]
+
      [:script#analytics-data {:type "text/edn"}
       (str data)]]
     ))
+
+;; [:get /job/:id/analytics?a-start-date=...&a-end-date=...
+(defn get-job-analytics [id & [start end]]
+  (let [data (try
+               (analytics/google-chart-map id start end)
+               (catch Exception e
+                 {:error (.getMessage e)}))]
+    (-> (rr/response (str data))
+        (rr/content-type "text/edn")
+        (rr/status (if (:error data) 400 200)))))
 
 ;; [:get "/job/:id"]
 (defn get-edit-job [{:keys [id] :as params}]
