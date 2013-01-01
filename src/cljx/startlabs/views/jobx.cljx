@@ -29,23 +29,32 @@
   [text]
   (str
     (condp apply [text]
+      nil?      ""
       is-email? "mailto:"
       is-phone? "tel://"
       is-www?   "http://"
-      nil)
-
+      "")
     text))
 
+(defn more-id [id]
+  (str "more-" id))
+
 (defn job-delete-modal [job]
-  [:div {:id (str "delete-" (:id job)) :class "modal hide fade" :tabindex "-1" :role "dialog" :aria-hidden true}
+  [:div {:id (str "delete-" (:id job)) :class "modal hide fade" :tabindex "-1" 
+         :role "dialog" :aria-hidden true}
     [:div.modal-header
-      [:button.close {:type "button" :data-dismiss "modal" :aria-hidden true} "&times;"]
+      [:button.close {:type "button" :data-dismiss "modal" :aria-hidden true} 
+       "&times;"]
       [:h3 "Are you sure you want to remove this job?"]]
+
     [:div.modal-body
       [:p (:company job) ": " (:position job)]
       [:p "This will hide it from the listing."]]
-    [:form.modal-footer {:action (str "/job/" (:id job) "/delete") :method "post"}
-      [:a.btn {:href "#" :data-dismiss "modal" :aria-hidden true} "Whoops, never mind."]
+
+    [:form.modal-footer {:action (str "/job/" (:id job) "/delete") 
+                         :method "post"}
+      [:a.btn {:href "#" :data-dismiss "modal" :aria-hidden true}
+       "Whoops, never mind."]
       [:button.btn.btn-danger {:type "submit"} "Yes, Remove it."]]])
 
 (defn job-summary [job-info editable?]
@@ -54,43 +63,53 @@
       [:div.pull-right
        [:a.edit-link {:href (str "/job/" (:id job-info))} "Edit"]
        [:a.btn.btn-danger
-        {:href (str "#delete-" (:id job-info)) :role "button" :data-toggle "modal"} "Delete"]])
+        {:href (str "#delete-" (:id job-info)) :role "button"} "Delete"]])
 
     [:h2 
-     [:a {:href (or (linkify (:website job-info)) "#")} (:company job-info) ":"]
+     [:a {:href (or (linkify (:website job-info)) "#")}
+      (:company job-info) ":"]
      [:small " " (:position job-info)]]
 
    [:div.row-fluid.dateloc
     ; need to format dates
-    [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) (if (not (= (:fulltime? job-info) "true"))
-                                                                 (str " — " (:end_date job-info)))]
+    [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) 
+     (if (not (= (:fulltime? job-info) "true"))
+       (str " — " (:end_date job-info)))]
     [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
 
    [:div.row-fluid
-    [:div.span6 [:span.label.label-info (if (= (:fulltime? job-info) "true") "Fulltime" "Internship")]]
-    [:div.span6.employees [:span.badge.badge-info (:company_size job-info)] "Employees"]]
+    [:div.span6 [:span.label.label-info 
+                 (if (= (:fulltime? job-info) "true")
+                   "Fulltime"
+                   "Internship")]]
 
-   [:a.read {:href (str "#" (:id job-info))} "Read More..." ]])
+    [:div.span6.employees 
+     [:span.badge.badge-info (:company_size job-info)] "Employees"]]
+
+   [:a.read {:href (str "#" (more-id (:id job-info)))} "Read More..." ]])
 
 (defn job-card [job-info editable?]
-  [:div.job-info {:onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'More', '" (:id job-info) "']);")}
-    (if editable? (job-delete-modal job-info))
-    (job-summary job-info editable?)
+  [:div.job-info
+   (if editable? (job-delete-modal job-info))
+   (job-summary job-info editable?)
     
-    [:div.row-fluid.more
-      [:div.description
-        (markdownify (:description job-info))]
+   [:div.row-fluid.more {:id (more-id (:id job-info))}
+    [:div.description
+     (markdownify (:description job-info))]
 
-      (if editable?
-        [:p [:a {:href (str "/job/" (:id job-info) "/edit")} "Resend edit link to author"]])
+    (if editable?
+      [:p [:a {:href (str "/job/" (:id job-info) "/edit")}
+           "Resend edit link to author"]])
 
-      [:div.well.well-small
-        "Contact: "
-        [:i.icon.icon-envelope]
-        (let [contact-info (:contact_info job-info)]
-          ; need to handle phone numbers
-          [:a {:href (linkify contact-info) :onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'Contact', '" (:id job-info) "']);")}
-           contact-info])]]])
+    [:div.well.well-small
+     "Contact: "
+     [:i.icon.icon-envelope]
+     (let [contact-info (:contact_info job-info)]
+       ; need to handle phone numbers
+       [:a {:href (linkify contact-info)
+            :onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'Contact', '"
+                          (:id job-info)"']);")}
+        contact-info])]]])
 
 (defn half-list [half-jobs editable?]
   [:div.span6
@@ -105,6 +124,7 @@
     (if (empty? left-jobs)
       [:div#job-list.span12
        [:h2 "No jobs found. Try revising your query."]]
+      ;else
       [:div#job-list.span12
        (half-list left-jobs editable?)
        (half-list right-jobs editable?)
@@ -112,13 +132,14 @@
        [:div.span12.pagination.pagination-centered
         [:ul
          [:li {:class (if (= page 1) "disabled" "active")} 
-          [:a {:href (if (= page 1) "#"
-                         (str base-url (dec page)))} "Prev"]]
+          [:a {:href  (if (= page 1) "#"
+                          (str base-url (dec page)))} "Prev"]]
+
          (for [i (range 1 inc-pc)]
            [:li {:class (if (= page i) "disabled" "active")} 
-            [:a {:href (if (= page i) "#"
-                           (str base-url i))} i]])
+            [:a {:href  (if (= page i) "#"
+                            (str base-url i))} i]])
+
          [:li {:class (if (= page page-count) "disabled" "active")}
-          [:a {:href (if (= page page-count) "#"
-                         (str base-url (inc page)))} "Next"]]]]
-       ])))
+          [:a {:href  (if (= page page-count) "#"
+                          (str base-url (inc page)))} "Next"]]]]])))

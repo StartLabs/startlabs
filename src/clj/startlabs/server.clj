@@ -37,7 +37,9 @@
   (GET "/confirm" [id] (jobs/confirm-job id))
   (GET "/edit" [id] (jobs/resend-edit-link id))
   (GET "/analytics" [id a-start-date a-end-date]
-       (jobs/get-job-analytics id a-start-date a-end-date)))
+       (jobs/get-job-analytics id a-start-date a-end-date))
+  (GET "/analytics.edn" [id a-start-date a-end-date]
+       (jobs/analytics-search id a-start-date a-end-date)))
 
 (defroutes main-routes
   (GET "/" [] (main/home))

@@ -82,11 +82,12 @@
       (fn [job] (= (:id job) id))
       job-data)))
 
-(defn show-job-details [e]
+(defn toggle-job-details [e]
   (.preventDefault e)
   (this-as this
-           (-> ($ this) (.find ".read") .toggle)
-           (-> ($ this) (.find ".more") .toggle)))
+           (let [$this ($ this)]
+             (-> $this (.find ".more") .toggle)
+             (-> $this (.find ".read") .toggle))))
 
 (defn find-jobs []
   (let [$job-list ($ "#job-list")
@@ -136,7 +137,7 @@
   (let [$map-box ($ "#map-box")]
     (jq/on $map-box :keyup "#job-search" 
            (fn [e]
-             ; filter jobs as you search
+             ;filter jobs as you search
              (this-as job-search
                       (swap! query-map assoc :q
                              (str/trim (jq/val ($ job-search)))))))
@@ -147,9 +148,24 @@
              (.toggle ($ "#map")))))
 
   (let [$job-container ($ "#job-container")]
-    (jq/on $job-container :click ".job" nil show-job-details)
-    (jq/on $job-container :click ".edit-link" nil (fn [e] (.stopPropagation e)))
-    (jq/on $job-container :click ".more a" nil (fn [e] (.stopPropagation e))))
+    (jq/on $job-container :click ".job-info" toggle-job-details)
+
+    (jq/on $job-container :click ".read"
+           (fn [e]
+             (.preventDefault e)
+             (this-as this
+                      (-> ($ this) 
+                          (.parents ".job-info")
+                          (.trigger "click")))))
+
+    (jq/on $job-container :click ".btn-danger"
+           (fn [e]
+             (.preventDefault e)
+             (this-as this
+                     (-> ($ this)
+                         (.attr "href") $ (.modal "show")))))
+
+    (jq/on $job-container :click "a, button" #(.stopPropagation %)))
 
   (jq/on ($ "#sort") :click "a" (fn [e]
     (.preventDefault e)
@@ -159,7 +175,7 @@
                    field (.data $this "field")]
                (.addClass (.parent $this "li") "active")
                (swap! query-map assoc :sort-field field)))))
-	
+
   (reset! filtered-jobs job-data))
 
 
@@ -173,21 +189,21 @@
 
 ;; looks like I need to separately specify the columns and rows. No biggie.
 (defn draw-chart [& args]
-    (let [$elem    ($ "#analytics-chart")
-          ; need $content because analytics-chart initially has no width
-          $content ($ "#content") 
-          table    @analytics-table
-          cols     (first table)
-          rows     (clj->js (rest table))
-          data     (google.visualization.DataTable.)
-          options  (clj->js {:title  "Click Events by Date"
-                             :width  (.width $content)
-                             :height (.height $elem)})
-          chart   (google.visualization.LineChart. (first $elem))]
-      (doseq [col cols]
-        (.addColumn data (if (= col "date") "date" "number") col))
-      (.addRows data rows)
-      (.draw chart data options)))
+  (let [$elem    ($ "#analytics-chart")
+       ; need $content because analytics-chart initially has no width
+        $content ($ "#content") 
+        table    @analytics-table
+        cols     (first table)
+        rows     (clj->js (rest table))
+        data     (google.visualization.DataTable.)
+        options  (clj->js {:title  "Click Events by Date"
+                           :width  (.width $content)
+                           :height (.height $elem)})
+        chart   (google.visualization.LineChart. (first $elem))]
+    (doseq [col cols]
+      (.addColumn data (if (= col "date") "date" "number") col))
+    (.addRows data rows)
+    (.draw chart data options)))
 
 (defn datify [table]
   (cons (first table) ;; extract the headers
@@ -208,10 +224,10 @@
     [:strong "Error: "] msg]))
 
 (defn check-for-failure [xhr status]
+  (.remove ($ "#ajax-fail"))
   (if (not= status "success")
     (do
-      (.remove ($ "#ajax-fail"))
-      (.prepend ($ "#content") 
+      (.prepend ($ "#content")
         (render-fail (str "Unable to update analytics. "
                           "Make sure the start and end dates are valid."))))))
 
@@ -238,14 +254,13 @@
                  (let [$elem ($ (str "#" (name field)))
                        value (field n)]
                    (.text $elem value)))
-               
                (reset! analytics-table (datify (:table n)))))
 
   (add-watch analytics-table :redraw-chart draw-chart)
 
-  (let [analytics-data  (reader/read-string (.text ($ "#analytics-data")))]
+  (let [initial-data  (reader/read-string (.text ($ "#analytics-data")))]
     (google.load "visualization" "1" (clj->js {:packages ["corechart"]}))
-    (google.setOnLoadCallback #(reset-analytics! analytics-data))))
+    (google.setOnLoadCallback #(reset-analytics! initial-data))))
 
 
 
@@ -326,17 +341,12 @@
                                            [lat lng] [(.lat pos) (.lng pos)]]
                                        (.val $lat lat)
                                        (.val $lng lng)))))
-
-  (.datepicker ($ ".datepicker"))
   
   (setup-radio-buttons)
 
   (let [$job-form ($ "#job-form")]
-    (jq/on $job-form [:keyup :blur :change] "input, textarea" nil update-job-card)
-    (jq/on $job-form :blur "#location" nil update-location))
-
-  (if (u/exists? ($ "#analytics"))
-    (setup-job-analytics)))
+    (jq/on $job-form [:keyup :blur :change] "input, textarea" update-job-card)
+    (jq/on $job-form :blur "#location" update-location)))
 
 ;; three things:
 ;; 1. If lat/lng is set on load, add marker corresponding to lat lng.

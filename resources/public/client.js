@@ -12968,8 +12968,11 @@ startlabs.views.jobx.is_www_QMARK_ = function(a) {
 startlabs.views.jobx.linkify = function(a) {
   return[cljs.core.str(function() {
     var b = cljs.core.apply, c = cljs.core.PersistentVector.fromArray([a], !0);
-    return cljs.core.truth_(b.call(null, startlabs.views.jobx.is_email_QMARK_, c)) ? "mailto:" : cljs.core.truth_(b.call(null, startlabs.views.jobx.is_phone_QMARK_, c)) ? "tel://" : cljs.core.truth_(b.call(null, startlabs.views.jobx.is_www_QMARK_, c)) ? "http://" : null
+    return cljs.core.truth_(b.call(null, cljs.core.nil_QMARK_, c)) ? "" : cljs.core.truth_(b.call(null, startlabs.views.jobx.is_email_QMARK_, c)) ? "mailto:" : cljs.core.truth_(b.call(null, startlabs.views.jobx.is_phone_QMARK_, c)) ? "tel://" : cljs.core.truth_(b.call(null, startlabs.views.jobx.is_www_QMARK_, c)) ? "http://" : ""
   }()), cljs.core.str(a)].join("")
+};
+startlabs.views.jobx.more_id = function(a) {
+  return[cljs.core.str("more-"), cljs.core.str(a)].join("")
 };
 startlabs.views.jobx.job_delete_modal = function(a) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div", cljs.core.ObjMap.fromObject(["\ufdd0'id", "\ufdd0'class", "\ufdd0'tabindex", "\ufdd0'role", "\ufdd0'aria-hidden"], {"\ufdd0'id":[cljs.core.str("delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'class":"modal hide fade", "\ufdd0'tabindex":"-1", "\ufdd0'role":"dialog", "\ufdd0'aria-hidden":!0}), cljs.core.PersistentVector.fromArray(["\ufdd0'div.modal-header", cljs.core.PersistentVector.fromArray(["\ufdd0'button.close", 
@@ -12979,18 +12982,18 @@ startlabs.views.jobx.job_delete_modal = function(a) {
 };
 startlabs.views.jobx.job_summary = function(a, b) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-summary", cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.pull-right", cljs.core.PersistentVector.fromArray(["\ufdd0'a.edit-link", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Edit"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'href", 
-  "\ufdd0'role", "\ufdd0'data-toggle"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button", "\ufdd0'data-toggle":"modal"}), "Delete"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
+  "\ufdd0'role"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button"}), "Delete"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
     var b = startlabs.views.jobx.linkify.call(null, (new cljs.core.Keyword("\ufdd0'website")).call(null, a));
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.dateloc", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start_date")).call(null, a), !cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'fulltime?")).call(null, 
   a), "true") ? [cljs.core.str(" \u2014 "), cljs.core.str((new cljs.core.Keyword("\ufdd0'end_date")).call(null, a))].join("") : null], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'span.label.label-info", 
   cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'fulltime?")).call(null, a), "true") ? "Fulltime" : "Internship"], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6.employees", cljs.core.PersistentVector.fromArray(["\ufdd0'span.badge.badge-info", (new cljs.core.Keyword("\ufdd0'company_size")).call(null, a)], !0), "Employees"], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("#"), 
-  cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Read More..."], !0)], !0)
+  cljs.core.str(startlabs.views.jobx.more_id.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, a)))].join("")}), "Read More..."], !0)], !0)
 };
 startlabs.views.jobx.job_card = function(a, b) {
-  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-info", cljs.core.ObjMap.fromObject(["\ufdd0'onclick"], {"\ufdd0'onclick":[cljs.core.str("_gaq.push(['_trackEvent', 'Jobs', 'More', '"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("']);")].join("")}), cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.more", 
-  cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("/edit")].join("")}), "Resend edit link to author"], 
-  !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", "Contact: ", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
+  return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-info", cljs.core.truth_(b) ? startlabs.views.jobx.job_delete_modal.call(null, a) : null, startlabs.views.jobx.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.more", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":startlabs.views.jobx.more_id.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, a))}), cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.jobx.markdownify.call(null, 
+  (new cljs.core.Keyword("\ufdd0'description")).call(null, a))], !0), cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'p", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("/edit")].join("")}), "Resend edit link to author"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.well.well-small", "Contact: ", 
+  cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-envelope"], !0), function() {
     var b = (new cljs.core.Keyword("\ufdd0'contact_info")).call(null, a);
     return cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href", "\ufdd0'onclick"], {"\ufdd0'href":startlabs.views.jobx.linkify.call(null, b), "\ufdd0'onclick":[cljs.core.str("_gaq.push(['_trackEvent', 'Jobs', 'Contact', '"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a)), cljs.core.str("']);")].join("")}), b], !0)
   }()], !0)], !0)], !0)
@@ -16014,10 +16017,11 @@ startlabs.jobs.job_with_id = function(a) {
     return cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, b), a)
   }, startlabs.jobs.job_data))
 };
-startlabs.jobs.show_job_details = function(a) {
+startlabs.jobs.toggle_job_details = function(a) {
   a.preventDefault();
-  jayq.core.$.call(null, this).find(".read").toggle();
-  return jayq.core.$.call(null, this).find(".more").toggle()
+  a = jayq.core.$.call(null, this);
+  a.find(".more").toggle();
+  return a.find(".read").toggle()
 };
 startlabs.jobs.find_jobs = function() {
   var a = jayq.core.$.call(null, "#job-list"), b = a.parent(), c = jQuery.param(jayq.util.clj__GT_js.call(null, cljs.core.deref.call(null, startlabs.jobs.query_map)));
@@ -16080,11 +16084,16 @@ startlabs.jobs.setup_jobs_list = function() {
     return jayq.core.$.call(null, "#map").toggle()
   });
   a = jayq.core.$.call(null, "#job-container");
-  jayq.core.on.call(null, a, "\ufdd0'click", ".job", null, startlabs.jobs.show_job_details);
-  jayq.core.on.call(null, a, "\ufdd0'click", ".edit-link", null, function(a) {
-    return a.stopPropagation()
+  jayq.core.on.call(null, a, "\ufdd0'click", ".job-info", startlabs.jobs.toggle_job_details);
+  jayq.core.on.call(null, a, "\ufdd0'click", ".read", function(a) {
+    a.preventDefault();
+    return jayq.core.$.call(null, this).parents(".job-info").trigger("click")
   });
-  jayq.core.on.call(null, a, "\ufdd0'click", ".more a", null, function(a) {
+  jayq.core.on.call(null, a, "\ufdd0'click", ".btn-danger", function(a) {
+    a.preventDefault();
+    return jayq.core.$.call(null, jayq.core.$.call(null, this).attr("href")).modal("show")
+  });
+  jayq.core.on.call(null, a, "\ufdd0'click", "a, button", function(a) {
     return a.stopPropagation()
   });
   jayq.core.on.call(null, jayq.core.$.call(null, "#sort"), "\ufdd0'click", "a", function(a) {
@@ -16151,7 +16160,8 @@ startlabs.jobs.render_fail = function(a) {
   return crate.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div#ajax-fail.alert.alert-error", cljs.core.PersistentVector.fromArray(["\ufdd0'button.close", cljs.core.ObjMap.fromObject(["\ufdd0'type", "\ufdd0'data-dismiss"], {"\ufdd0'type":"button", "\ufdd0'data-dismiss":"alert"}), "x"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'strong", "Error: "], !0), a], !0))
 };
 startlabs.jobs.check_for_failure = function(a, b) {
-  return cljs.core.not_EQ_.call(null, b, "success") ? (jayq.core.$.call(null, "#ajax-fail").remove(), jayq.core.$.call(null, "#content").prepend(startlabs.jobs.render_fail.call(null, [cljs.core.str("Unable to update analytics. "), cljs.core.str("Make sure the start and end dates are valid.")].join("")))) : null
+  jayq.core.$.call(null, "#ajax-fail").remove();
+  return cljs.core.not_EQ_.call(null, b, "success") ? jayq.core.$.call(null, "#content").prepend(startlabs.jobs.render_fail.call(null, [cljs.core.str("Unable to update analytics. "), cljs.core.str("Make sure the start and end dates are valid.")].join(""))) : null
 };
 startlabs.jobs.setup_job_analytics = function() {
   jayq.core.$.call(null, window).resize(startlabs.jobs.draw_chart);
@@ -16225,12 +16235,10 @@ startlabs.jobs.setup_job_submit = function() {
     b.val(a);
     return c.val(d)
   });
-  jayq.core.$.call(null, ".datepicker").datepicker();
   startlabs.jobs.setup_radio_buttons.call(null);
   a = jayq.core.$.call(null, "#job-form");
-  jayq.core.on.call(null, a, cljs.core.PersistentVector.fromArray(["\ufdd0'keyup", "\ufdd0'blur", "\ufdd0'change"], !0), "input, textarea", null, startlabs.jobs.update_job_card);
-  jayq.core.on.call(null, a, "\ufdd0'blur", "#location", null, startlabs.jobs.update_location);
-  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, jayq.core.$.call(null, "#analytics"))) ? startlabs.jobs.setup_job_analytics.call(null) : null
+  jayq.core.on.call(null, a, cljs.core.PersistentVector.fromArray(["\ufdd0'keyup", "\ufdd0'blur", "\ufdd0'change"], !0), "input, textarea", startlabs.jobs.update_job_card);
+  return jayq.core.on.call(null, a, "\ufdd0'blur", "#location", startlabs.jobs.update_location)
 };
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {
@@ -16286,8 +16294,12 @@ startlabs.main.main = function() {
   cljs.core.truth_(startlabs.util.location_hash) && startlabs.main.handle_hash_change.call(null);
   window.onhashchange = startlabs.main.handle_hash_change;
   startlabs.main.setup_home.call(null);
-  startlabs.main.setup_team.call(null);
-  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
-  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) ? startlabs.jobs.setup_job_submit.call(null) : null
+  return startlabs.main.setup_team.call(null)
 };
 startlabs.main.main.call(null);
+jayq.core.document_ready.call(null, function() {
+  jayq.core.$.call(null, ".datepicker").datepicker();
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) && startlabs.jobs.setup_job_submit.call(null);
+  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#analytics")) ? startlabs.jobs.setup_job_analytics.call(null) : null
+});

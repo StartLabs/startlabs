@@ -1,7 +1,9 @@
 (ns startlabs.main
   (:use [jayq.core :only [$]]
         [startlabs.views.jobx :only [markdownify]]
-        [startlabs.jobs :only [setup-jobs-list setup-job-submit]])
+        [startlabs.jobs :only [setup-jobs-list 
+                               setup-job-submit
+                               setup-job-analytics]])
 
   (:require [jayq.core :as jq]
             [jayq.util :as util]
@@ -59,13 +61,19 @@
   (if u/location-hash (handle-hash-change))
   (set! (.-onhashchange js/window) handle-hash-change)
   (setup-home)
-  (setup-team)
-
-  (if (u/exists? "#map")
-    (setup-jobs-list))
-
-  (if (u/exists? "#job-form")
-    (setup-job-submit)))
+  (setup-team))
 
  ;; setup hash handling immediately
 (main)
+
+(jm/ready
+ (.datepicker ($ ".datepicker"))
+
+ (if (u/exists? "#map")
+   (setup-jobs-list))
+
+ (if (u/exists? "#job-form")
+   (setup-job-submit))
+
+ (if (u/exists? "#analytics")
+   (setup-job-analytics)))

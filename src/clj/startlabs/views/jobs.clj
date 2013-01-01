@@ -17,7 +17,7 @@
 
   (:use [compojure.response :only [render]]
         [clojure.core.incubator]
-        [clojure.math.numeric-tower :only [abs]]
+        [clojure.math.numeric-tower :only [abs ceil]]
         [clojure.tools.logging :only [info]]
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
@@ -73,13 +73,12 @@
                  :rows 6 :placeholder docs :class "span12"}
       (if (= input-type :textarea) v)]))
 
-(defhtml datepicker [name value]
-  (let [date-format (str/lower-case u/default-date-format)]
-    [:input.datepicker {:type "text" :data-date-format date-format :value value
-                        :id name :name name :placeholder date-format}]))
+(defhtml datepicker [name value date-format]
+  [:input.datepicker {:type "text" :data-date-format date-format :value value
+                      :id name :name name :placeholder date-format}])
 
 (defmethod input-for-field :instant [field type docs v]
-  (datepicker field v))
+  (datepicker field v (str/lower-case u/default-date-format)))
 
 (defmethod input-for-field :boolean [field type docs v]
   (let [str-v (if (or (false? v) (true? v)) (str v) "false")]
@@ -170,7 +169,7 @@
 ;; so we must specify not removed here.
 (defn get-all-jobs [sort-field]
   (sort-by sort-field
-           (filter #(not= (:removed? %) true)
+           (filter #(not= (:removed? %) "true")
                    (job/find-upcoming-jobs))))
 
 ;; COMMENT THIS IN PRODUCTION
@@ -247,7 +246,7 @@
         jobs         (filter-jobs q)
         page-jobs    (jobs-on-page jobs page page-size)
         show-delete? (user/logged-in?)
-        page-count   (/ (count jobs) page-size)
+        page-count   (ceil (/ (count jobs) page-size))
         body         (job-list page-jobs show-delete? q page page-count)]
     [page-jobs body]))
 
@@ -335,13 +334,13 @@
   (let [website    (:website params)
         fulltime?  (if (= (:fulltime? params) "true") true false)
         start-date (u/parse-date (:start_date params))
-        end-date   (if start-date
+        end-adte   (if start-date
                      (t/plus start-date (t/months 6)) 
                      (t/plus (t/now) (t/months 6)))]
     (conj params
       {:website (if (not (empty? website)) 
-        (u/httpify-url website) 
-        "")
+                  (u/httpify-url website) 
+                  "")
        :fulltime? fulltime?
        :end-date (if fulltime? 
                    (u/unparse-date end-date)
@@ -374,7 +373,8 @@
               (response/redirect "/job/success"))
             (do
               (session/flash-put! 
-                :message [:error "Trouble sending confirmation email:" (:message email-res)])
+                :message [:error "Trouble sending confirmation email:" 
+                          (:message email-res)])
               (render get-new-job fixed-params))))
 
         (catch Exception e
@@ -452,79 +452,118 @@
       ;;else
       (response/redirect "/jobs"))))
 
-(defhtml job-analytics [id]
-  (let [data       (analytics/google-chart-map id)
-        start-date (:start-date data)
+(defn can-edit-job? [id & candidates]
+  (let [job-secret (job/job-secret id)]
+    (or (user/logged-in?)
+        (some true? (map #(= % job-secret) candidates)))))
+
+(defn analytics-data [job-id start end]
+  (try
+    (let [session-secret (session/session-get :job-secret)
+          data (if (can-edit-job? job-id session-secret)
+                 (analytics/google-chart-map job-id start end)
+                 {:error "You do not have permissions to view this job's analytics data."})]
+      data)
+    (catch Exception e
+      {:error (.getMessage e)})))
+
+(defn job-edit-tabs [id active]
+  [:div.btn-group.pull-right
+   [:a {:href (str "/job/" id) 
+        :class (u/cond-class "btn" [(= active :edit) "active"])} "Edit Job"]
+   [:a {:href (str "/job/" id "/analytics")
+        :class (u/cond-class "btn" [(= active :analytics) "active"])} "Analytics"]])
+
+(defhtml job-analytics-view [id data]
+  (let [start-date (:start-date data)
         end-date   (:end-date data)]
-    [:div#analytics.tab-pane
-     [:h1 "Job Analytics"]
+    (common/layout
+     [:div#analytics
+      (job-edit-tabs id :analytics)
+      [:h1 "Job Analytics"]
 
-     [:div.row-fluid
-      [:form.form-horizontal.span6 {:method "GET" 
-                                    :action (str "/job/" id "/analytics")}
-       (for [[n v l] [["a-start-date" start-date "Start Date"] 
-                      ["a-end-date" end-date "End Date"]]]
-         [:div.control-group
-          [:label.control-label {:for n} l]
-          [:div.controls
-           (datepicker n)]])]
-      [:div.span6
-       [:div.row-fluid
-        [:div.span6.thumbnail
-         [:h1#unique-events.centered (:unique-events data)]
-         [:h2.centered "Unique Events"]]
-        [:div.span6.thumbnail
-         [:h1#total-events.centered (:total-events data)]
-         [:h2.centered "Total Events"]]
-        ]]
+      [:div.row-fluid
+       [:form.form-horizontal.span6 {:method "GET" 
+                                     :action (str "/job/" id "/analytics.edn")}
+        (for [[n v l] [["a-start-date" start-date "Start Date"] 
+                       ["a-end-date" end-date "End Date"]]]
+          [:div.control-group
+           [:label.control-label {:for n} l]
+           [:div.controls
+            (datepicker n v (str/lower-case analytics/google-date-format))]])]
 
-      [:div#analytics-chart.span12]]
+       [:div.span6
+        [:div.row-fluid
+         [:div.span6.thumbnail
+          [:h1#unique-events.centered (:unique-events data)]
+          [:h2.centered "Unique Events"]]
+         [:div.span6.thumbnail
+          [:h1#total-events.centered (:total-events data)]
+          [:h2.centered "Total Events"]]]]
 
-     [:script#analytics-data {:type "text/edn"}
-      (str data)]]))
+       [:div#analytics-chart.span12]]
 
-;; [:get /job/:id/analytics?a-start-date=...&a-end-date=...
-(defn get-job-analytics [id & [start end]]
-  (let [data (try
-               (analytics/google-chart-map id start end)
-               (catch Exception e
-                 {:error (.getMessage e)}))]
+      (if (not (:error data))
+        [:script#analytics-data {:type "text/edn"}
+         (str data)])])))
+
+;; [:get /job/:id/analytics.edn?a-start-date=...&a-end-date=...
+(defn analytics-search [id & [start end]]
+  (let [session-secret (session/session-get :job-secret)
+        data (analytics-data id start end)]
     (-> (rr/response (str data))
         (rr/content-type "text/edn")
         (rr/status (if (:error data) 400 200)))))
 
-;; [:get "/job/:id"]
-(defn get-edit-job [{:keys [id] :as params}]
-  (common/layout
-   [:div.tab-content
-    [:div.btn-group.pull-right {:data-toggle "buttons-radio"}
-     [:a.btn.active {:href "#edit" :data-toggle "tab"} "Edit Job"]
-     [:a.btn {:href "#analytics" :data-toggle "tab"} "Analytics"]]
+;; [:get /job/:id/analytics]
+(defn get-job-analytics [id & [start end]]
+  (let [data (analytics-data id start end)]
+    (if (:error data)
+      (do
+        (session/flash-put! :message [:error (:error data)])
+        (response/redirect "/jobs"))
 
-   ;; params either contains previously submitted (invalid) params that require editing
-   ;; or it only contains {:id id} if the user just arrived at the edit page.
-    [:div#edit.tab-pane.active
-     (if-let [job-map (if (> (count params) 1) 
-                        params
-                        (job/job-map id))]
-       (let [secret-map (assoc job-map :secret (:secret params))]
-         (submit-job secret-map))
-       ;; else
-       (job-not-found))]
-    
-    (job-analytics id)]))
+    (job-analytics-view id data))))
+
+;; [:get "/job/:id"]
+(defn get-edit-job [{:keys [id secret] :as params}]
+  (if secret (session/session-put! :job-secret secret))
+  (let [secret (or secret (session/session-get :job-secret))]
+    (if (can-edit-job? id secret)
+      (common/layout
+       ;; params either contains previously submitted (invalid) params that require editing
+       ;; or it only contains {:id id :secret secret} if the user just arrived at the edit page.
+       [:div#edit
+        (job-edit-tabs id :edit)
+        (if-let [job-map (if (> (count params) 2)
+                           params
+                           (job/job-map id))]
+          (let [secret-map (assoc job-map :secret (:secret params))]
+            (submit-job secret-map))
+          ;; else
+          (job-not-found))])
+      ;else
+      (do
+        (session/flash-put! :message [:error "You cannot edit this job."])
+        (response/redirect "/jobs")))))
 
 (defn flash-error-and-render [error job-id params]
   (session/flash-put! :message [:error error])
   (render get-edit-job params))
 
 ;;[:post "/job/:id"]
+;; Check for job secret in: session and query params.
+;; Also check if user is a team member (logged-in?).
+;; If none of these conditions are met, the poster should not be
+;; allowed to update the job.
 (defn post-edit-job [{:keys [id secret] :as params}]
-  (let [fixed-params (trim-and-fix-params params)
-        job-secret   (job/job-secret id)]
-    (if (or (= (:secret fixed-params) job-secret)
-            (user/logged-in?))
-
+  (let [session-secret (session/session-get :job-secret)
+        params         (if (not (empty? (:secret params)))
+                         params
+                         (assoc params :secret session-secret))
+        fixed-params   (trim-and-fix-params params)]
+    (println params)
+    (if (can-edit-job? id (:secret fixed-params))
       (if (valid-job? fixed-params)
         (if (job/update-job id params)
           (do
