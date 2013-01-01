@@ -125,7 +125,7 @@
        :contact_info email
        :confirmed? true
        :removed? false
-       :fulltime (zero? (rand-int 2))
+       :fulltime? (zero? (rand-int 2))
        :company_size (+ (rand-int 100) 10)
        :tags (repeatedly 3 #(rand-nth positions))
        })))

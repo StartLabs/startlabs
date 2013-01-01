@@ -13011,20 +13011,20 @@ startlabs.views.jobx.half_list = function(a, b) {
   }()], !0)
 };
 startlabs.views.jobx.job_list = function(a, b, c, d, e) {
-  var f = cljs.core.split_at.call(null, cljs.core.count.call(null, a) / 2, a), a = cljs.core.nth.call(null, f, 0, null), f = cljs.core.nth.call(null, f, 1, null), g = [cljs.core.str("/jobs?q="), cljs.core.str(c), cljs.core.str("&page=")].join("");
+  var f = cljs.core.split_at.call(null, cljs.core.count.call(null, a) / 2, a), a = cljs.core.nth.call(null, f, 0, null), f = cljs.core.nth.call(null, f, 1, null), g = [cljs.core.str("/jobs?q="), cljs.core.str(c), cljs.core.str("&page=")].join(""), h = e + 1;
   return cljs.core.empty_QMARK_.call(null, a) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div#job-list.span12", cljs.core.PersistentVector.fromArray(["\ufdd0'h2", "No jobs found. Try revising your query."], !0)], !0) : cljs.core.PersistentVector.fromArray(["\ufdd0'div#job-list.span12", startlabs.views.jobx.half_list.call(null, a, b), startlabs.views.jobx.half_list.call(null, f, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span12.pagination.pagination-centered", cljs.core.PersistentVector.fromArray(["\ufdd0'ul", 
   cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, d, 1) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, d, 1) ? "#" : [cljs.core.str(g), cljs.core.str(d - 1)].join("")}), "Prev"], !0)], !0), function() {
-    return function i(a) {
+    return function j(a) {
       return new cljs.core.LazySeq(null, !1, function() {
         for(;;) {
           if(cljs.core.seq.call(null, a)) {
             var b = cljs.core.first.call(null, a);
-            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, d, b) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, d, b) ? "#" : [cljs.core.str(g), cljs.core.str(b)].join("")}), b], true)], true), i.call(null, cljs.core.rest.call(null, a)))
+            return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, d, b) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, d, b) ? "#" : [cljs.core.str(g), cljs.core.str(b)].join("")}), b], true)], true), j.call(null, cljs.core.rest.call(null, a)))
           }
           return null
         }
       }, null)
-    }.call(null, cljs.core.range.call(null, 1, e + 1))
+    }.call(null, cljs.core.range.call(null, 1, h))
   }(), cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, d, e) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, d, e) ? "#" : [cljs.core.str(g), cljs.core.str(d + 1)].join("")}), "Next"], !0)], !0)], !0)], !0)], !0)
 };
 goog.userAgent.ASSUME_IE = !1;

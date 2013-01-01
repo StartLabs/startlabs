@@ -187,48 +187,51 @@
 
 ;; make browse-jobs take a page as input,
 ;; operate on pages of jobs at a time...
-(defhtml browse-jobs [q page page-size]
-  (let [all-jobs     (filter-jobs q)
-        page-count   (/ (count all-jobs) page-size)
-        page-jobs    (jobs-on-page all-jobs page page-size)
-        show-delete? (user/logged-in?)]
-    [:div#browse
-     ;; sort by date and location.
-     ;; search descriptions and company names
-     [:h1 "Browse Startup Jobs"]
-     
-     [:div#map-box.row-fluid
-      [:div#map.thumbnail]
-      [:div.navbar
-       [:div.navbar-inner
-        [:form.navbar-search.pull-left {:action "#"}
-         [:input#job-search.search-query
-          {:type "text" :placeholder "Search"}]]
-        [:ul.nav.pull-right
-         [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
-        ]]]
+(defhtml browse-jobs [q page-jobs list-html]
+  [:div#browse
+   ;; sort by date and location.
+   ;; search descriptions and company names
+   [:h1 "Browse Startup Jobs"]
+   
+   [:div#map-box.row-fluid
+    [:div#map.thumbnail]
+    [:div.navbar
+     [:div.navbar-inner
+      [:form.navbar-search.pull-left {:method "GET"}
+       [:input#job-search.search-query
+        {:type "text" :placeholder "Search" :name "q" :value q}]]
+      [:ul.nav.pull-right
+       [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
+      ]]]
 
-     [:div#job-container.row-fluid
-      (if (empty? page-jobs)
-        [:h1 "Sorry, no jobs posted currently. Come back later."])
+   [:div#job-container.row-fluid
+    (if (empty? page-jobs)
+      [:h1 "Sorry, no jobs posted currently. Come back later."])
 
-      (job-list page-jobs show-delete? q page page-count)]
-				  
-     [:script#job-data
-      (str "window.job_data = " (json/write-str page-jobs) ";")]
-     ]))
+    list-html]
+   
+   [:script#job-data
+    (str "window.job_data = " (json/write-str page-jobs) ";")]
+   ])
 
+(defn jobs-and-list-html [{:keys [q page page-size] 
+                           :or {q "" page 1 page-size 20}}]
+  (let [valid-page?  (not (nil? (re-matches #"[1-9]\d+" "10")))
+        page         (Integer. (if valid-page? page 1))
+        page-size    (Integer. page-size)
+        jobs         (filter-jobs q)
+        page-jobs    (jobs-on-page jobs page page-size)
+        show-delete? (user/logged-in?)
+        page-count   (/ (count jobs) page-size)
+        body         (job-list page-jobs show-delete? q page page-count)]
+    [page-jobs body]))
 
 ;; code duplication between job-search and browse jobs.
-;; make something in between that generates jobs-list give &params...
+;; make something in-between that generates jobs and jobs-list give &params...
 ;; /jobs.edn?q=...
-(defn job-search [{:keys [q page page-size] :or {q "" page 1 page-size 20}}]
-  (let [page (Integer. page)
-        page-size (Integer. page-size)
-        jobs (jobs-on-page (filter-jobs q) page page-size)
-        show-delete? (user/logged-in?)
-        page-count (/ (count jobs) page-size)
-        body (str {:html (html (job-list jobs show-delete? q page page-count)) 
+(defn job-search [params]
+  (let [[jobs list-html] (jobs-and-list-html params)
+        body (str {:html (html list-html) 
                    :jobs jobs})]
     (-> (rr/response body)
         (rr/content-type "text/edn"))))
@@ -245,47 +248,12 @@
     [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) :href "/job/new"}
      "Submit a Job"]])
 
-;; [:post "/whitelist"]
-(defn post-whitelist [the-list]
-  (if (user/logged-in?)
-    (do
-      (job/update-whitelist the-list)
-      (session/flash-put! :message [:success "The whitelist has been updated successfully."])
-      (response/redirect "/whitelist"))
-    ;else
-    (do
-      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])
-      (response/redirect "/jobs"))))
-
-;; [:get /whitelist]
-(defn get-whitelist []
-  (common/layout
-   (nav-buttons :whitelist)
-   (let [whitelist (job/get-current-whitelist)]
-     [:div#whitelist
-      [:h2 "Company Whitelist"]
-
-      [:div.well
-       [:p "Just put each company domain name on a new line."]
-       [:p "Do not include the http:// or the www."]]
-
-      [:form {:action "/whitelist" :method "post"}
-       [:div.span6.pull-left
-        [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
-         whitelist]
-        [:input.btn.btn-primary.span3 {:type "submit"}]]
-
-       [:div.span5
-        [:input.btn.btn-primary.span3 {:type "submit"}]]]
-      ])))
-
 ;; [:get /jobs]
-(defn get-jobs [& [{:keys [q page page-size] :or {q "" page 1 page-size 20}}]]
-  (let [page      (Integer. page)
-        page-size (Integer. page-size)]
+(defn get-jobs [{:keys [q] :as params}]
+  (let [[page-jobs list-html] (jobs-and-list-html params)]
     (common/layout
      (nav-buttons :jobs)
-     [:div (browse-jobs q page page-size)])))
+     [:div (browse-jobs q page-jobs list-html)])))
 
 
 (defn get-hostname [url]
@@ -452,15 +420,11 @@
         (let [secret     (or (:secret job-map) 
                              (job/update-job-field id :secret (u/uuid)))
               secret-map (assoc job-map :secret secret)]
-
           (send-edit-email secret-map)
-
           [:div
             [:h1 "Edit Link Sent"]
             [:p "The author can now check their email for a link to edit the job listing."]])
-
         (job-not-found))
-
       ;;else
       (response/redirect "/jobs"))))
 
@@ -577,3 +541,39 @@
       [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
      ;; else
      (unexpected-error))))
+
+
+
+;; [:get /whitelist]
+(defn get-whitelist []
+  (common/layout
+   (nav-buttons :whitelist)
+   (let [whitelist (job/get-current-whitelist)]
+     [:div#whitelist
+      [:h2 "Company Whitelist"]
+
+      [:div.well
+       [:p "Just put each company domain name on a new line."]
+       [:p "Do not include the http:// or the www."]]
+
+      [:form {:action "/whitelist" :method "post"}
+       [:div.span6.pull-left
+        [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
+         whitelist]
+        [:input.btn.btn-primary.span3 {:type "submit"}]]
+
+       [:div.span5
+        [:input.btn.btn-primary.span3 {:type "submit"}]]]
+      ])))
+
+;; [:post "/whitelist"]
+(defn post-whitelist [the-list]
+  (if (user/logged-in?)
+    (do
+      (job/update-whitelist the-list)
+      (session/flash-put! :message [:success "The whitelist has been updated successfully."])
+      (response/redirect "/whitelist"))
+    ;else
+    (do
+      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])
+      (response/redirect "/jobs"))))
