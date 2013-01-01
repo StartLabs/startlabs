@@ -28,6 +28,7 @@
 (defn get-referer [req]
   (get-in req [:headers "referer"]))
 
+
 ;; split the job routes so /jobs is 3 pages: /jobs, /whitelist, /job/new
 (defroutes job-routes
   (GET "/" [& params] (jobs/get-edit-job params))

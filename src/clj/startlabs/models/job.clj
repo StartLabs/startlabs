@@ -3,7 +3,7 @@
         [clj-time.coerce :only [to-long to-date]]
         [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [*conn*]]
-        [startlabs.util :only [stringify-values]])
+        [startlabs.util :only [stringify-values uuid]])
   (:require [clojure.string :as str]
             [clj-http.client :as client]
             [sandbar.stateful-session :as session]
@@ -17,7 +17,7 @@
 ;; modify this to @() deref, then resolve tempid to real id, then retun map with real id conj'd.
 (defn create-job [job-map]
   ; might need to conj :confirmed? false
-  (let [job-map-with-id (conj job-map {:id (util/uuid) :secret (util/uuid)})
+  (let [job-map-with-id (conj job-map {:id (uuid) :secret (uuid)})
         tx-data         (util/txify-new-entity :job job-map-with-id)]
     @(d/transact *conn* tx-data)
     job-map-with-id))
@@ -67,12 +67,15 @@
 (defn remove-job [job-id]
   (update-job-field job-id :job/removed? true "Trouble deleting job"))
 
+(def upcoming-jobs-q '[:find ?job :where [?job :job/confirmed? true]
+                       [?job :job/end_date ?end]
+                       [(startlabs.util/after-now? ?end)]])
+
 (defn find-upcoming-jobs 
-  "returns all confirmed, non-removed jobs whose start dates are after a certain date"
+  "returns all confirmed, non-removed jobs whose start dates 
+   are after a certain date"
   []
-  (let [jobs      (q '[:find ?job :where [?job :job/confirmed? true]
-                                         [?job :job/end_date ?end]
-                                         [(startlabs.models.util/after-now? ?end)]] (db *conn*))
+  (let [jobs      (q upcoming-jobs-q (db *conn*))
         job-ids   (map first jobs)
         job-maps  (util/maps-for-datoms job-ids :job)
         ;; make sure to remove the secret!

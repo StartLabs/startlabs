@@ -1,13 +1,14 @@
 (ns startlabs.models.util
-  (:use [datomic.api :only [q db ident] :as d]
-        [startlabs.models.database :only [*conn*]]
-        [environ.core :only [env]]
+  (:use [clj-time.core :only [after? now]]
+        [clj-time.coerce :only [to-long to-date]]
         [clojure.java.io :only [input-stream]]
-        [clj-time.core :only [after? now]]
-        [clj-time.coerce :only [to-long to-date]])
-  (:require [clojure.string :as str]
+        [datomic.api :only [q db ident] :as d]
+        [environ.core :only [env]]
+        [startlabs.models.database :only [*conn*]])
+  (:require [aws.sdk.s3 :as s3]
+            [clojure.string :as str]
             [clj-time.format :as t]
-            [aws.sdk.s3 :as s3])
+            [startlabs.util :as u])
   (:import java.net.URI))
 
 ; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
@@ -22,27 +23,6 @@
       (s3/update-object-acl aws-creds bucket-name file-name 
                             (s3/grant :all-users :read))
       (str "https://s3.amazonaws.com/" bucket-name "/" file-name))))
-
-
-(def default-date-format "MM/dd/YYYY")
-(def default-date-formatter (t/formatter default-date-format))
-
-(defn parse-date 
-  "Returns the parsed date if valid, otherwise returns false"
-  [the-date]
-  (try (t/parse default-date-formatter the-date) 
-    (catch Exception e false)))
-
-(defn unparse-date [the-date]
-  (t/unparse default-date-formatter the-date))
-
-(defn after-now?
-  "Determines if the provided date is in the future."
-  [date]
-  (> (to-long date) (to-long (now))))
-
-(defn uuid []
-  (str (java.util.UUID/randomUUID)))
 
 ; the transforming and de/namespacing functions should be their own helper library...
 (defmulti 
@@ -67,7 +47,7 @@
   (Float/parseFloat attr))
 
 (defmethod transform-attr [String :db.type/instant] [attr _]
-  (to-date (parse-date attr)))
+  (to-date (u/parse-date attr)))
 
 (defmethod transform-attr [org.joda.time.DateTime :db.type/instant] [attr _]
   (to-date attr))

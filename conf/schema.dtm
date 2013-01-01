@@ -4,12 +4,22 @@
 ;; request the :db/doc value and will fail to return attributes
 ;; that lack docs.
 
+
+;; TODO: Maybe I should make partitions for each distinct type
+;; of entity? Supposedly this increases performance by hinting
+;; to datomic.
+;; this would entail, eg:
+;; {:db/id #db/id[:db.part/db],
+;;  :db/ident :users,
+;;  :db.install/_partition :db.part/db}
+
 [
   ;; user
   
- {:db/id #db/id[:db.part/db],
+{:db/id #db/id[:db.part/db],
   :db/ident :user/id,
   :db/unique :db.unique/identity,
+  :db/index true,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Example value: 00000000000000",
@@ -143,7 +153,8 @@
 
  {:db/id #db/id[:db.part/db],
   :db/ident :job/id,
-  :db/unique :db.unique/identity,
+  :db/unique :db.unique/value,
+  :db/index true,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "A unique identifier for jobs.",
@@ -151,7 +162,7 @@
 
  {:db/id #db/id[:db.part/db],
   :db/ident :job/secret,
-  :db/unique :db.unique/identity,
+  :db/unique :db.unique/value,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "A secret unique identifier for jobs. Used for editing",
@@ -266,6 +277,9 @@
   :db/doc "The current number of employees",
   :db.install/_attribute :db.part/db}
 
+  ;; this should really be a ref to
+  ;; a separate tags field so that each tag
+  ;; is unique, and all tags are better query-able
  {:db/id #db/id[:db.part/db],
   :db/ident :job/tags,
   :db/valueType :db.type/string,
@@ -300,7 +314,11 @@
   :db/doc "Markdown text describing upcoming events",
   :db.install/_attribute :db.part/db}
 
-
+  ;; this should not be necessary...
+  ;; I am doing it wrong.
+  ;; Should instead get the instant attribute from
+  ;; the most recent event transaction entity
+  ;; (from inside the db.part/tx partition)
  {:db/id #db/id[:db.part/db],
   :db/ident :event/updated,
   :db/valueType :db.type/instant,
@@ -350,7 +368,6 @@
 
  {:db/id #db/id[:db.part/db],
   :db/ident :analytics/user,
-  :db/unique :db.unique/identity,
   :db/valueType :db.type/ref,
   :db/cardinality :db.cardinality/one,
   :db/doc "The person whose auth info we use for the Google Analytics API",

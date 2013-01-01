@@ -3,7 +3,7 @@
         [datomic.api :only [q db ident] :as d]
         [environ.core :only [env]]
         [startlabs.models.database :only [*conn*]]
-        [startlabs.util :only [stringify-values]])
+        [startlabs.util :only [after-now? stringify-values]])
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
             [clj-http.client :as client]
@@ -19,7 +19,7 @@
 
 (defn get-analytics-token []
   (let [user-info (util/map-for-datom (second (get-analytics-ent)) :user)]
-    (if (util/after-now? (:expiration user-info))
+    (if (after-now? (:expiration user-info))
       ;; return the current access token if valid
       (:access-token user-info)
       ;; if expired, fetch a new one

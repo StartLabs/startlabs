@@ -1,6 +1,7 @@
 (ns startlabs.views.jobs
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
+            [clj-time.core :as t]
             [noir.response :as response]
             [noir.validation :as vali]
             [postal.core :as postal]
@@ -18,7 +19,6 @@
         [clojure.core.incubator]
         [clojure.math.numeric-tower :only [abs]]
         [clojure.tools.logging :only [info]]
-        [clj-time.core :only [now plus months]]
         [clj-time.coerce :only [to-long]]
         [environ.core :only [env]]
         [hiccup.core :only [html]]
@@ -74,7 +74,7 @@
       (if (= input-type :textarea) v)]))
 
 (defmethod input-for-field :instant [field type docs v]
-  (let [date-format (str/lower-case mu/default-date-format)]
+  (let [date-format (str/lower-case u/default-date-format)]
     [:input.datepicker {:type "text" :data-date-format date-format :value v
                         :id field :name field :placeholder date-format}]))
 
@@ -162,13 +162,21 @@
        [:div#job-location]]
       ]]))
 
+;; add arguments for sort and entries-per-page and current page...
 (defn get-all-jobs []
   (sort-by #(:company %)
            (filter #(not= (:removed? %) "true")
                    (job/find-upcoming-jobs))))
 
+;; COMMENT THIS IN PRODUCTION
+(comment
+  (defn get-all-jobs []
+    (repeatedly 100 #(u/stringify-values (u/fake-job)))))
+
+;; make browse-jobs take a page as input,
+;; operate on pages of jobs at a time...
 (defhtml browse-jobs []
-  (let [all-jobs (get-all-jobs)
+  (let [all-jobs     (get-all-jobs)
         show-delete? (user/logged-in?)]
     [:div#browse
      ;; sort by date and location.
@@ -305,12 +313,12 @@
 
     (doseq [date [:start_date :end_date]]
       (vali/rule
-       (mu/parse-date (date job-params))
+       (u/parse-date (date job-params))
        [date "Invalid date."]))
 
   ; make sure the end date comes after the start
     (vali/rule
-     (let [[start end] (map #(mu/parse-date (% job-params)) [:start_date :end_date])]
+     (let [[start end] (map #(u/parse-date (% job-params)) [:start_date :end_date])]
        (and (and start end) 
             (= -1 (apply compare (map to-long [start end])))))
      [:end_date "The end date must come after the start date."])
@@ -320,17 +328,17 @@
 (defn fix-job-params [params]
   (let [website    (:website params)
         fulltime?  (if (= (:fulltime? params) "true") true false)
-        start-date (mu/parse-date (:start_date params))
+        start-date (u/parse-date (:start_date params))
         end-date   (if start-date
-                     (plus start-date (months 6)) 
-                     (plus (now) (months 6)))]
+                     (t/plus start-date (t/months 6)) 
+                     (t/plus (t/now) (t/months 6)))]
     (conj params
       {:website (if (not (empty? website)) 
         (u/httpify-url website) 
         "")
        :fulltime? fulltime?
-       :end_date (if fulltime? 
-                   (mu/unparse-date end-date)
+       :end-date (if fulltime? 
+                   (u/unparse-date end-date)
                    (:end_date params))})))
 
 (def job-error  "Please correct the form and resubmit.")
@@ -428,7 +436,7 @@
       (if-let [job-map (job/job-map id)]
         ;; here we find the existing secret or create a new one
         (let [secret     (or (:secret job-map) 
-                             (job/update-job-field id :secret (mu/uuid)))
+                             (job/update-job-field id :secret (u/uuid)))
               secret-map (assoc job-map :secret secret)]
 
           (send-edit-email secret-map)
