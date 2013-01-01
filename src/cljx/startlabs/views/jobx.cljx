@@ -98,11 +98,25 @@
      [:div.job.thumbnail {:id (:id job)}
       (job-card job editable?)])])
 
-(defn job-list [jobs editable?]
-  (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)]
+(defn job-list [jobs editable? q page page-count]
+  (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)
+        base-url (str "/jobs?q=" q "&page=")]
     (if (empty? left-jobs)
       [:div#job-list.span12
        [:h2 "No jobs found. Try revising your query."]]
       [:div#job-list.span12
        (half-list left-jobs editable?)
-       (half-list right-jobs editable?)])))
+       (half-list right-jobs editable?)
+       [:div.span12.pagination.pagination-centered
+        [:ul
+         [:li {:class (if (= page 1) "disabled" "active")} 
+          [:a {:href (if (= page 1) "#"
+                         (str base-url (dec page)))} "Prev"]]
+         (for [i (range 1 (inc page-count))]
+           [:li {:class (if (= page i) "disabled" "active")} 
+            [:a {:href (if (= page i) "#"
+                           (str base-url i))} i]])
+         [:li {:class (if (= page page-count) "disabled" "active")}
+          [:a {:href (if (= page page-count) "#"
+                         (str base-url (inc page)))} "Next"]]]]
+       ])))

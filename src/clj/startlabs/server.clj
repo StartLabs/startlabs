@@ -59,8 +59,8 @@
   (GET "/team" [] (user-views/team))
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
 
-  (GET "/jobs" [] (jobs/get-jobs))
-  (GET "/jobs.edn" [q] (jobs/job-search q))
+  (GET "/jobs" [& params] (jobs/get-jobs params))
+  (GET "/jobs.edn" [& params] (jobs/job-search params))
 
   (GET "/whitelist" [] (jobs/get-whitelist))
   (POST "/whitelist" [the-list] (jobs/post-whitelist the-list))

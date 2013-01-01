@@ -169,14 +169,28 @@
                    (job/find-upcoming-jobs))))
 
 ;; COMMENT THIS IN PRODUCTION
-(comment
-  (defn get-all-jobs []
-    (repeatedly 100 #(u/stringify-values (u/fake-job)))))
+(comment)
+(defn get-all-jobs []
+  (repeatedly 100 #(u/stringify-values (u/fake-job))))
+
+(defn filter-jobs [query]
+  (let [all-jobs (get-all-jobs)]
+    (if (empty? query)
+      all-jobs
+      (filter (fn [job]
+        (some #(re-find (re-pattern (str "(?i)" query)) %) 
+              (map job [:position :company :location])))
+        all-jobs))))
+
+(defn jobs-on-page [jobs page page-size]
+  (take page-size (drop (* (dec page) page-size) jobs)))
 
 ;; make browse-jobs take a page as input,
 ;; operate on pages of jobs at a time...
-(defhtml browse-jobs []
-  (let [all-jobs     (get-all-jobs)
+(defhtml browse-jobs [q page page-size]
+  (let [all-jobs     (filter-jobs q)
+        page-count   (/ (count all-jobs) page-size)
+        page-jobs    (jobs-on-page all-jobs page page-size)
         show-delete? (user/logged-in?)]
     [:div#browse
      ;; sort by date and location.
@@ -195,28 +209,26 @@
         ]]]
 
      [:div#job-container.row-fluid
-      (if (empty? all-jobs)
+      (if (empty? page-jobs)
         [:h1 "Sorry, no jobs posted currently. Come back later."])
-      (job-list all-jobs show-delete?)]
+
+      (job-list page-jobs show-delete? q page page-count)]
 				  
      [:script#job-data
-      (str "window.job_data = " (json/write-str all-jobs) ";")]
+      (str "window.job_data = " (json/write-str page-jobs) ";")]
      ]))
 
-(defn filter-jobs [query]
-  (let [all-jobs (get-all-jobs)]
-    (if (empty? query)
-      all-jobs
-      (filter (fn [job]
-        (some #(re-find (re-pattern (str "(?i)" query)) %) 
-              (map job [:position :company :location])))
-        all-jobs))))
 
+;; code duplication between job-search and browse jobs.
+;; make something in between that generates jobs-list give &params...
 ;; /jobs.edn?q=...
-(defn job-search [query]
-  (let [jobs (filter-jobs query)
+(defn job-search [{:keys [q page page-size] :or {q "" page 1 page-size 20}}]
+  (let [page (Integer. page)
+        page-size (Integer. page-size)
+        jobs (jobs-on-page (filter-jobs q) page page-size)
         show-delete? (user/logged-in?)
-        body (str {:html (html (job-list jobs show-delete?)) 
+        page-count (/ (count jobs) page-size)
+        body (str {:html (html (job-list jobs show-delete? q page page-count)) 
                    :jobs jobs})]
     (-> (rr/response body)
         (rr/content-type "text/edn"))))
@@ -268,10 +280,12 @@
       ])))
 
 ;; [:get /jobs]
-(defn get-jobs []
-  (common/layout
-   (nav-buttons :jobs)
-   [:div (browse-jobs)]))
+(defn get-jobs [& [{:keys [q page page-size] :or {q "" page 1 page-size 20}}]]
+  (let [page      (Integer. page)
+        page-size (Integer. page-size)]
+    (common/layout
+     (nav-buttons :jobs)
+     [:div (browse-jobs q page page-size)])))
 
 
 (defn get-hostname [url]
@@ -561,6 +575,5 @@
       [:h1 "Thanks for Confirming"]
       [:p "Your listing should now be posted."]
       [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
-
      ;; else
      (unexpected-error))))
