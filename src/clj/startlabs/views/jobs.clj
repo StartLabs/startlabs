@@ -73,10 +73,13 @@
                  :rows 6 :placeholder docs :class "span12"}
       (if (= input-type :textarea) v)]))
 
-(defmethod input-for-field :instant [field type docs v]
+(defhtml datepicker [name value]
   (let [date-format (str/lower-case u/default-date-format)]
-    [:input.datepicker {:type "text" :data-date-format date-format :value v
-                        :id field :name field :placeholder date-format}]))
+    [:input.datepicker {:type "text" :data-date-format date-format :value value
+                        :id name :name name :placeholder date-format}]))
+
+(defmethod input-for-field :instant [field type docs v]
+  (datepicker field v))
 
 (defmethod input-for-field :boolean [field type docs v]
   (let [str-v (if (or (false? v) (true? v)) (str v) "false")]
@@ -163,18 +166,23 @@
       ]]))
 
 ;; add arguments for sort and entries-per-page and current page...
-(defn get-all-jobs []
-  (sort-by #(:company %)
-           (filter #(not= (:removed? %) "true")
+;; unfortunately, cannot do negations currently in datomic where clauses,
+;; so we must specify not removed here.
+(defn get-all-jobs [sort-field]
+  (sort-by sort-field
+           (filter #(not= (:removed? %) true)
                    (job/find-upcoming-jobs))))
 
 ;; COMMENT THIS IN PRODUCTION
-(comment)
-(defn get-all-jobs []
-  (repeatedly 100 #(u/stringify-values (u/fake-job))))
+(comment
+  (defn get-all-jobs [sort-field]
+    (map u/stringify-values
+         (sort-by sort-field
+                  (repeatedly 100 #(u/fake-job))))))
 
 (defn filter-jobs [query]
-  (let [all-jobs (get-all-jobs)]
+  (let [sort-field (keyword (session/session-get :sort-field))
+        all-jobs   (get-all-jobs sort-field)]
     (if (empty? query)
       all-jobs
       (filter (fn [job]
@@ -187,7 +195,7 @@
 
 ;; make browse-jobs take a page as input,
 ;; operate on pages of jobs at a time...
-(defhtml browse-jobs [q page-jobs list-html]
+(defhtml browse-jobs [q sort-field page-jobs list-html]
   [:div#browse
    ;; sort by date and location.
    ;; search descriptions and company names
@@ -200,8 +208,22 @@
       [:form.navbar-search.pull-left {:method "GET"}
        [:input#job-search.search-query
         {:type "text" :placeholder "Search" :name "q" :value q}]]
-      [:ul.nav.pull-right
-       [:li [:a#map-toggle {:href "#"} "Toggle Map"]]]
+
+      [:div.nav-collapse.collapse
+       [:ul.nav.pull-right
+        [:li [:a#filter-toggle {:href "#filter"} [:i.icon-filter] "Filter"]]
+
+        [:li.dropdown
+         [:a#sort-toggle.dropdown-toggle
+          {:href "#" :data-toggle "dropdown"} 
+          [:i.icon-list] "Sort" [:b.caret]]
+         [:ul#sort.dropdown-menu {:role "menu" :arial-labelledby "sort-toggle"}
+          (for [field [:company :company_size :start_date :end_date 
+                       :longitude :latitude]]
+            [:li {:class (if (= (keyword sort-field) field) "active")}
+             [:a {:href "#" :data-field (name field)} (u/phrasify field)]])]]
+
+        [:li [:a#map-toggle {:href "#map"} [:i.icon-map-marker] "Toggle Map"]]]]
       ]]]
 
    [:div#job-container.row-fluid
@@ -214,8 +236,11 @@
     (str "window.job_data = " (json/write-str page-jobs) ";")]
    ])
 
-(defn jobs-and-list-html [{:keys [q page page-size] 
-                           :or {q "" page 1 page-size 20}}]
+(defn jobs-and-list-html [{:keys [q page page-size sort-field] 
+                           :or {q "" page 1 page-size 20 
+                                sort-field (or (session/session-get :sort-field)
+                                               "company")}}]
+  (session/session-put! :sort-field sort-field)
   (let [valid-page?  (not (nil? (re-matches #"[1-9]\d+" "10")))
         page         (Integer. (if valid-page? page 1))
         page-size    (Integer. page-size)
@@ -226,9 +251,7 @@
         body         (job-list page-jobs show-delete? q page page-count)]
     [page-jobs body]))
 
-;; code duplication between job-search and browse jobs.
-;; make something in-between that generates jobs and jobs-list give &params...
-;; /jobs.edn?q=...
+;; [:get /jobs.edn?q=...]
 (defn job-search [params]
   (let [[jobs list-html] (jobs-and-list-html params)
         body (str {:html (html list-html) 
@@ -250,10 +273,11 @@
 
 ;; [:get /jobs]
 (defn get-jobs [{:keys [q] :as params}]
-  (let [[page-jobs list-html] (jobs-and-list-html params)]
+  (let [[page-jobs list-html] (jobs-and-list-html params)
+        sort-field (session/session-get :sort-field)]
     (common/layout
      (nav-buttons :jobs)
-     [:div (browse-jobs q page-jobs list-html)])))
+     [:div (browse-jobs q sort-field page-jobs list-html)])))
 
 
 (defn get-hostname [url]
@@ -430,7 +454,6 @@
 
 (defhtml job-analytics [id]
   (let [data       (analytics/google-chart-map id)
-        date-fmt   (str/lower-case analytics/google-date-format)
         start-date (:start-date data)
         end-date   (:end-date data)]
     [:div#analytics.tab-pane
@@ -444,9 +467,7 @@
          [:div.control-group
           [:label.control-label {:for n} l]
           [:div.controls
-           [:input.datepicker {:type "text" :data-date-format date-fmt
-                               :value v :placeholder date-fmt
-                               :id n :name n}]]])]
+           (datepicker n)]])]
       [:div.span6
        [:div.row-fluid
         [:div.span6.thumbnail
@@ -460,8 +481,7 @@
       [:div#analytics-chart.span12]]
 
      [:script#analytics-data {:type "text/edn"}
-      (str data)]]
-    ))
+      (str data)]]))
 
 ;; [:get /job/:id/analytics?a-start-date=...&a-end-date=...
 (defn get-job-analytics [id & [start end]]

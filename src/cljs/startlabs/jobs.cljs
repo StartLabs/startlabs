@@ -74,7 +74,7 @@
 (def markers (atom []))
 (def filtered-jobs (atom []))
 (def active-job (atom {}))
-
+(def query-map (atom {:q "" :sort-field "company"}))
 
 (defn job-with-id [id]
   (first 
@@ -88,17 +88,17 @@
            (-> ($ this) (.find ".read") .toggle)
            (-> ($ this) (.find ".more") .toggle)))
 
-(defn find-jobs [query]
-  #(let [$job-list ($ "#job-list")
-         parent (.parent $job-list)]
-     (jq/ajax (str "/jobs.edn?q=" query)
-              {:contentType :text/edn
-               :success (fn [data status xhr]
-                            (let [data (reader/read-string data)]
-                              (reset! filtered-jobs (:jobs data))
-                              (.remove $job-list)
-                              (.html parent (:html data))))
-               })))
+(defn find-jobs []
+  (let [$job-list ($ "#job-list")
+        parent    (.parent $job-list)
+        params    (js/jQuery.param (clj->js @query-map))]
+    (jq/ajax (str "/jobs.edn?" params)
+             {:contentType :text/edn
+              :success (fn [data status xhr]
+                         (let [data (reader/read-string data)]
+                           (reset! filtered-jobs (:jobs data))
+                           (.remove $job-list)
+                           (.html parent (:html data))))})))
 
 (defn add-jobs-marker [job] 
   (fn [coords]
@@ -106,6 +106,12 @@
       (google.maps.event.addListener marker "click" (fn []
         (set! (.-hash js/location) (str "#" (:id job)))))
       (swap! markers conj marker))))
+
+(defn setup-find-jobs [k r o n]
+  (if (not= o n)
+    (do
+      (js/clearTimeout search-timeout)
+      (set! search-timeout (js/setTimeout find-jobs 500)))))
 
 (defn setup-jobs-list []
   (let [gmap-elem (elem-by-id "map")]
@@ -123,33 +129,38 @@
         (doseq [job n]
           (let [coords (lat-lng (:latitude job) (:longitude job))]
             (u/log coords)
-            ((add-jobs-marker job) coords))
-          ))
-      )))
+            ((add-jobs-marker job) coords)))))))
+
+  (add-watch query-map :query setup-find-jobs)
 
   (let [$map-box ($ "#map-box")]
     (jq/on $map-box :keyup "#job-search" 
            (fn [e]
              ; filter jobs as you search
              (this-as job-search
-                      (let [query (str/trim (jq/val ($ job-search)))]
-                        (js/clearTimeout search-timeout)
-                        (set! search-timeout (js/setTimeout (find-jobs query) 500))
-                        ))))
+                      (swap! query-map assoc :q
+                             (str/trim (jq/val ($ job-search)))))))
 
     (jq/on $map-box :click "#map-toggle" 
            (fn [e]
              (.preventDefault e)
-             (.toggle ($ "#map"))))
-    )
+             (.toggle ($ "#map")))))
 
   (let [$job-container ($ "#job-container")]
     (jq/on $job-container :click ".job" nil show-job-details)
     (jq/on $job-container :click ".edit-link" nil (fn [e] (.stopPropagation e)))
     (jq/on $job-container :click ".more a" nil (fn [e] (.stopPropagation e))))
+
+  (jq/on ($ "#sort") :click "a" (fn [e]
+    (.preventDefault e)
+    (.removeClass ($ "#sort li") "active")
+    (this-as this
+             (let [$this ($ this)
+                   field (.data $this "field")]
+               (.addClass (.parent $this "li") "active")
+               (swap! query-map assoc :sort-field field)))))
 	
-  (reset! filtered-jobs job-data)
-)
+  (reset! filtered-jobs job-data))
 
 
 ;;
@@ -288,8 +299,7 @@
            (change-fulltime (.val $inp)))))))
 
 (defn update-preview-marker [coords]
-  (.setPosition preview-marker coords)
-  )
+  (.setPosition preview-marker coords))
 
 (defn update-location []
   (let [location (.val ($ "#location"))]

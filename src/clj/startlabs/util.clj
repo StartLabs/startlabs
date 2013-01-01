@@ -99,7 +99,7 @@
         positions ["Ninja" "Superstar" "Expert" "Polyglot" 
                    "Hacker" "Programmer" "Developer" "Designer"]
         langs ["Frontend" "Ruby" "Rails" "Clojure" "Haskell" 
-               "Brainfuck" "D" "Julia" "OCaml" "Scala" "Arc" "Go"]
+               "Smalltalk" "D" "Julia" "OCaml" "Scala" "Arc" "Go"]
         places [["San Francisco, CA" 37.7750 -122.4183]
                 ["Raleigh, NC" 35.7719 -78.6389]
                 ["Boston, MA" 42.3583 -71.0603]

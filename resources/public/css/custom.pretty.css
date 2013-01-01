@@ -6898,3 +6898,7 @@ html,body {
     height: 480px;
     background: #fff;
 }
+
+#map-box .navbar i {
+    margin: 3px 4px 0 0;
+}
