@@ -60,8 +60,8 @@
              :content (job-email-body job-map)}]}))
 
 (def ordered-job-keys
-  [:company :position :location :website :fulltime? :start_date :end_date 
-   :company_size :description :contact_info :email])
+  [:company :position :location :website :fulltime? :start-date :end-date 
+   :company-size :description :contact-info :email])
 
 (def hidden-job-keys [:longitude :latitude])
 
@@ -121,11 +121,11 @@
   {:position "Lab Assistant" :company "StartLabs" 
    :location "Cambridge, Massachusetts"
    :website "http://www.startlabs.org" 
-   :start_date "May 30, 2013" :end_date "August 30, 2013"
+   :start-date "May 30, 2013" :end-date "August 30, 2013"
    :description "Smart people tackling difficult problems at a great location with *nice perks*.
 \n\nMust have **4+ years** of lab experience.
 \n\nWe prefer candidates who wear green clothing."
-   :contact_info "contact@startlabs.org"})
+   :contact-info "contact@startlabs.org"})
 
 (def job-list-email-body
   (c/url-encode
@@ -195,7 +195,7 @@
 
 ;; COMMENT THIS IN PRODUCTION
 (comment
-  (defn get-all-jobs [sort-field]
+  (defn get-all-jobs [sort-field filters]
     (map u/stringify-values
          (sort-by sort-field
                   (repeatedly 100 #(u/fake-job))))))
@@ -294,7 +294,7 @@
             {:href "#" :data-toggle "dropdown"} 
             [:i.icon-list] "Sort" [:b.caret]]
            [:ul#sort.dropdown-menu {:role "menu" :arial-labelledby "sort-toggle"}
-            (for [field [:company :company_size :start_date :end_date 
+            (for [field [:company :company-size :start-date :end-date 
                          :longitude :latitude]]
               [:li {:class (if (= (keyword sort-field) field) "active")}
                [:a {:href "#" :data-field (name field)} (u/phrasify field)]])]]
@@ -386,8 +386,8 @@
     (vali/rule (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist)
                [:website "Sorry, your site is not on our whitelist."])
 
-    (vali/rule (vali/valid-number? (:company_size job-params))
-               [:company_size "The company size must be a valid number."])
+    (vali/rule (vali/valid-number? (:company-size job-params))
+               [:company-size "The company size must be a valid number."])
 
     (try
       (let [err [:location "The latitude/longitude of the location are invalid."]]
@@ -396,7 +396,7 @@
                    err))
         (catch Exception err))
 
-    (doseq [date [:start_date :end_date]]
+    (doseq [date [:start-date :end-date]]
       (vali/rule
        (u/parse-date (date job-params))
        [date "Invalid date."]))
@@ -404,17 +404,17 @@
   ; make sure the end date comes after the start
     (vali/rule
      (let [[start end] (map #(u/parse-date (% job-params)) 
-                            [:start_date :end_date])]
+                            [:start-date :end-date])]
        (and (and start end) 
             (= -1 (apply compare (map to-long [start end])))))
-     [:end_date "The end date must come after the start date."])
+     [:end-date "The end date must come after the start date."])
 
     (not (apply vali/errors? ordered-job-keys))))
 
 (defn fix-job-params [params]
   (let [website    (:website params)
         fulltime?  (if (= (:fulltime? params) "true") true false)
-        start-date (u/parse-date (:start_date params))
+        start-date (u/parse-date (:start-date params))
         end-date   (if start-date
                      (t/plus start-date (t/months 6)) 
                      (t/plus (t/now) (t/months 6)))]
@@ -425,7 +425,7 @@
        :fulltime? fulltime?
        :end-date (if fulltime? 
                    (u/unparse-date end-date)
-                   (:end_date params))})))
+                   (:end-date params))})))
 
 (def job-error  "Please correct the form and resubmit.")
 (defn flash-job-error []

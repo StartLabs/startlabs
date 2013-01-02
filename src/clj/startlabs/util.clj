@@ -128,15 +128,15 @@
        :latitude (+ (nth location 1) (rand))
        :longitude (+ (nth location 2) (rand))
        :website "http://www.startlabs.org"
-       :start_date (to-date start)
-       :end_date (to-date (t/plus start (t/months (inc (rand-int 6)))))
+       :start-date (to-date start)
+       :end-date (to-date (t/plus start (t/months (inc (rand-int 6)))))
        :description (apply str (repeatedly 10 rand-job))
        :email email
-       :contact_info email
+       :contact-info email
        :confirmed? true
        :removed? false
        :fulltime? (zero? (rand-int 2))
-       :company_size (+ (rand-int 100) 10)
+       :company-size (+ (rand-int 100) 10)
        :tags (repeatedly 3 #(rand-nth positions))
        })))
 

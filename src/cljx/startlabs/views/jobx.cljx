@@ -72,9 +72,9 @@
 
    [:div.row-fluid.dateloc
     ; need to format dates
-    [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) 
+    [:div.span6 [:i.icon.icon-calendar] (:start-date job-info) 
      (if (not (= (:fulltime? job-info) "true"))
-       (str " - " (:end_date job-info)))]
+       (str " - " (:end-date job-info)))]
     [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
 
    [:div.row-fluid
@@ -84,7 +84,7 @@
                    "Internship")]]
 
     [:div.span6.employees 
-     [:span.badge.badge-info (:company_size job-info)] "Employees"]]
+     [:span.badge.badge-info (:company-size job-info)] "Employees"]]
 
    [:a.read {:href (str "#" (more-id (:id job-info)))} "Read More..." ]])
 
@@ -104,7 +104,7 @@
     [:div.well.well-small
      "Contact: "
      [:i.icon.icon-envelope]
-     (let [contact-info (:contact_info job-info)]
+     (let [contact-info (:contact-info job-info)]
        ; need to handle phone numbers
        [:a {:href (linkify contact-info)
             :onclick (str "_gaq.push(['_trackEvent', 'Jobs', 'Contact', '"

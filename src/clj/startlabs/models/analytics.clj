@@ -125,14 +125,6 @@
 (defn set-analytics-user
   "Expects a user entity"
   [user]
-  (try
-    (if-let [[entity user] (get-analytics-ent)]
-      ;; if the analytics user has been set previously
-      (let [fact         (util/namespace-and-transform :analytics {:user user})
-            idented-fact (assoc fact :db/id entity)]
-        @(d/transact *conn* idented-fact))
-      ;; otherwise, create a new entity
-      (let [new-fact (util/txify-new-entity :analytics {:user user})]
-        @(d/transact *conn* new-fact)))
-    (catch Exception e
-      (session/flash-put! :message [:error (str "Trouble setting analytics user: " e)]))))
+  (util/create-or-update (first (get-analytics-ent)) 
+                         :analytics
+                         {:user user}))

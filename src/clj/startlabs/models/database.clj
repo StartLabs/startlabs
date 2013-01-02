@@ -6,11 +6,15 @@
 (def uri  "datomic:free://localhost:4334/startlabs")
 (def ^:dynamic *conn* nil)
 
-(defn do-setup [uri]
+(defn do-setup [uri schema]
   (d/create-database uri)
-  ;; reset the connection since we just created the database
-  (def ^:dynamic *conn* (d/connect uri)))
+  (let [schema-tx (read-string (slurp schema))]
+    ;; reset the connection since we just created the database
+    (def ^:dynamic *conn* (d/connect uri))
+    ;; @(d/transact *conn* schema-tx)
+    ))
 
 (defn do-default-setup []
   (println "Connecting to db...")
-  (do-setup uri))
+  (let [schema "conf/schema.dtm"]
+    (do-setup uri schema)))

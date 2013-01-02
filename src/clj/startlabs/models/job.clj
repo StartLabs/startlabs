@@ -71,10 +71,10 @@
 (defn upcoming-jobs-q [{:keys [show-internships show-fulltime
                                min-company-size max-company-size
                                min-start-date max-start-date
-                               min-end-date max-end-date]
+                               min-end-date max-end-date] :as filters
                         :or {show-internships true
                              show-fulltime true}}]
-
+  (println filters)
   (let [lmin-start (if min-start-date (tc/to-long min-start-date))
         lmax-start (if max-start-date (tc/to-long max-start-date))
         lmin-end   (if min-end-date   (tc/to-long min-end-date))
@@ -82,10 +82,10 @@
         truff      `[(true? true)]]
     [:find '?job :where
      ['?job :job/confirmed? true]
-     ['?job :job/company_size '?size]
+     ['?job :job/company-size '?size]
      ['?job :job/fulltime? '?fulltime]
-     ['?job :job/start_date '?start]
-     ['?job :job/end_date '?end]
+     ['?job :job/start-date '?start]
+     ['?job :job/end-date '?end]
      ['(clj-time.coerce/to-long ?start) '?lstart]
      ['(clj-time.coerce/to-long ?end) '?lend]
      ['(startlabs.util/after-now? ?end)]

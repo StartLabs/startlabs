@@ -8,18 +8,15 @@
             [startlabs.models.user :as user]
             [startlabs.models.util :as util]))
 
-
-(defn create-event [event-map]
-  (let [event-map (assoc event-map :updated (to-date (now)))
-        tx-data   (util/txify-new-entity :event event-map)]
-    @(d/transact *conn* tx-data)
-    event-map))
-
-(defn get-latest-event
+(defn get-event
   "returns all confirmed jobs whose start dates are after a certain date"
   []
-  (let [events (q '[:find ?updated ?descr :in $
-                    :where [?event :event/description ?descr]
-                           [?event :event/updated ?updated]] (db *conn*))
-        event (last (sort-by first events))]
-    (last event)))
+  (let [events (q '[:find ?event ?description :in $
+                    :where [?event :event/description ?description]] (db *conn*))
+        event (first events)]
+    event))
+
+(defn create-event [event-map]
+  (util/create-or-update (first (get-event))
+                         :event
+                         event-map))

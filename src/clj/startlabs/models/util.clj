@@ -8,6 +8,7 @@
   (:require [aws.sdk.s3 :as s3]
             [clojure.string :as str]
             [clj-time.format :as t]
+            [sandbar.stateful-session :as session]
             [startlabs.util :as u])
   (:import java.net.URI))
 
@@ -176,3 +177,18 @@
     (ffirst (q '[:find ?e
                  :in $ ?v ?ns-key
                  :where [?e ?ns-key ?v]] conn-db v k))))
+
+
+(defn create-or-update [entity ns ent-map]
+  (try
+    (if entity
+      ;; if the event has been set previously
+      (let [fact         (namespace-and-transform ns ent-map)
+            idented-fact (assoc fact :db/id entity)]
+        @(d/transact *conn* [idented-fact]))
+      ;; otherwise, create a new entity
+      (let [new-fact (txify-new-entity ns ent-map)]
+        @(d/transact *conn* new-fact)))
+    (catch Exception e
+      (session/flash-put! :message
+                          [:error (str "Trouble setting " (name ns) ": " e)]))))

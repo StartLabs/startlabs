@@ -34,8 +34,8 @@
 	  [:a {:href "https://guestlistapp.com/events/136884"} "More Information"]
 	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]
        
-      (let [event-descr (event/get-latest-event)
-            logged-in?  (user/logged-in?)]
+     (let [event-descr (second (event/get-event))
+           logged-in?  (user/logged-in?)]
             
         [:div#upcoming-events.span5
          [:h2.centered "Upcoming Events"

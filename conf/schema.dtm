@@ -214,14 +214,14 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :job/start_date,
+  :db/ident :job/start-date,
   :db/valueType :db.type/instant,
   :db/cardinality :db.cardinality/one,
   :db/doc "Approximate start date",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :job/end_date,
+  :db/ident :job/end-date,
   :db/valueType :db.type/instant,
   :db/cardinality :db.cardinality/one,
   :db/doc "Approximate end date",
@@ -236,7 +236,7 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :job/contact_info,
+  :db/ident :job/contact-info,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Website, email address, or phone number",
@@ -271,7 +271,7 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
-  :db/ident :job/company_size,
+  :db/ident :job/company-size,
   :db/valueType :db.type/long,
   :db/cardinality :db.cardinality/one,
   :db/doc "The current number of employees",
@@ -305,25 +305,13 @@
   :db.install/_attribute :db.part/db}
 
 
-  ;; upcoming events page
+  ;; upcoming events
 
  {:db/id #db/id[:db.part/db],
   :db/ident :event/description,
   :db/valueType :db.type/string,
   :db/cardinality :db.cardinality/one,
   :db/doc "Markdown text describing upcoming events",
-  :db.install/_attribute :db.part/db}
-
-  ;; this should not be necessary...
-  ;; I am doing it wrong.
-  ;; Should instead get the instant attribute from
-  ;; the most recent event transaction entity
-  ;; (from inside the db.part/tx partition)
- {:db/id #db/id[:db.part/db],
-  :db/ident :event/updated,
-  :db/valueType :db.type/instant,
-  :db/cardinality :db.cardinality/one,
-  :db/doc "Time that the event was updated",
   :db.install/_attribute :db.part/db}
 
  ;; career fair payments
