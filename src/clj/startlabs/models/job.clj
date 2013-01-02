@@ -78,24 +78,26 @@
   (let [lmin-start (if min-start-date (tc/to-long min-start-date))
         lmax-start (if max-start-date (tc/to-long max-start-date))
         lmin-end   (if min-end-date   (tc/to-long min-end-date))
-        lmax-end   (if max-end-date   (tc/to-long max-end-date))]
-    `[:find ~'?job :where 
-      [~'?job :job/confirmed? true]
-      [~'?job :job/company_size ~'?size]
-      [~'?job :job/fulltime? ~'?fulltime]
-      [~'?job :job/start_date ~'?start]
-      [~'?job :job/end_date ~'?end]
-      [(tc/to-long ~'?start) ~'?lstart]
-      [(tc/to-long ~'?end) ~'?lend]
-      ~(if (not= true show-internships) `[(= ~'?fulltime true)] `[(true? true)])
-      ~(if (not= true show-fulltime) `[(= ~'?fulltime false)] `[(true? true)])
-      ~(if min-company-size `[(>= ~'?size ~min-company-size)] `[(true? true)])
-      ~(if max-company-size `[(<= ~'?size ~max-company-size)] `[(true? true)])
-      ~(if lmin-start `[(>= ~'?lstart ~lmin-start)] `[(true? true)])
-      ~(if lmax-start `[(<= ~'?lstart ~lmax-start)] `[(true? true)])
-      ~(if lmin-end `[(>= ~'?lend ~lmin-end)] `[(true? true)])
-      ~(if lmax-end `[(<= ~'?lend ~lmax-end)] `[(true? true)])
-      [(after-now? ~'?end)]]))
+        lmax-end   (if max-end-date   (tc/to-long max-end-date))
+        truff      `[(true? true)]]
+    [:find '?job :where
+     ['?job :job/confirmed? true]
+     ['?job :job/company_size '?size]
+     ['?job :job/fulltime? '?fulltime]
+     ['?job :job/start_date '?start]
+     ['?job :job/end_date '?end]
+     ['(clj-time.coerce/to-long ?start) '?lstart]
+     ['(clj-time.coerce/to-long ?end) '?lend]
+     ['(startlabs.util/after-now? ?end)]
+     (if (not= true show-internships) `[(= ~'?fulltime true)] truff)
+     (if (not= true show-fulltime) `[(= ~'?fulltime false)] truff)
+     (if min-company-size `[(>= ~'?size ~min-company-size)] truff)
+     (if max-company-size `[(<= ~'?size ~max-company-size)] truff)
+     (if lmin-start `[(>= ~'?lstart ~lmin-start)] truff)
+     (if lmax-start `[(<= ~'?lstart ~lmax-start)] truff)
+     (if lmin-end `[(>= ~'?lend ~lmin-end)] truff)
+     (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)
+     ]))
 
 (defn find-upcoming-jobs 
   "returns all confirmed, non-removed jobs whose start dates 
