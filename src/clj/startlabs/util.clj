@@ -5,10 +5,17 @@
             [noir.validation :as vali])
   (:use [clj-time.coerce :only [from-date to-date to-long]]
         [environ.core :only [env]])
-  (:import java.util.Date))
+  (:import java.util.Date)
+  (:import org.joda.time.DateTime))
 
 (def default-date-format "MM/dd/YYYY")
 (def default-date-formatter (tf/formatter default-date-format))
+
+(defn inty [n]
+  (case n
+    nil nil
+    ""  nil
+    (Integer. n)))
 
 (defn parse-date 
   "Returns the parsed date if valid, otherwise returns false"
@@ -35,8 +42,9 @@
 
 (defn stringify-value [val]
   (condp = (type val)
-    clojure.lang.Keyword (name val)
-    Date    (tf/unparse default-date-formatter (from-date val))
+    clojure.lang.Keyword   (name val)
+    java.util.Date         (unparse-date (from-date val))
+    org.joda.time.DateTime (unparse-date val)
     (str val)))
 
 (defn stringify-values [m]
@@ -131,3 +139,51 @@
        :company_size (+ (rand-int 100) 10)
        :tags (repeatedly 3 #(rand-nth positions))
        })))
+
+
+;; from clojure.contrib.fcase
+
+(defmacro fcase
+  "Generic switch/case macro.  'fcase' is short for 'function case'.
+
+  The 'compare-fn' is a fn of two arguments.
+
+  The 'test-expr-clauses' are value-expression pairs without
+  surrounding parentheses, like in Clojure's 'cond'.
+
+  The 'case-value' is evaluated once and cached.  Then, 'compare-fn'
+  is called once for each clause, with the clause's test value as its
+  first argument and 'case-value' as its second argument.  If
+  'compare-fn' returns logical true, the clause's expression is
+  evaluated and returned.  If 'compare-fn' returns false/nil, we go to
+  the next test value.
+
+  If 'test-expr-clauses' contains an odd number of items, the last
+  item is the default expression evaluated if no case-value matches.
+  If there is no default expression and no case-value matches, fcase
+  returns nil.
+
+  See specific forms of this macro in 'case' and 're-case'.
+
+  The test expressions in 'fcase' are always evaluated linearly, in
+  order.  For a large number of case expressions it may be more
+  efficient to use a hash lookup."
+  [compare-fn case-value &
+   test-expr-clauses]
+  (let [test-val-sym (gensym "test_val")
+	test-fn-sym (gensym "test_fn")
+	cond-loop (fn this [clauses]
+		      (cond
+		       (>= (count clauses) 2)
+		       (list 'if (list test-fn-sym (first clauses) test-val-sym)
+			     (second clauses)
+			     (this (rest (rest clauses))))
+		       (= (count clauses) 1) (first clauses)))]
+    (list 'let [test-val-sym case-value, test-fn-sym compare-fn]
+	  (cond-loop test-expr-clauses))))
+
+(defmacro re-case
+  "Like case, but the test expressions are regular expressions, tested
+  with re-find."
+  [test-value & clauses]
+  `(fcase re-find ~test-value ~@clauses))

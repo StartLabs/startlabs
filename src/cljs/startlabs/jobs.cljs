@@ -167,6 +167,27 @@
 
     (jq/on $job-container :click "a, button" #(.stopPropagation %)))
 
+  (jq/on ($ "#filter") :click "#show-fulltime, #show-internships" (fn [e]
+    (.preventDefault e)
+    (this-as this
+             (let [$this ($ this)
+                   name (.attr $this "id")
+                   val (if (.hasClass $this "active") false true)]
+               (.val ($ (str "input[name='" name "']")) val)))))
+
+  (jq/on ($ "#filter") :submit "form" (fn [e]
+    (.preventDefault e)
+    (this-as this
+             (let [$this ($ this)
+                   body (.serialize $this)]
+               (jq/ajax (.attr $this "action")
+                        {:data body
+                         :success (fn [data status xhr]
+                                    (if (= status "success")
+                                      (find-jobs)
+                                      (u/log (str "Error: " status))))
+                         :type "POST"})))))
+
   (jq/on ($ "#sort") :click "a" (fn [e]
     (.preventDefault e)
     (.removeClass ($ "#sort li") "active")
@@ -347,8 +368,3 @@
   (let [$job-form ($ "#job-form")]
     (jq/on $job-form [:keyup :blur :change] "input, textarea" update-job-card)
     (jq/on $job-form :blur "#location" update-location)))
-
-;; three things:
-;; 1. If lat/lng is set on load, add marker corresponding to lat lng.
-;; 2. If location is changed, lookup lat/lng and set inputs + marker.
-

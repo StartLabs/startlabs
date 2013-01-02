@@ -74,7 +74,7 @@
     ; need to format dates
     [:div.span6 [:i.icon.icon-calendar] (:start_date job-info) 
      (if (not (= (:fulltime? job-info) "true"))
-       (str " — " (:end_date job-info)))]
+       (str " - " (:end_date job-info)))]
     [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
 
    [:div.row-fluid

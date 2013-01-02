@@ -38,7 +38,8 @@
     [:div
       [:p "Hey there,"]
       [:p "Thanks for submitting to the StartLabs jobs list."]
-      [:p "To confirm your listing, " [:strong (:position job-map)] ", please visit this link:"]
+      [:p "To confirm your listing, " [:strong (:position job-map)]
+          ", please visit this link:"]
       [:p [:a {:href conf-link} conf-link]]
 
       [:p "If you ever need to edit the listing, use this link:"]
@@ -77,8 +78,11 @@
   [:input.datepicker {:type "text" :data-date-format date-format :value value
                       :id name :name name :placeholder date-format}])
 
+(def jobs-date-fmt   (str/lower-case u/default-date-format))
+(def google-date-fmt (str/lower-case analytics/google-date-format))
+
 (defmethod input-for-field :instant [field type docs v]
-  (datepicker field v (str/lower-case u/default-date-format)))
+  (datepicker field v jobs-date-fmt))
 
 (defmethod input-for-field :boolean [field type docs v]
   (let [str-v (if (or (false? v) (true? v)) (str v) "false")]
@@ -114,8 +118,10 @@
           [:input.btn.btn-primary {:type "submit" :value "Submit"}]]]]])
 
 (def sample-job-fields
-  {:position "Lab Assistant" :company "StartLabs" :location "Cambridge, Massachusetts"
-   :website "http://www.startlabs.org" :start_date "May 30, 2013" :end_date "August 30, 2013"
+  {:position "Lab Assistant" :company "StartLabs" 
+   :location "Cambridge, Massachusetts"
+   :website "http://www.startlabs.org" 
+   :start_date "May 30, 2013" :end_date "August 30, 2013"
    :description "Smart people tackling difficult problems at a great location with *nice perks*.
 \n\nMust have **4+ years** of lab experience.
 \n\nWe prefer candidates who wear green clothing."
@@ -145,8 +151,7 @@
        (if (not editing?)
          [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
           [:strong "your company must be preapproved"] ". Please " 
-          [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" 
-                          job-list-email-body)} "email us"] 
+          [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" job-list-email-body)} "email us"] 
           " for consideration for the Jobs List."])
        (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
@@ -155,7 +160,8 @@
 
       (for [hidden-key hidden-job-keys]
         (let [hname (name hidden-key)]
-          [:input {:type "hidden" :name hname :id hname :value (hidden-key params)}]))
+          [:input {:type "hidden" :name hname :id hname 
+                   :value (hidden-key params)}]))
 
       [:div.span6.clearfix.thumbnail
        [:div#job-preview
@@ -164,13 +170,28 @@
        [:div#job-location]]
       ]]))
 
+(defn parse-job-filters [filters]
+  (apply merge (for [[k v] filters]
+                 (u/re-case (name k)
+                            #"date" {k (u/parse-date v)}
+                            #"size" {k (u/inty v)}
+                            #"show" {k (or (empty? v)
+                                           (Boolean. v))}))))
+
+;; [:post /jobs/filters]
+(defn post-job-filters [params]
+  (let [parsed-filters (parse-job-filters params)]
+    (println parsed-filters)
+    (session/session-put! :filters parsed-filters)
+    params))
+
 ;; add arguments for sort and entries-per-page and current page...
 ;; unfortunately, cannot do negations currently in datomic where clauses,
 ;; so we must specify not removed here.
-(defn get-all-jobs [sort-field]
+(defn get-all-jobs [sort-field filters]
   (sort-by sort-field
            (filter #(not= (:removed? %) "true")
-                   (job/find-upcoming-jobs))))
+                   (job/find-upcoming-jobs filters))))
 
 ;; COMMENT THIS IN PRODUCTION
 (comment
@@ -179,9 +200,9 @@
          (sort-by sort-field
                   (repeatedly 100 #(u/fake-job))))))
 
-(defn filter-jobs [query]
+(defn filter-jobs [query filters]
   (let [sort-field (keyword (session/session-get :sort-field))
-        all-jobs   (get-all-jobs sort-field)]
+        all-jobs   (get-all-jobs sort-field filters)]
     (if (empty? query)
       all-jobs
       (filter (fn [job]
@@ -192,48 +213,105 @@
 (defn jobs-on-page [jobs page page-size]
   (take page-size (drop (* (dec page) page-size) jobs)))
 
+(defhtml input-range [field classes filters]
+  (let [field-name  (name field)
+        min-field   (str "min-" field-name)
+        max-field   (str "max-" field-name)
+        field-label (u/phrasify field)
+        class-str   (apply str (interpose " " classes))
+        min-val     (or ((keyword min-field) filters) "")
+        max-val     (or ((keyword max-field) filters) "")]
+    [:div.control-group
+     [:label.control-label {:for min-field} field-label]
+     [:div.controls
+      (for [[elem val placeholder] [[min-field min-val "Min"] 
+                                    [max-field max-val "Max"]]]
+        [:input
+         {:type "text" :id elem :name elem :class class-str
+          :placeholder placeholder :value (u/stringify-value val)}])]]))
+
+(defhtml job-filters [filters]
+  [:div#filter.modal.hide.fade {:tabindex "-1" :role "dialog" 
+                                :aria-labelledby "filter-label"
+                                :aria-hidden "true"}
+   [:div.modal-header
+    [:button.close {:type"button" :data-dismiss "modal" 
+                    :aria-hidden "true"} "x"]
+    [:h2#filter-label "Filtering Options"]]
+
+   [:form.form-horizontal {:action "/jobs/filters" :method "POST"}
+    [:div.modal-body
+     [:div.control-group
+      [:div.controls
+       [:div.btn-group {:data-toggle "buttons-checkbox"}
+        (for [kw [:show-fulltime :show-internships]]
+          (let [id  (name kw)
+                val (kw filters)]
+            [:a {:href "#" :id id
+                 ;; kw could be nil, in which case, resort to true
+                 :class (u/cond-class "btn" [(not= val false) "active"])}
+             (u/phrasify kw)]))]]]
+
+     (for [kw [:show-fulltime :show-internships]]
+       [:input {:name (name kw) :type "hidden" 
+                :value (str (or (nil? filters)
+                                (true? (kw filters))))}])
+
+     (input-range :company-size ["input-small"] filters)
+     (input-range :start-date   ["datepicker"] filters)
+     (input-range :end-date     ["datepicker"] filters)]
+    
+    [:div.modal-footer
+     [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
+     [:button.btn.btn-primary "Save Changes"]]]])
+
 ;; make browse-jobs take a page as input,
 ;; operate on pages of jobs at a time...
 (defhtml browse-jobs [q sort-field page-jobs list-html]
-  [:div#browse
-   ;; sort by date and location.
-   ;; search descriptions and company names
-   [:h1 "Browse Startup Jobs"]
-   
-   [:div#map-box.row-fluid
-    [:div#map.thumbnail]
-    [:div.navbar
-     [:div.navbar-inner
-      [:form.navbar-search.pull-left {:method "GET"}
-       [:input#job-search.search-query
-        {:type "text" :placeholder "Search" :name "q" :value q}]]
+  (let [filters (session/session-get :filters)]
+    [:div#browse
+     ;; sort by date and location.
+     ;; search descriptions and company names
+     [:h1 "Browse Startup Jobs"]
 
-      [:div.nav-collapse.collapse
-       [:ul.nav.pull-right
-        [:li [:a#filter-toggle {:href "#filter"} [:i.icon-filter] "Filter"]]
+     (job-filters filters)
+     
+     [:div#map-box.row-fluid
+      [:div#map.thumbnail]
+      [:div.navbar
+       [:div.navbar-inner
+        [:form.navbar-search.pull-left {:method "GET"}
+         [:input#job-search.search-query
+          {:type "text" :placeholder "Search" :name "q" :value q}]]
 
-        [:li.dropdown
-         [:a#sort-toggle.dropdown-toggle
-          {:href "#" :data-toggle "dropdown"} 
-          [:i.icon-list] "Sort" [:b.caret]]
-         [:ul#sort.dropdown-menu {:role "menu" :arial-labelledby "sort-toggle"}
-          (for [field [:company :company_size :start_date :end_date 
-                       :longitude :latitude]]
-            [:li {:class (if (= (keyword sort-field) field) "active")}
-             [:a {:href "#" :data-field (name field)} (u/phrasify field)]])]]
+        [:div.nav-collapse.collapse
+         [:ul.nav.pull-right
+          [:li [:a#filter-toggle {:href "#filter" :data-toggle "modal"} 
+                [:i.icon-filter] "Filter"]]
 
-        [:li [:a#map-toggle {:href "#map"} [:i.icon-map-marker] "Toggle Map"]]]]
-      ]]]
+          [:li.dropdown
+           [:a#sort-toggle.dropdown-toggle
+            {:href "#" :data-toggle "dropdown"} 
+            [:i.icon-list] "Sort" [:b.caret]]
+           [:ul#sort.dropdown-menu {:role "menu" :arial-labelledby "sort-toggle"}
+            (for [field [:company :company_size :start_date :end_date 
+                         :longitude :latitude]]
+              [:li {:class (if (= (keyword sort-field) field) "active")}
+               [:a {:href "#" :data-field (name field)} (u/phrasify field)]])]]
 
-   [:div#job-container.row-fluid
-    (if (empty? page-jobs)
-      [:h1 "Sorry, no jobs posted currently. Come back later."])
+          [:li [:a#map-toggle {:href "#map"}
+                [:i.icon-map-marker] "Toggle Map"]]]]
+        ]]]
 
-    list-html]
-   
-   [:script#job-data
-    (str "window.job_data = " (json/write-str page-jobs) ";")]
-   ])
+     [:div#job-container.row-fluid
+      (if (empty? page-jobs)
+        [:h1 "Sorry, no jobs posted currently. Come back later."])
+
+      list-html]
+     
+     [:script#job-data
+      (str "window.job_data = " (json/write-str page-jobs) ";")]
+     ]))
 
 (defn jobs-and-list-html [{:keys [q page page-size sort-field] 
                            :or {q "" page 1 page-size 20 
@@ -243,7 +321,8 @@
   (let [valid-page?  (not (nil? (re-matches #"[1-9]\d+" "10")))
         page         (Integer. (if valid-page? page 1))
         page-size    (Integer. page-size)
-        jobs         (filter-jobs q)
+        filters      (session/session-get :filters)
+        jobs         (filter-jobs q filters)
         page-jobs    (jobs-on-page jobs page page-size)
         show-delete? (user/logged-in?)
         page-count   (ceil (/ (count jobs) page-size))
@@ -263,12 +342,13 @@
 
 (defhtml nav-buttons [active-tab]
    [:div#job-toggle.btn-group.pull-right
-    [:a {:class (u/cond-class "btn" [(= active-tab :jobs) "active"]) :href "/jobs"}
-     "Browse Available"]
+    [:a {:class (u/cond-class "btn" [(= active-tab :jobs) "active"]) 
+         :href "/jobs"} "Browse Available"]
     (if (user/logged-in?)
-      [:a {:class (u/cond-class "btn" [(= active-tab :whitelist) "active"]) :href "/whitelist"} "Whitelist"])
-    [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) :href "/job/new"}
-     "Submit a Job"]])
+      [:a {:class (u/cond-class "btn" [(= active-tab :whitelist) "active"]) 
+           :href "/whitelist"} "Whitelist"])
+    [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) 
+         :href "/job/new"} "Submit a Job"]])
 
 ;; [:get /jobs]
 (defn get-jobs [{:keys [q] :as params}]
@@ -323,7 +403,8 @@
 
   ; make sure the end date comes after the start
     (vali/rule
-     (let [[start end] (map #(u/parse-date (% job-params)) [:start_date :end_date])]
+     (let [[start end] (map #(u/parse-date (% job-params)) 
+                            [:start_date :end_date])]
        (and (and start end) 
             (= -1 (apply compare (map to-long [start end])))))
      [:end_date "The end date must come after the start date."])
@@ -334,7 +415,7 @@
   (let [website    (:website params)
         fulltime?  (if (= (:fulltime? params) "true") true false)
         start-date (u/parse-date (:start_date params))
-        end-adte   (if start-date
+        end-date   (if start-date
                      (t/plus start-date (t/months 6)) 
                      (t/plus (t/now) (t/months 6)))]
     (conj params
@@ -490,7 +571,7 @@
           [:div.control-group
            [:label.control-label {:for n} l]
            [:div.controls
-            (datepicker n v (str/lower-case analytics/google-date-format))]])]
+            (datepicker n v google-date-fmt)]])]
 
        [:div.span6
         [:div.row-fluid

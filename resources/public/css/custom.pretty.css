@@ -6902,3 +6902,10 @@ html,body {
 #map-box .navbar i {
     margin: 3px 4px 0 0;
 }
+
+input.round-left {
+    border-radius: 4px 0 0 4px;
+}
+input.round-right {
+    border-radius: 0 4px 4px 0;
+}
