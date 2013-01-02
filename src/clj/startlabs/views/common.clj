@@ -1,10 +1,14 @@
 (ns startlabs.views.common
   (:require [sandbar.stateful-session :as session]
             [clojure.string :as str]
-            [startlabs.models.user :as user])
+            [startlabs.models.user :as user]
+            [startlabs.util :as u])
   (:use [hiccup.def :only [defhtml]]
         [hiccup.page :only [include-css include-js html5]]
         [environ.core :only [env]]))
+
+;; hacky var
+(def ^:dynamic *uri* nil)
 
 (defn font
   ([name] (font name nil))
@@ -57,63 +61,68 @@
 ;; temporarily breaking request until I make a proper workaround (passing the ring map as an argument to layout,
 ;; and making a nice depage macro replacement.
 (defn layout [& content]
-  (let [[message-type message] (session/flash-get :message)
-        request nil]
+  (let [[message-type message] (session/flash-get :message)]
     (html5
-      [:head
-        [:title "StartLabs"]
+     [:head
+      [:title "StartLabs"]
 
-        ; make mobile device interface fixed
-        [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
+      ; make mobile device interface fixed
+      [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
 
-        [:link {:rel "stylesheet" :type "text/css" 
-               :href (font-link ["Open Sans" [300,400,600]]
-                                ["Kreon" [400,700]])}]
+      [:link {:rel "stylesheet" :type "text/css" 
+              :href (font-link ["Open Sans" [300,400,600]]
+                               ["Kreon" [400,700]])}]
 
-       [:link {:rel "alternate" :type "application/rss+xml" :title "StartLabs Events Calendar"
-               :href calendar-rss}]
+      [:link {:rel "alternate" :type "application/rss+xml" 
+              :title "StartLabs Events Calendar"
+              :href calendar-rss}]
 
-        (include-css "/css/custom.pretty.css")]
+      (include-css "/css/custom.pretty.css")]
 
-      [:body
-        [:div.wrapper [:div#nav [:div.container
-          [:a#nav-logo {:href "/"} [:img {:src "/img/logo_small.png" :width "110px"}]]
+     [:body
+      [:div.wrapper 
+       [:div#nav 
+        [:div.container
+         [:a#nav-logo {:href "/"} [:img {:src "/img/logo_small.png"}]]
 
-          [:ul.visible-phone.visible-tablet.nav.nav-pills.pull-right
-            [:li
-              [:a {:data-toggle "collapse" :data-target".nav-collapse" :href "#"} "Navigate"]]]
+         [:ul.visible-phone.visible-tablet.nav.nav-pills.pull-right
+          [:li
+           [:a {:data-toggle "collapse" :data-target".nav-collapse" :href "#"}                "Navigate"]]]
 
-          (let [current-uri (:uri request)]
-            [:div.nav-collapse
-              [:ul.nav.nav-pills
-                (for [[page location] routes]
-                  [:li [:a {:href location :class (if (= current-uri location) "active")} 
-                    (str/capitalize (name page))]])
+         (let [current-uri *uri*]
+           [:div.nav-collapse
+            [:ul.nav.nav-pills
+             (for [[page location] routes]
+               [:li [:a {:href location
+                         :class (if (= current-uri location) "active")}
+                     (str/capitalize (name page))]])
 
-                (login-info)]])]]
+             (login-info)]])]]
 
-        [:div#content.container
-          (if message
-            [:div#message {:class (str "alert alert-" (name message-type))}
-              [:button {:type "button" :class "close" :data-dismiss "alert"} "x"]
-              [:h3 (str/capitalize (name message-type))]
-              [:p message]])
+       [:div#content.container
+        (if message
+          [:div#message {:class (str "alert alert-" (name message-type))}
+           [:button {:type "button" :class "close" :data-dismiss "alert"} "x"]
+           [:h3 (str/capitalize (name message-type))]
+           [:p message]])
 
-          content
-         [:div.push]]]
+        content
+        [:div.push]]]
 
-       [:footer.container
-        [:p "&copy; 2012 Startlabs. Follow us on "
-         [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
-         [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} "Facebook"]]]
+      [:footer.container
+       [:p "&copy; 2012 Startlabs. Follow us on "
+        [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
+        [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} 
+         "Facebook"]]]
 
-        [:script {:type "text/javascript"} google-analytics]
+      [:script {:type "text/javascript"} google-analytics]
 
-        (include-js "/markdown.js"
-                    "/jquery.js"
-                    "/bootstrap/js/bootstrap.min.js"
-                    "https://api.filepicker.io/v0/filepicker.js"
-                    (str "//maps.googleapis.com/maps/api/js?key=" (env :google-maps-key) "&sensor=false")
-                    "https://www.google.com/jsapi"
-                    "/client.js")
-    ])))
+      (include-js "/markdown.js"
+                  "/jquery.js"
+                  "/bootstrap/js/bootstrap.min.js"
+                  "https://api.filepicker.io/v0/filepicker.js"
+                  (str "//maps.googleapis.com/maps/api/js?key=" 
+                       (env :google-maps-key) "&sensor=false")
+                  "https://www.google.com/jsapi"
+                  "/client.js")
+      ])))

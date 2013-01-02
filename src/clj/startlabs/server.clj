@@ -15,7 +15,8 @@
   (:use compojure.core
         [noir.validation :only [wrap-noir-validation]]
         [noir.util.middleware :only [wrap-strip-trailing-slash]]
-        [sandbar.stateful-session :only [wrap-stateful-session]]))
+        [sandbar.stateful-session :only [wrap-stateful-session]]
+        [startlabs.views.common :only [*uri*]]))
 
 ;; add these to the routes
 ;;(status/set-page! 404 (four-oh-four))
@@ -27,6 +28,11 @@
 
 (defn get-referer [req]
   (get-in req [:headers "referer"]))
+
+(defn uri-middleware [app]
+  (fn [req]
+    (binding [*uri* (:uri req)]
+      (app req))))
 
 ;; split the job routes so /jobs is 3 pages: /jobs, /whitelist, /job/new
 (defroutes job-routes
@@ -89,4 +95,5 @@
   (-> (handler/site main-routes)
       wrap-noir-validation
       wrap-strip-trailing-slash
-      wrap-stateful-session))
+      wrap-stateful-session
+      uri-middleware))
