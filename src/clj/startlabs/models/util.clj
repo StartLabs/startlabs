@@ -47,6 +47,9 @@
 (defmethod transform-attr [String :db.type/float] [attr _]
   (Float/parseFloat attr))
 
+(defmethod transform-attr [String :db.type/double] [attr _]
+  (Double/parseDouble attr))
+
 (defmethod transform-attr [String :db.type/instant] [attr _]
   (to-date (u/parse-date attr)))
 
@@ -71,7 +74,8 @@
    dispatching based on current and desired :db/valueType,
    e.g. transforms the string 'http://www.google.com'
    to a proper URI if its corresponding :db/valueType is :db.type/uri.
-   If the type is :db.type/ref, dispatches based on the key instead, eg: :user/gender"
+   If the type is :db.type/ref, dispatches based on the key instead, 
+   eg: :user/gender"
   [tx-map entity-map]
   (into {} (for [[k v] tx-map]
     (let [attr-type (k entity-map)

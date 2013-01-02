@@ -194,14 +194,14 @@
 
  {:db/id #db/id[:db.part/db],
   :db/ident :job/latitude,
-  :db/valueType :db.type/float,
+  :db/valueType :db.type/double,
   :db/cardinality :db.cardinality/one,
   :db/doc "The latitude of the location.",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
   :db/ident :job/longitude,
-  :db/valueType :db.type/float,
+  :db/valueType :db.type/double,
   :db/cardinality :db.cardinality/one,
   :db/doc "The longitude of the location.",
   :db.install/_attribute :db.part/db}
@@ -296,14 +296,6 @@
   :db/fulltext true,
   :db/doc "Whitelist of company domains that are allowed on the jobs board.",
   :db.install/_attribute :db.part/db}
-
- {:db/id #db/id[:db.part/db],
-  :db/ident :joblist/updated,
-  :db/valueType :db.type/instant,
-  :db/cardinality :db.cardinality/one,
-  :db/doc "Time that the whitelist was updated",
-  :db.install/_attribute :db.part/db}
-
 
   ;; upcoming events
 

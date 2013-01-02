@@ -8,9 +8,7 @@
             [startlabs.models.user :as user]
             [startlabs.models.util :as util]))
 
-(defn get-event
-  "returns all confirmed jobs whose start dates are after a certain date"
-  []
+(defn get-event []
   (let [events (q '[:find ?event ?description :in $
                     :where [?event :event/description ?description]] (db *conn*))
         event (first events)]

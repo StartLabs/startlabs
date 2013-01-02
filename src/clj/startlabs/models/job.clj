@@ -37,7 +37,7 @@
   (try
     (let [job       (job-with-id job-id)
           field-map {:db/id job field value}]
-      (d/transact *conn* (list field-map))
+      @(d/transact *conn* (list field-map))
       value)
     (catch Exception e
       (session/flash-put! :message [:error 
@@ -49,15 +49,17 @@
 (defn update-job
   "Expects new-fact-map to *not* already be namespaced with user/"
   [job-id new-fact-map]
+  (println "Updating job")
   (try
     (let [job           (job-with-id job-id)
           map-no-secret (dissoc new-fact-map :secret) ;; avoid overwriting the secret
           tranny-facts  (util/namespace-and-transform :job map-no-secret)
           idented-facts (assoc tranny-facts :db/id job)]
-      (d/transact *conn* (list idented-facts))
+      @(d/transact *conn* (list idented-facts))
       (session/flash-put! :message [:success (str "Updated info successfully!")])
       true)
     (catch Exception e
+      (println e)
       (session/flash-put! :message [:error (str "Trouble updating job: " e)])
       false)))
 
@@ -114,19 +116,12 @@
 
 ;; whitelist
 
+(defn get-whitelist []
+  (let [whitelist (q '[:find ?ent ?whitelist :in $
+                       :where [?ent :joblist/whitelist ?whitelist]] (db *conn*))]
+    (first whitelist)))
+
 (defn update-whitelist [whitelist]
-  (let [tx-data (util/txify-new-entity :joblist {:whitelist whitelist 
-                                                 :updated (tc/to-date (t/now))})]
-    @(d/transact *conn* tx-data)
-    whitelist))
-
-(defn get-current-whitelist
-  "returns all confirmed jobs whose start dates are after a certain date"
-  []
-  (let [whitelists (q '[:find ?when ?wl :in $
-                        :where [?whitelist :joblist/whitelist ?wl]
-                               [?whitelist :joblist/updated ?when]] (db *conn*))
-        whitelist  (last (sort-by first whitelists))]
-    (or (last whitelist) "")))
-
-
+  (util/create-or-update (first (get-whitelist))
+                         :event
+                         {:whitelist whitelist}))

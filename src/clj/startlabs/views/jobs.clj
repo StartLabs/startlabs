@@ -370,7 +370,7 @@
 
 (defn valid-job? [job-params]
   (let [site-host (get-hostname (:website job-params))
-        whitelist (job/get-current-whitelist)
+        whitelist (second (job/get-whitelist))
         fulltime? (:fulltime? job-params)]
 
     (dorun (map u/empty-rule job-params))
@@ -391,8 +391,8 @@
 
     (try
       (let [err [:location "The latitude/longitude of the location are invalid."]]
-        (vali/rule (and (<= (abs (Float/parseFloat (:latitude job-params))) 90)
-                        (<= (abs (Float/parseFloat (:longitude job-params))) 180))
+        (vali/rule (and (<= (abs (Double/parseDouble (:latitude job-params))) 90)
+                        (<= (abs (Double/parseDouble (:longitude job-params))) 180))
                    err))
         (catch Exception err))
 
@@ -643,7 +643,6 @@
                          params
                          (assoc params :secret session-secret))
         fixed-params   (trim-and-fix-params params)]
-    (println params)
     (if (can-edit-job? id (:secret fixed-params))
       (if (valid-job? fixed-params)
         (if (job/update-job id params)
@@ -688,7 +687,7 @@
 (defn get-whitelist []
   (common/layout
    (nav-buttons :whitelist)
-   (let [whitelist (job/get-current-whitelist)]
+   (let [whitelist (second (job/get-whitelist))]
      [:div#whitelist
       [:h2 "Company Whitelist"]
 
@@ -698,7 +697,8 @@
 
       [:form {:action "/whitelist" :method "post"}
        [:div.span6.pull-left
-        [:textarea#the-list.span6 {:name "the-list" :rows 20 :placeholder "google.com"}
+        [:textarea#the-list.span6 {:name "the-list" :rows 20 
+                                   :placeholder "google.com"}
          whitelist]
         [:input.btn.btn-primary.span3 {:type "submit"}]]
 
