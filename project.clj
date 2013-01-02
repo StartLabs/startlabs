@@ -20,7 +20,7 @@
 
                   [clj-http "0.6.3"]
                   [oauth-clj "0.1.0"]
-                  [com.datomic/datomic-free "0.8.3664" 
+                  [com.datomic/datomic-free "0.8.3692"
                    :exclusions [org.slf4j/slf4j-nop org.slf4j/log4j-over-slf4j]]
                   [org.slf4j/slf4j-log4j12 "1.6.6"]
                   [environ "0.3.0"]
