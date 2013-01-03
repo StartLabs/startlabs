@@ -16047,22 +16047,22 @@ startlabs.jobs.setup_find_jobs = function(a, b, c, d) {
 startlabs.jobs.setup_jobs_list = function() {
   var a = startlabs.jobs.elem_by_id.call(null, "map");
   startlabs.jobs.gmap = new google.maps.Map(a, startlabs.jobs.map_options);
-  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'mapper", function(a, c, d, e) {
-    if(cljs.core.not_EQ_.call(null, d, e)) {
-      if(c = cljs.core.seq.call(null, cljs.core.deref.call(null, startlabs.jobs.markers))) {
-        for(a = cljs.core.first.call(null, c);;) {
-          if(a.setMap(null), a = cljs.core.next.call(null, c)) {
-            c = a, a = cljs.core.first.call(null, c)
+  cljs.core.add_watch.call(null, startlabs.jobs.filtered_jobs, "\ufdd0'mapper", function(a, b, e, f) {
+    if(cljs.core.not_EQ_.call(null, e, f)) {
+      if(b = cljs.core.seq.call(null, cljs.core.deref.call(null, startlabs.jobs.markers))) {
+        for(a = cljs.core.first.call(null, b);;) {
+          if(a.setMap(null), a = cljs.core.next.call(null, b)) {
+            b = a, a = cljs.core.first.call(null, b)
           }else {
             break
           }
         }
       }
       cljs.core.reset_BANG_.call(null, startlabs.jobs.markers, cljs.core.PersistentVector.EMPTY);
-      if(a = cljs.core.seq.call(null, e)) {
-        for(e = cljs.core.first.call(null, a);;) {
-          if(c = startlabs.jobs.lat_lng.call(null, (new cljs.core.Keyword("\ufdd0'latitude")).call(null, e), (new cljs.core.Keyword("\ufdd0'longitude")).call(null, e)), startlabs.jobs.add_jobs_marker.call(null, e).call(null, c), e = cljs.core.next.call(null, a)) {
-            a = e, e = cljs.core.first.call(null, a)
+      if(a = cljs.core.seq.call(null, f)) {
+        for(f = cljs.core.first.call(null, a);;) {
+          if(b = startlabs.jobs.lat_lng.call(null, (new cljs.core.Keyword("\ufdd0'latitude")).call(null, f), (new cljs.core.Keyword("\ufdd0'longitude")).call(null, f)), startlabs.jobs.add_jobs_marker.call(null, f).call(null, b), f = cljs.core.next.call(null, a)) {
+            a = f, f = cljs.core.first.call(null, a)
           }else {
             return null
           }
@@ -16096,24 +16096,26 @@ startlabs.jobs.setup_jobs_list = function() {
   jayq.core.on.call(null, a, "\ufdd0'click", "a, button", function(a) {
     return a.stopPropagation()
   });
-  jayq.core.on.call(null, jayq.core.$.call(null, "#filter"), "\ufdd0'click", "#show-fulltime, #show-internships", function(a) {
+  var b = jayq.core.$.call(null, "#filter");
+  jayq.core.on.call(null, b, "\ufdd0'click", "#show-fulltime, #show-internships", function(a) {
     a.preventDefault();
-    var c = jayq.core.$.call(null, this), a = c.attr("id"), c = cljs.core.truth_(c.hasClass("active")) ? !1 : !0;
-    return jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(a), cljs.core.str("']")].join("")).val(c)
+    var b = jayq.core.$.call(null, this), a = b.attr("id"), b = cljs.core.truth_(b.hasClass("active")) ? !1 : !0;
+    return jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(a), cljs.core.str("']")].join("")).val(b)
   });
-  jayq.core.on.call(null, jayq.core.$.call(null, "#filter"), "\ufdd0'submit", "form", function(a) {
+  jayq.core.on.call(null, b, "\ufdd0'submit", "form", function(a) {
     a.preventDefault();
-    var a = jayq.core.$.call(null, this), c = a.serialize();
-    return jayq.core.ajax.call(null, a.attr("action"), cljs.core.ObjMap.fromObject(["\ufdd0'data", "\ufdd0'success", "\ufdd0'type"], {"\ufdd0'data":c, "\ufdd0'success":function(a, b) {
+    b.modal("hide");
+    var a = jayq.core.$.call(null, this), d = a.serialize();
+    return jayq.core.ajax.call(null, a.attr("action"), cljs.core.ObjMap.fromObject(["\ufdd0'data", "\ufdd0'success", "\ufdd0'type"], {"\ufdd0'data":d, "\ufdd0'success":function(a, b) {
       return cljs.core._EQ_.call(null, b, "success") ? startlabs.jobs.find_jobs.call(null) : startlabs.util.log.call(null, [cljs.core.str("Error: "), cljs.core.str(b)].join(""))
     }, "\ufdd0'type":"POST"}))
   });
   jayq.core.on.call(null, jayq.core.$.call(null, "#sort"), "\ufdd0'click", "a", function(a) {
     a.preventDefault();
     jayq.core.$.call(null, "#sort li").removeClass("active");
-    var a = jayq.core.$.call(null, this), c = a.data("field");
+    var a = jayq.core.$.call(null, this), b = a.data("field");
     a.parent("li").addClass("active");
-    return cljs.core.swap_BANG_.call(null, startlabs.jobs.query_map, cljs.core.assoc, "\ufdd0'sort-field", c)
+    return cljs.core.swap_BANG_.call(null, startlabs.jobs.query_map, cljs.core.assoc, "\ufdd0'sort-field", b)
   });
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };

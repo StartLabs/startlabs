@@ -81,7 +81,8 @@
   (map #(->> % add-geo fix-job-fields)
        (elems-with-attr :job/id)))
 
-;; (pprint (map :job/company (elems-with-attr :job/id)))
+;; fetch email addresses to contact jobs list people
+;; (pprint (map :job/email (elems-with-attr :job/id)))
 
 (defn find-whitelist []
   [(dissoc (first (elems-with-attr :joblist/whitelist))
