@@ -16211,7 +16211,7 @@ startlabs.jobs.update_job_card = function() {
   return jayq.core.$.call(null, "#job-preview .description").html(startlabs.views.jobx.markdownify.call(null, jayq.core.$.call(null, "#description").val()))
 };
 startlabs.jobs.change_fulltime = function(a) {
-  var b = jayq.core.$.call(null, "#end_date").parents("tr").eq(0);
+  var b = jayq.core.$.call(null, "#end-date").parents("tr").eq(0);
   return cljs.core._EQ_.call(null, a, "true") ? b.hide() : b.show()
 };
 startlabs.jobs.setup_radio_buttons = function() {
