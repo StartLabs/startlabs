@@ -12,11 +12,9 @@ git submodules, so please run:
 after cloning this repository for the first time.
 
 We use the free edition of [Datomic](http://www.datomic.com) as our database.
-The site is written with [Noir](http://webnoir.org/), a simple, high-level Clojure web framework.
+The site is written with [Compojure](https://github.com/weavejester/compojure), a simple, Clojure routing framework that sits atop [Ring](https://github.com/mmcgrana/ring)
 
-If you're not familiar with Clojure, I strongly suggest working through the 
-[tutorials](http://webnoir.org/tutorials) on the Noir website.
-And maybe do some puzzles on [4clojure](http://www.4clojure.com/).
+If you're not familiar with Clojure, I strongly suggest doing some puzzles on [4clojure](http://www.4clojure.com/).
 
 [Leiningen](https://github.com/technomancy/leiningen) is the canonical project 
 manager for Clojure, so make sure to install that before doing anything else (See the link for instructions).
@@ -30,18 +28,17 @@ a `.lein-env-template` to get you started.
 While testing the site, you will need to have an instance of Datomic running locally.
 It should have appeared in the root directory as `datomic-free` when you downloaded
 the git submodules. The only tricky thing is making sure the version number matches
-the one specified on `project.clj` (0.8.3488 as of writing this):
+the one specified on `project.clj` (0.8.3692 as of writing this):
 ```
-[com.datomic/datomic-free "0.8.3488" ...]
+[com.datomic/datomic-free "0.8.3692" ...]
 ```
 
 Please read the [overview of Datomic](http://www.datomic.com/overview.html) 
 to get an understanding for how it works. This is not your mother's SQL database.
 
-You have to start up the Transactor. I've made a tiny shell script located in `srv/transactor/run` to do this.
-So in a terminal, just run:
+You have to start up the Transactor. I recommend using [datomic-free](https://github.com/cldwalker/datomic-free), a simple command-line util, to start up the transactor like so:
 ```
-cd srv/transactor; ./run;
+datomic-free start
 ```
 
 ##Tweaking The Site
@@ -51,17 +48,19 @@ We use [cljx](https://github.com/lynaghk/cljx),
 an intermediate format, for code that we want to run both client and server-side.
 Whenever you modify a .cljx file, make sure to run `lein cljx` to recompile things.
 
-If you're editing the clojurescript files (in `src/cljs`), run 
+If you're editing the ClojureScript files (in `src/cljs`), run 
 [cljsbuild](https://github.com/emezeske/lein-cljsbuild) to automatically
-compile your clojurescripts into JavaScript: `lein cljsbuild auto`
+compile them into JavaScript: `lein cljsbuild auto`
 
 Stylesheets are preprocessed with less.js. Less was chosen for compatability with Twitter Bootstrap.
 We're using a forked version of Bootstrap, and the primary stylesheet specific to StartLabs
 is located at `bootstrap/less/startlabs.less`. Again, make sure to do `git submodule init && git submodule update;` if you don't see the `bootstrap` folder in this directory's root.
 To rebuild all of boostrap, just call `make bootstrap` or `make watch` within the bootstrap directory.
 
+*NOTE:* We've reverted to editing raw CSS currently. The site's stylesheet is located in `resources/public/css/custom.pretty.css`.
+
 If you've followed all of the above steps correctly, you should now be able
-to start the site by calling: `lein run`.
+to start the site by calling: `lein ring server-headless 8000`.
 
 ##Nginx
 

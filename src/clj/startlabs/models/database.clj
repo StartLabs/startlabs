@@ -8,12 +8,11 @@
 
 (defn do-setup [uri schema]
   (d/create-database uri)
+
   (let [schema-tx (read-string (slurp schema))]
     ;; reset the connection since we just created the database
     (def ^:dynamic *conn* (d/connect uri))
-    ;; for now we're doing lein datomic initialize instead
-    ;; @(d/transact *conn* schema-tx)
-    ))
+    @(d/transact *conn* schema-tx)))
 
 (defn do-default-setup []
   (println "Connecting to db...")
