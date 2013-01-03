@@ -534,6 +534,7 @@
 
 (defn can-edit-job? [id & candidates]
   (let [job-secret (job/job-secret id)]
+    (println job-secret)
     (or (user/logged-in?)
         (some true? (map #(= % job-secret) candidates)))))
 

@@ -25,7 +25,7 @@
 
 (defn job-secret [job-id]
   (ffirst (q '[:find ?secret :in $ ?id :where [?job :job/id ?id]
-                                              [?job :job/secret ?secret]] (db *conn*) job-id)))
+               [?job :job/secret ?secret]] (db *conn*) job-id)))
 
 (defn job-map [job-id]
   (let [original-map (util/map-for-datom (job-with-id job-id) :job)]
@@ -119,5 +119,5 @@
 
 (defn update-whitelist [whitelist]
   (util/create-or-update (first (get-whitelist))
-                         :event
+                         :joblist
                          {:whitelist whitelist}))
