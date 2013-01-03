@@ -81,7 +81,7 @@
   (map #(->> % add-geo fix-job-fields)
        (elems-with-attr :job/id)))
 
-;; (pprint (last (elems-with-attr :job/id)))
+;; (pprint (map :job/company (elems-with-attr :job/id)))
 
 (defn find-whitelist []
   [(dissoc (first (elems-with-attr :joblist/whitelist))

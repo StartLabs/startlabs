@@ -77,6 +77,10 @@
               :title "StartLabs Events Calendar"
               :href calendar-rss}]
 
+      (include-js "//www.google.com/jsapi"
+                  (str "//maps.googleapis.com/maps/api/js?key=" 
+                       (env :google-maps-key) "&sensor=false"))
+
       (include-css "/css/custom.pretty.css")]
 
      [:body
@@ -120,9 +124,4 @@
       (include-js "/markdown.js"
                   "/jquery.js"
                   "/bootstrap/js/bootstrap.min.js"
-                  "https://api.filepicker.io/v0/filepicker.js"
-                  (str "//maps.googleapis.com/maps/api/js?key=" 
-                       (env :google-maps-key) "&sensor=false")
-                  "https://www.google.com/jsapi"
-                  "/client.js")
-      ])))
+                  "/client.js")])))

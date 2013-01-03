@@ -29,45 +29,57 @@
           .val
           markdownify)))))
 
-(defn setup-team []
-  ;filepicker
-  (.setKey js/filepicker "AuL8SYGe7TXG-aEqBK1S1z")
+(defn setup-me []
+  (let [$me ($ "#me")]
+    ;filepicker
+    (.setKey js/filepicker "AuL8SYGe7TXG-aEqBK1S1z")
 
-  (jq/bind ($ "#new-picture") :click (fn [e]
-    (.preventDefault e)
-    (.getFile js/filepicker "image/*" (fn [url metadata]
-      (jq/attr ($ "#picture") "value" url)
-      (swap-picture-preview)))))
+    (jq/on $me :click "#new-picture"
+           (fn [e]
+             (.preventDefault e)
+             (.pick js/filepicker 
+                    (util/clj->js {:mimetypes "image/*"})
+                    (fn [url metadata]
+                      (jq/attr ($ "#picture") "value" url)
+                      (swap-picture-preview)))))
 
-  ; picture and bio live previews
-  (jq/bind ($ "#picture") :keyup swap-picture-preview)
-  (jq/bind ($ "#bio") :keyup update-bio-preview)
+    ; picture and bio live previews
+    (jq/on $me :keyup "#picture" swap-picture-preview)
+    (jq/on $me :keyup "#bio" update-bio-preview)
 
-  (update-bio-preview))
+    (update-bio-preview)))
 
 (defn setup-home []
-  (jq/bind ($ "#edit-upcoming") :click (fn [e]
-                                         (.preventDefault e)
-                                         (.toggleClass ($ "#event-form") "hidden")
-                                         (.focus ($ "#event-text"))))
-
-  (let [$event-info ($ "#event-info")
+  (let [$events     ($ "#upcoming-events")
         $event-text ($ "#event-text")]
-    (jq/bind $event-text :keyup (fn [e]
-                                  (let [new-text (.val $event-text)]
-                                    (.html $event-info (markdownify new-text)))))))
+    (jq/on $events :click "#edit-upcoming"
+           (fn [e]
+             (.preventDefault e)
+             (.toggleClass ($ "#event-form") "hidden")
+             (.focus $event-text)))
+
+    (jq/on $events :keyup "#event-text"
+           (fn [e]
+             (this-as this
+                      (let [new-text (.val ($ this))]
+                        (.html ($ "#event-info") 
+                               (markdownify new-text))))))))
 
 (defn main []
   (if u/location-hash (handle-hash-change))
-  (set! (.-onhashchange js/window) handle-hash-change)
-  (setup-home)
-  (setup-team))
+  (set! (.-onhashchange js/window) handle-hash-change))
 
- ;; setup hash handling immediately
+;; setup hash handling immediately
 (main)
 
 (jm/ready
  (.datepicker ($ ".datepicker"))
+
+ (if (u/exists? "#upcoming-events")
+   (setup-home))
+
+ (if (u/exists? "#me")
+   (setup-me))
 
  (if (u/exists? "#map")
    (setup-jobs-list))

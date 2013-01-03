@@ -12,6 +12,7 @@
         [clojure.core.incubator]
         [environ.core :only [env]]
         [hiccup.def :only [defhtml]]
+        [hiccup.page :only [include-js]]
         [markdown.core :only [md-to-html-string]]))  
 ;; account-related routes
 
@@ -61,10 +62,10 @@
 (defn get-me []
   (if-let [my-info (user/get-my-info)]
     (common/layout
-      [:h1 "Edit my info"]
-      [:form#me {:action "/me" :method "post"}
-        (user-table my-info true)
-        [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
+     [:h1 "Edit my info"]
+     [:form#me {:action "/me" :method "post"}
+      (user-table my-info true)
+      [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
     (response/redirect "/login")))
 
 (defn correct-link [m]
@@ -120,7 +121,8 @@
           (if (empty? (:refresh-token my-info))
             [:div.well
              [:p "Please go to " 
-              [:a {:href "https://accounts.google.com/IssuedAuthSubTokens"} "The Google Accounts Site"]
+              [:a {:href "https://accounts.google.com/IssuedAuthSubTokens"} 
+               "The Google Accounts Site"]
               ", Revoke Access for StartLabs, Log Out, then Log In to get a new refresh token."]])
                                  
           (for [k [:access-token :refresh-token :expiration]]

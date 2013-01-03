@@ -517,24 +517,25 @@
 ;; going here triggers an edit link to be sent to the author of the listing
 ;; [:get "/job/:id/edit"] 
 (defn resend-edit-link [id]
-  (common/layout
-    (if (user/logged-in?)
-      (if-let [job-map (job/job-map id)]
-        ;; here we find the existing secret or create a new one
-        (let [secret     (or (:secret job-map) 
-                             (job/update-job-field id :secret (u/uuid)))
-              secret-map (assoc job-map :secret secret)]
-          (send-edit-email secret-map)
-          [:div
-            [:h1 "Edit Link Sent"]
-            [:p "The author can now check their email for a link to edit the job listing."]])
-        (job-not-found))
-      ;;else
-      (response/redirect "/jobs"))))
+  (if (user/logged-in?)
+    (common/layout
+     (if-let [job-map (job/job-map id)]
+       ;; here we find the existing secret or create a new one
+       (let [map-secret (:secret job-map)
+             secret     (if (empty? map-secret) 
+                          (job/update-job-field id :job/secret (u/uuid))
+                          map-secret)
+             secret-map (assoc job-map :secret secret)]
+         (send-edit-email secret-map)
+         [:div
+          [:h1 "Edit Link Sent"]
+          [:p "The author can now check their email for a link to edit the job listing."]])
+       (job-not-found)))
+    ;;else
+    (response/redirect "/jobs")))
 
 (defn can-edit-job? [id & candidates]
   (let [job-secret (job/job-secret id)]
-    (println job-secret)
     (or (user/logged-in?)
         (some true? (map #(= % job-secret) candidates)))))
 

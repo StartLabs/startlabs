@@ -16061,7 +16061,7 @@ startlabs.jobs.setup_jobs_list = function() {
       cljs.core.reset_BANG_.call(null, startlabs.jobs.markers, cljs.core.PersistentVector.EMPTY);
       if(a = cljs.core.seq.call(null, e)) {
         for(e = cljs.core.first.call(null, a);;) {
-          if(c = startlabs.jobs.lat_lng.call(null, (new cljs.core.Keyword("\ufdd0'latitude")).call(null, e), (new cljs.core.Keyword("\ufdd0'longitude")).call(null, e)), startlabs.util.log.call(null, c), startlabs.jobs.add_jobs_marker.call(null, e).call(null, c), e = cljs.core.next.call(null, a)) {
+          if(c = startlabs.jobs.lat_lng.call(null, (new cljs.core.Keyword("\ufdd0'latitude")).call(null, e), (new cljs.core.Keyword("\ufdd0'longitude")).call(null, e)), startlabs.jobs.add_jobs_marker.call(null, e).call(null, c), e = cljs.core.next.call(null, a)) {
             a = e, e = cljs.core.first.call(null, a)
           }else {
             return null
@@ -16176,7 +16176,6 @@ startlabs.jobs.check_for_failure = function(a, b) {
   return cljs.core.not_EQ_.call(null, b, "success") ? jayq.core.$.call(null, "#content").prepend(startlabs.jobs.render_fail.call(null, [cljs.core.str("Unable to update analytics. "), cljs.core.str("Make sure the start and end dates are valid.")].join(""))) : null
 };
 startlabs.jobs.setup_job_analytics = function() {
-  jayq.core.$.call(null, window).resize(startlabs.jobs.draw_chart);
   jayq.core.on.call(null, jayq.core.$.call(null, "#analytics"), "\ufdd0'changeDate", "#a-start-date, #a-end-date", function() {
     var a = jayq.core.$.call(null, this).parents("form"), c = a.attr("action"), a = [cljs.core.str(c), cljs.core.str("?"), cljs.core.str(a.serialize())].join("");
     return jayq.core.ajax.call(null, a, cljs.core.ObjMap.fromObject(["\ufdd0'contentType", "\ufdd0'success", "\ufdd0'complete"], {"\ufdd0'contentType":"\ufdd0'text/edn", "\ufdd0'success":function(a) {
@@ -16198,10 +16197,10 @@ startlabs.jobs.setup_job_analytics = function() {
   });
   cljs.core.add_watch.call(null, startlabs.jobs.analytics_table, "\ufdd0'redraw-chart", startlabs.jobs.draw_chart);
   var a = cljs.reader.read_string.call(null, jayq.core.$.call(null, "#analytics-data").text());
-  google.load.call(null, "visualization", "1", jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'packages"], {"\ufdd0'packages":cljs.core.PersistentVector.fromArray(["corechart"], !0)})));
-  return google.setOnLoadCallback.call(null, function() {
-    return startlabs.jobs.reset_analytics_BANG_.call(null, a)
-  })
+  return google.load.call(null, "visualization", "1.0", jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'packages", "\ufdd0'callback"], {"\ufdd0'packages":cljs.core.PersistentVector.fromArray(["corechart"], !0), "\ufdd0'callback":function() {
+    startlabs.jobs.reset_analytics_BANG_.call(null, a);
+    return jayq.core.$.call(null, window).resize(startlabs.jobs.draw_chart)
+  }})))
 };
 startlabs.jobs.preview_map = null;
 startlabs.jobs.preview_marker = null;
@@ -16277,40 +16276,41 @@ startlabs.main.update_bio_preview = function() {
   var a = jayq.core.$.call(null, "#bio");
   return cljs.core.empty_QMARK_.call(null, a) ? null : jayq.core.inner.call(null, jayq.core.$.call(null, "#bio-preview"), startlabs.views.jobx.markdownify.call(null, a.val()))
 };
-startlabs.main.setup_team = function() {
+startlabs.main.setup_me = function() {
+  var a = jayq.core.$.call(null, "#me");
   filepicker.setKey("AuL8SYGe7TXG-aEqBK1S1z");
-  jayq.core.bind.call(null, jayq.core.$.call(null, "#new-picture"), "\ufdd0'click", function(a) {
+  jayq.core.on.call(null, a, "\ufdd0'click", "#new-picture", function(a) {
     a.preventDefault();
-    return filepicker.getFile("image/*", function(a) {
+    return filepicker.pick(jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'mimetypes"], {"\ufdd0'mimetypes":"image/*"})), function(a) {
       jayq.core.attr.call(null, jayq.core.$.call(null, "#picture"), "value", a);
       return startlabs.main.swap_picture_preview.call(null)
     })
   });
-  jayq.core.bind.call(null, jayq.core.$.call(null, "#picture"), "\ufdd0'keyup", startlabs.main.swap_picture_preview);
-  jayq.core.bind.call(null, jayq.core.$.call(null, "#bio"), "\ufdd0'keyup", startlabs.main.update_bio_preview);
+  jayq.core.on.call(null, a, "\ufdd0'keyup", "#picture", startlabs.main.swap_picture_preview);
+  jayq.core.on.call(null, a, "\ufdd0'keyup", "#bio", startlabs.main.update_bio_preview);
   return startlabs.main.update_bio_preview.call(null)
 };
 startlabs.main.setup_home = function() {
-  jayq.core.bind.call(null, jayq.core.$.call(null, "#edit-upcoming"), "\ufdd0'click", function(a) {
+  var a = jayq.core.$.call(null, "#upcoming-events"), b = jayq.core.$.call(null, "#event-text");
+  jayq.core.on.call(null, a, "\ufdd0'click", "#edit-upcoming", function(a) {
     a.preventDefault();
     jayq.core.$.call(null, "#event-form").toggleClass("hidden");
-    return jayq.core.$.call(null, "#event-text").focus()
+    return b.focus()
   });
-  var a = jayq.core.$.call(null, "#event-info"), b = jayq.core.$.call(null, "#event-text");
-  return jayq.core.bind.call(null, b, "\ufdd0'keyup", function() {
-    var c = b.val();
-    return a.html(startlabs.views.jobx.markdownify.call(null, c))
+  return jayq.core.on.call(null, a, "\ufdd0'keyup", "#event-text", function() {
+    var a = jayq.core.$.call(null, this).val();
+    return jayq.core.$.call(null, "#event-info").html(startlabs.views.jobx.markdownify.call(null, a))
   })
 };
 startlabs.main.main = function() {
   cljs.core.truth_(startlabs.util.location_hash) && startlabs.main.handle_hash_change.call(null);
-  window.onhashchange = startlabs.main.handle_hash_change;
-  startlabs.main.setup_home.call(null);
-  return startlabs.main.setup_team.call(null)
+  return window.onhashchange = startlabs.main.handle_hash_change
 };
 startlabs.main.main.call(null);
 jayq.core.document_ready.call(null, function() {
   jayq.core.$.call(null, ".datepicker").datepicker();
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#upcoming-events")) && startlabs.main.setup_home.call(null);
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#me")) && startlabs.main.setup_me.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) && startlabs.jobs.setup_job_submit.call(null);
   return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#analytics")) ? startlabs.jobs.setup_job_analytics.call(null) : null

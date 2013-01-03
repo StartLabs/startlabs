@@ -26,11 +26,12 @@
       (:access-token (user/refresh-user-with-info user-info)))))
 
 (defn ga [s]
-  (if ;ignore dates and pre-formatted strings
-      (and (string? s)
+  ;ignore dates and pre-formatted strings
+  (if (and (string? s)
            (or (re-find #"^-?ga:" s)
                (re-matches #"\d{4}-\d{2}-\d{2}" s)))
     s
+    ; else, go to work
     (let [sname  (name s)
           rsname (str/replace sname #"^-" "")
           neg?   (not= sname rsname)]
@@ -49,6 +50,8 @@
          (for [[k vs] params]
            (let [vs (map ga (flatten [vs]))]
              {k (str/join "," vs)}))))
+
+;; (params-to-string default-params)
 
 (def google-date-format "YYYY-MM-dd")
 (def google-date-formatter (tf/formatter google-date-format))

@@ -129,7 +129,6 @@
 
         (doseq [job n]
           (let [coords (lat-lng (:latitude job) (:longitude job))]
-            (u/log coords)
             ((add-jobs-marker job) coords)))))))
 
   (add-watch query-map :query setup-find-jobs)
@@ -253,9 +252,6 @@
                           "Make sure the start and end dates are valid."))))))
 
 (defn setup-job-analytics []                                
-  ;; must redraw the chart when the window changes size
-  (.resize ($ js/window) draw-chart)
-
   (jq/on ($ "#analytics") :changeDate "#a-start-date, #a-end-date" 
     (fn [e]
       (this-as this
@@ -279,9 +275,12 @@
 
   (add-watch analytics-table :redraw-chart draw-chart)
 
-  (let [initial-data  (reader/read-string (.text ($ "#analytics-data")))]
-    (google.load "visualization" "1" (clj->js {:packages ["corechart"]}))
-    (google.setOnLoadCallback #(reset-analytics! initial-data))))
+  (let [initial-data (reader/read-string (.text ($ "#analytics-data")))]
+    (google.load "visualization" "1.0" 
+                 (clj->js {:packages ["corechart"]
+                           :callback (fn []
+                                       (reset-analytics! initial-data)
+                                       (.resize ($ js/window) draw-chart))}))))
 
 
 
