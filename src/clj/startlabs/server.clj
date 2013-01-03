@@ -9,6 +9,7 @@
             [startlabs.views.jobs :as jobs]
             [startlabs.views.main :as main]
             [startlabs.views.partners :as partners]
+            [startlabs.views.pay :as pay]
             [startlabs.views.resources :as resources]
             [startlabs.views.user :as user-views])
 
@@ -81,6 +82,10 @@
 
   (GET "/analytics/authorize" [:as req] 
        (user-views/authorize-analytics (get-referer req)))
+
+  (GET "/pay" [& params] (pay/get-pay params))
+  (POST "/pay" [& params] (pay/post-pay params))
+  (GET "/payments" [] (pay/get-payments))
 
   ;; Redirect. Dead links = evil
   (GET "/company" [] (response/redirect "/about"))

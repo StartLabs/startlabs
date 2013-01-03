@@ -29,7 +29,7 @@
                   [clj-time "0.4.4"]
                   [com.draines/postal "1.9.1"]
                   [climp "0.1.2"]
-                  [abengoa/clj-stripe "1.0.3"]
+                  [sherbondy/clj-stripe "1.0.4"]
 
                   ;cljs
                   [crate "0.2.3"]

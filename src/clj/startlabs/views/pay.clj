@@ -1,14 +1,16 @@
 (ns startlabs.views.pay
-  (:require [noir.session :as session]
-            [noir.response :as response]
+  (:require [noir.response :as response]
             [noir.validation :as vali]
+            [sandbar.stateful-session :as session]
             [startlabs.views.common :as common]
             [startlabs.models.user :as user]
             [startlabs.models.payment :as payment]
             [startlabs.util :as u])
 
-  (:use [environ.core :only [env]]
-        [noir.core :only [defpage defpartial render url-for]]))
+  (:use [compojure.response :only [render]]
+        [environ.core :only [env]]
+        [hiccup.core :only [html]]
+        [hiccup.def :only [defhtml]]))
 
 ;; Eventually we should have dynamic payment pages for different expenses
 ;; In the database, the schema would look something like:
@@ -16,12 +18,12 @@
 ;; expense/amount 10000 => $100 (amount in cents to align with stripe api)
 ;; Then you would send users to /pay/career-fair
 
-(defpartial stripe-button []
+(defhtml stripe-button []
   [:script.stripe-button {:src "https://button.stripe.com/v1/button.js"
                           :data-key (env :stripe-pub-key)
                           :data-amout (payment/fee "amount")}])
 
-(defpartial control-group [type & [id descr params]]
+(defhtml control-group [type & [id descr params]]
   (let [kw-id (or (keyword id) nil)
         param (if params (kw-id params) "")]
     [:div {:class (u/cond-class "control-group" [(and kw-id (vali/get-errors kw-id)) "error"])}
@@ -32,7 +34,7 @@
         [:input {:id id :name id :type type :value param}]
         [:input {:type type}])]]))
 
-(defpage [:get "/pay"] {:as params}
+(defn get-pay [params]
   (let [has-params? (not (empty? params))]
     (common/layout
      [:div.row-fluid
@@ -63,7 +65,7 @@
   (not (apply vali/errors? (conj (keys params) :stripe))))
 
 
-(defpage [:post "/pay"] {:keys [company email stripeToken] :as params}
+(defn post-pay [{:keys [company email stripeToken] :as params}]
   (let [params (u/trim-vals params)]
     (if (valid-payment? params)
       (let [response (payment/charge-payment "Career fair admittance fee" params)]
@@ -81,7 +83,7 @@
         (session/flash-put! :message [:error "Make sure you entered a valid email address and filled in all of the fields."])
         (render "/pay" params)))))
 
-(defpage "/payments" []
+(defn get-payments []
   (if (user/logged-in?)
     (common/layout
      [:div
