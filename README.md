@@ -12,12 +12,12 @@ git submodules, so please run:
 after cloning this repository for the first time.
 
 We use the free edition of [Datomic](http://www.datomic.com) as our database.
-The site is written with [Compojure](https://github.com/weavejester/compojure), a simple, Clojure routing framework that sits atop [Ring](https://github.com/mmcgrana/ring)
+The site is written with [Compojure](https://github.com/weavejester/compojure), a simple Clojure routing framework that sits atop [Ring](https://github.com/mmcgrana/ring).
 
 If you're not familiar with Clojure, I strongly suggest doing some puzzles on [4clojure](http://www.4clojure.com/).
 
 [Leiningen](https://github.com/technomancy/leiningen) is the canonical project 
-manager for Clojure, so make sure to install that before doing anything else (See the link for instructions).
+manager for Clojure, so make sure to install that before doing anything else (see the link for instructions).
 
 To setup the application, you'll have to fill your Google, AWS, and email account 
 credentials into a file called `.lein-env` in the application's root. I've included
@@ -26,12 +26,6 @@ a `.lein-env-template` to get you started.
 ##The Database
 
 While testing the site, you will need to have an instance of Datomic running locally.
-It should have appeared in the root directory as `datomic-free` when you downloaded
-the git submodules. The only tricky thing is making sure the version number matches
-the one specified on `project.clj` (0.8.3692 as of writing this):
-```
-[com.datomic/datomic-free "0.8.3692" ...]
-```
 
 Please read the [overview of Datomic](http://www.datomic.com/overview.html) 
 to get an understanding for how it works. This is not your mother's SQL database.
@@ -39,6 +33,12 @@ to get an understanding for how it works. This is not your mother's SQL database
 You have to start up the Transactor. I recommend using [datomic-free](https://github.com/cldwalker/datomic-free), a simple command-line util, to start up the transactor like so:
 ```
 datomic-free start
+```
+
+The only tricky thing is making sure the version number matches
+the one specified on `project.clj` (0.8.3692 as of writing this):
+```
+[com.datomic/datomic-free "0.8.3692" ...]
 ```
 
 ##Tweaking The Site
@@ -57,7 +57,7 @@ We're using a forked version of Bootstrap, and the primary stylesheet specific t
 is located at `bootstrap/less/startlabs.less`. Again, make sure to do `git submodule init && git submodule update;` if you don't see the `bootstrap` folder in this directory's root.
 To rebuild all of boostrap, just call `make bootstrap` or `make watch` within the bootstrap directory.
 
-*NOTE:* We've reverted to editing raw CSS currently. The site's stylesheet is located in `resources/public/css/custom.pretty.css`.
+_NOTE:_ We've reverted to editing raw CSS currently. The site's stylesheet is located in `resources/public/css/custom.pretty.css`.
 
 If you've followed all of the above steps correctly, you should now be able
 to start the site by calling: `lein ring server-headless 8000`.
