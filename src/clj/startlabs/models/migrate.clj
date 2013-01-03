@@ -26,6 +26,8 @@
 (if (not *conn*)
   (do-default-setup))
 
+(def uri-reader (fn [x] (java.net.URI. x)))
+
 (set! *data-readers* (assoc *data-readers* 'uri uri-reader))
 
 (defmethod print-method java.net.URI
@@ -97,8 +99,6 @@
     (spit "startlabs-data.dtm" entries)))
 
 ;; (save-entries)
-
-(def uri-reader (fn [x] (java.net.URI. x)))
 
 (defn migrate-database [file]
   (let [tx-data (read-string (slurp file))]
