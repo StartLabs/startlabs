@@ -14,9 +14,7 @@
 (defn job-fields []
   (util/map-of-entity-tuples :job))
 
-;; modify this to @() deref, then resolve tempid to real id, then retun map with real id conj'd.
 (defn create-job [job-map]
-  ; might need to conj :confirmed? false
   (let [job-map-with-id (conj job-map {:id (uuid) :secret (uuid)})
         tx-data         (util/txify-new-entity :job job-map-with-id)]
     @(d/transact *conn* tx-data)
@@ -49,7 +47,6 @@
 (defn update-job
   "Expects new-fact-map to *not* already be namespaced with user/"
   [job-id new-fact-map]
-  (println "Updating job")
   (try
     (let [job           (job-with-id job-id)
           map-no-secret (dissoc new-fact-map :secret) ;; avoid overwriting the secret
@@ -76,7 +73,6 @@
                                min-end-date max-end-date] :as filters
                         :or {show-internships true
                              show-fulltime true}}]
-  (println filters)
   (let [lmin-start (if min-start-date (tc/to-long min-start-date))
         lmax-start (if max-start-date (tc/to-long max-start-date))
         lmin-end   (if min-end-date   (tc/to-long min-end-date))

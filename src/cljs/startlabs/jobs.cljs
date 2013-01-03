@@ -303,7 +303,7 @@
          (markdownify (.val ($ "#description")))))
 
 (defn change-fulltime [val]
-  (let [$tr (.eq (.parents ($ "#end_date") "tr") 0)]
+  (let [$tr (.eq (.parents ($ "#end-date") "tr") 0)]
     (if (= val "true")
       (.hide $tr)
       (.show $tr))))

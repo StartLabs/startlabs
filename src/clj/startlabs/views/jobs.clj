@@ -181,7 +181,6 @@
 ;; [:post /jobs/filters]
 (defn post-job-filters [params]
   (let [parsed-filters (parse-job-filters params)]
-    (println parsed-filters)
     (session/session-put! :filters parsed-filters)
     params))
 
