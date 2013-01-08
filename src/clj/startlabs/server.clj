@@ -6,6 +6,7 @@
             [startlabs.models.user :as user]
             [startlabs.models.database :as db]
             [startlabs.views.about :as about]
+			[startlabs.views.blog :as blog]
             [startlabs.views.jobs :as jobs]
             [startlabs.views.main :as main]
             [startlabs.views.partners :as partners]
@@ -53,6 +54,7 @@
   (POST "/event" [& params] (main/post-event params))
   
   (GET "/about" [] (about/about))
+  (GET "/blog" [] (blog/blog))
   (GET "/resources" [] (resources/resources))
   (GET "/partners" [] (partners/partners))
 

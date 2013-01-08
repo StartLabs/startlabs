@@ -5688,6 +5688,16 @@ html,body {
     display: inherit!important;
 }
 
+.tumblr_posts {
+	list-style: none;
+}
+.tumblr_title {
+	font-family: "Kreon",Helvetica,Arial,sans-serif;
+	font-weight: bold;
+	font-size: 24px;
+	line-height: 40px;
+}
+
 @media(min-width:768px) and (max-width:979px) {
     .hidden-desktop {
         display: inherit!important;
