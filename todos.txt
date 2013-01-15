@@ -2,4 +2,5 @@
 - Display videos prominently on the homepage
 - Nice front-end to the Events Calendar
 - Make a note when a person first logs in to fill out their profile
-
+- Add precondition to any function that deals with job maps
+  to guarantee that secrets are never leaked.
