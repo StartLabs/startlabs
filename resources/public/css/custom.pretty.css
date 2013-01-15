@@ -5399,7 +5399,6 @@ footer {
 }
 
 .job-info .more {
-    border-top: 1px solid #ccc;
     padding-top: 8px;
     display: none;
 }
@@ -5427,8 +5426,11 @@ footer {
 }
 
 .job-info .dateloc {
-    padding-top: 6px;
     border-top: 1px solid #ccc;
+}
+
+.job-info .row-fluid > div {
+    padding-top: 6px;
     min-height: 24px;
 }
 
@@ -6855,6 +6857,10 @@ html,body {
     text-shadow: none;
     color: #222;
     background: #fff;
+
+    transition: background 1s;
+    -webkit-transition: background 1s;
+    -moz-transition: background 1s;
 }
 
 #job-list .job h2 {
@@ -6918,4 +6924,8 @@ input.round-left {
 }
 input.round-right {
     border-radius: 0 4px 4px 0;
+}
+
+#job-list .job.highlighted {
+    background: #ffffcc;
 }

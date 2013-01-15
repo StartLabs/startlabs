@@ -1,9 +1,9 @@
 (defproject startlabs "0.1.0-SNAPSHOT"
   :description "The new Start Labs Pad"
   :url "http://startlabs.org"
-  :plugins [[lein-cljsbuild "0.2.7"]
+  :plugins [[lein-cljsbuild "0.2.10"]
             [lein-ring "0.7.5"]
-            [com.keminglabs/cljx "0.1.4"]]
+            [com.keminglabs/cljx "0.2.0"]]
 
   :dependencies [ ;clj core
                  [org.clojure/clojure "1.4.0"]

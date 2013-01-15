@@ -12,7 +12,8 @@
 
 ;; CAPITALIZATION IS CRUCIAL!
 (def partner-list
-  [["Atlas Venture" "http://www.atlasventure.com"]
+  [["Andreessen Horowitz" "http://a16z.com"]
+   ["Atlas Venture" "http://www.atlasventure.com"]
    ["Bessemer Venture Partners" "http://www.bvp.com"] 
    ["Boston Seed Capital" "http://www.bostonseed.com"]
    ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com"]

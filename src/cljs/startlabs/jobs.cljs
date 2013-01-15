@@ -103,9 +103,15 @@
 
 (defn add-jobs-marker [job] 
   (fn [coords]
-    (let [marker (make-job-marker job gmap coords)]
+    (let [marker  (make-job-marker job gmap coords)
+          job-sel (str "#" (:id job))]
       (google.maps.event.addListener marker "click" (fn []
-        (set! (.-hash js/location) (str "#" (:id job)))))
+        (.trigger ($ (str job-sel " .job-info")) "click")
+        (set! (.-hash js/location) job-sel)
+        ;; animate highlight
+        (let [$job-sel ($ job-sel)]
+          (.addClass $job-sel "highlighted")
+          (js/setTimeout #(.removeClass $job-sel "highlighted") 5000))))
       (swap! markers conj marker))))
 
 (defn setup-find-jobs [k r o n]
