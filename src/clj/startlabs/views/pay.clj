@@ -77,11 +77,11 @@
           (do
             (session/flash-put! :message 
                                 [:error response])
-            (render "/pay" params))))
+            (render get-pay params))))
       ;else
       (do
         (session/flash-put! :message [:error "Make sure you entered a valid email address and filled in all of the fields."])
-        (render "/pay" params)))))
+        (render get-pay params)))))
 
 (defn get-payments []
   (if (user/logged-in?)
