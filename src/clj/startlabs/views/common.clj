@@ -10,18 +10,26 @@
 ;; hacky var
 (def ^:dynamic *uri* nil)
 
+;; font nicities
 (defn font
-  ([name] (font name nil))
-  ([name weights]
-    (str (str/replace name " " "+") ":"
-         (str/join "," weights))))
+  ([name]         (font name nil []))
+  ([name weights] (font name weights []))
+  ([name weights styles]
+     (let [styled-weights 
+           (for [weight weights style (conj styles "")]
+             (str weight style))]
+       (str (str/replace name " " "+") 
+            (if weights
+              (str ":" (str/join "," styled-weights)))))))
 
 (defn fonts [& args]
   (map #(apply font %) args))
 
-(defn font-link [& faces]
-  (str "http://fonts.googleapis.com/css?family="
-    (str/join "|" (apply fonts faces))))
+(defhtml font-link [& faces]
+  [:link {:rel "stylesheet" :type "text/css"
+          :href (str "http://fonts.googleapis.com/css?family="
+                     (str/join "|" (apply fonts faces)))}])
+
 
 (defhtml login-info []
   (if-let [info (user/get-my-info)]
@@ -69,9 +77,8 @@
       ; make mobile device interface fixed
       [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
 
-      [:link {:rel "stylesheet" :type "text/css" 
-              :href (font-link ["Open Sans" [300,400,600]]
-                               ["Kreon" [400,700]])}]
+      (font-link ["Open Sans" [300,400,600]]
+                 ["Kreon" [400,700]])
 
       [:link {:rel "alternate" :type "application/rss+xml" 
               :title "StartLabs Events Calendar"

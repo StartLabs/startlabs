@@ -172,7 +172,11 @@
 (defn get-my-info []
   (try
     (if-let [user-id (session/session-get :id)]
-      (stringify-values (find-user-with-id user-id))
+      (let [my-info (stringify-values (find-user-with-id user-id))]
+        (when (empty? (:graduation-year my-info))
+          (session/flash-put! :message 
+                              [:warning "You will not appear on the team page until you fill out the Graduation Year field in your profile."]))
+        my-info)
       nil)
 
     (catch Exception e

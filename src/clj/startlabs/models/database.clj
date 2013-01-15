@@ -18,3 +18,5 @@
   (println "Connecting to db...")
   (let [schema "conf/schema.dtm"]
     (do-setup uri schema)))
+
+;; (do-default-setup)

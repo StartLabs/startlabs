@@ -167,6 +167,5 @@
 	    [:h1 "Our Team"]
         [:ul#team.thumbnails
           (for [person (shuffle (user/find-all-users))]
-            (team-member person)
-          )]]]
+            (team-member person))]]]
     [:div.clear]))
