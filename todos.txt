@@ -1,0 +1,5 @@
+- Add Andreeson Horowitz
+- Display videos prominently on the homepage
+- Nice front-end to the Events Calendar
+- Make a note when a person first logs in to fill out their profile
+

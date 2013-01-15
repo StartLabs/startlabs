@@ -581,8 +581,9 @@
           [:h2.centered "Unique Events"]]
          [:div.span6.thumbnail
           [:h1#total-events.centered (:total-events data)]
-          [:h2.centered "Total Events"]]]]
+          [:h2.centered "Total Events"]]]]]
 
+      [:div.row-fluid
        [:div#analytics-chart.span12]]
 
       (if (not (:error data))

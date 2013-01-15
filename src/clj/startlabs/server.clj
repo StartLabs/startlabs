@@ -6,7 +6,7 @@
             [startlabs.models.user :as user]
             [startlabs.models.database :as db]
             [startlabs.views.about :as about]
-			[startlabs.views.blog :as blog]
+            [startlabs.views.blog :as blog]
             [startlabs.views.jobs :as jobs]
             [startlabs.views.main :as main]
             [startlabs.views.partners :as partners]
@@ -19,10 +19,6 @@
         [noir.util.middleware :only [wrap-strip-trailing-slash]]
         [sandbar.stateful-session :only [wrap-stateful-session]]
         [startlabs.views.common :only [*uri*]]))
-
-;; add these to the routes
-;;(status/set-page! 404 (four-oh-four))
-;;(status/set-page! 500 (internal-error))
 
 (defn init []
   (db/do-default-setup)
