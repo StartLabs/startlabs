@@ -1,12 +1,15 @@
 (defproject startlabs "0.1.0-SNAPSHOT"
   :description "The new Start Labs Pad"
   :url "http://startlabs.org"
-  :plugins [[lein-cljsbuild "0.2.10"]
+  :plugins [[lein-cljsbuild "0.2.10"
+             :exclusions [org.clojure/clojure]]
             [lein-ring "0.8.0"
-             :exclusions [lein-jacker]]
+             :exclusions [lein-jacker
+                          org.clojure/clojure]]
             [com.keminglabs/cljx "0.2.0"
              :exclusions [org.clojure/core.logic
-                          jonase/kibit]]]
+                          jonase/kibit
+                          org.clojure/clojure]]]
 
   :dependencies [ ;clj core
                  [org.clojure/clojure "1.4.0"]
@@ -74,10 +77,7 @@
   :profiles {:dev 
              {:datomic
               {:config "conf/free-transactor-template.properties"
-               :db-uri "datomic:free://localhost:4334/startlabs"}
-              :dependencies [[ring-serve "0.1.2"
-                              :exclusions [ring/ring-devel
-                                           ring/ring-jetty-adapter]]]}}
+               :db-uri "datomic:free://localhost:4334/startlabs"}}}
   
   :ring {:handler startlabs.server/app
          :init startlabs.server/init

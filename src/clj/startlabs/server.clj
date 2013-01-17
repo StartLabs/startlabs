@@ -106,8 +106,10 @@
 
 ;; For interactive development, evaluate these:
 ;; or try ring.util.serve
+;; 1. Initialize the database
+;; (init)
 ;; (use 'ring.adapter.jetty)
-;; (defonce server (run-jetty #'app {:port 8080 :join? false}))
+;; (defonce server (run-jetty #'app {:port 8000 :join? false}))
 
 ;; To stop the server, just do:
 ;; (.stop server)
