@@ -6929,3 +6929,7 @@ input.round-right {
 #job-list .job.highlighted {
     background: #ffffcc;
 }
+
+#gravatar {
+    display: block;
+}

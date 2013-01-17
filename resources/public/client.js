@@ -12783,6 +12783,49 @@ startlabs.util.mapify_hash = function() {
   var a = startlabs.util.location_hash.slice(1).split(/[=&]/);
   return startlabs.util.hash_mapify_vector.call(null, a)
 };
+goog.crypt = {};
+goog.crypt.stringToByteArray = function(a) {
+  for(var b = [], c = 0, d = 0;d < a.length;d++) {
+    for(var e = a.charCodeAt(d);255 < e;) {
+      b[c++] = e & 255, e >>= 8
+    }
+    b[c++] = e
+  }
+  return b
+};
+goog.crypt.byteArrayToString = function(a) {
+  return String.fromCharCode.apply(null, a)
+};
+goog.crypt.byteArrayToHex = function(a) {
+  return goog.array.map(a, function(a) {
+    a = a.toString(16);
+    return 1 < a.length ? a : "0" + a
+  }).join("")
+};
+goog.crypt.stringToUtf8ByteArray = function(a) {
+  for(var a = a.replace(/\r\n/g, "\n"), b = [], c = 0, d = 0;d < a.length;d++) {
+    var e = a.charCodeAt(d);
+    128 > e ? b[c++] = e : (2048 > e ? b[c++] = e >> 6 | 192 : (b[c++] = e >> 12 | 224, b[c++] = e >> 6 & 63 | 128), b[c++] = e & 63 | 128)
+  }
+  return b
+};
+goog.crypt.utf8ByteArrayToString = function(a) {
+  for(var b = [], c = 0, d = 0;c < a.length;) {
+    var e = a[c++];
+    if(128 > e) {
+      b[d++] = String.fromCharCode(e)
+    }else {
+      if(191 < e && 224 > e) {
+        var f = a[c++];
+        b[d++] = String.fromCharCode((e & 31) << 6 | f & 63)
+      }else {
+        var f = a[c++], g = a[c++];
+        b[d++] = String.fromCharCode((e & 15) << 12 | (f & 63) << 6 | g & 63)
+      }
+    }
+  }
+  return b.join("")
+};
 startlabs.views = {};
 startlabs.views.jobx = {};
 startlabs.views.jobx.is_email_QMARK_ = function(a) {
@@ -14533,6 +14576,200 @@ goog.style.getCssTranslation = function(a) {
   a = c.match(goog.style.MATRIX_TRANSLATION_REGEX_);
   return!a ? new goog.math.Coordinate(0, 0) : new goog.math.Coordinate(parseFloat(a[1]), parseFloat(a[2]))
 };
+goog.crypt.Hash = function() {
+};
+goog.crypt.Sha1 = function() {
+  goog.crypt.Hash.call(this);
+  this.chain_ = [];
+  this.buf_ = [];
+  this.W_ = [];
+  this.pad_ = [];
+  this.pad_[0] = 128;
+  for(var a = 1;64 > a;++a) {
+    this.pad_[a] = 0
+  }
+  this.reset()
+};
+goog.inherits(goog.crypt.Sha1, goog.crypt.Hash);
+goog.crypt.Sha1.prototype.reset = function() {
+  this.chain_[0] = 1732584193;
+  this.chain_[1] = 4023233417;
+  this.chain_[2] = 2562383102;
+  this.chain_[3] = 271733878;
+  this.chain_[4] = 3285377520;
+  this.total_ = this.inbuf_ = 0
+};
+goog.crypt.Sha1.prototype.compress_ = function(a, b) {
+  b || (b = 0);
+  for(var c = this.W_, d = b;d < b + 64;d += 4) {
+    c[d / 4] = a[d] << 24 | a[d + 1] << 16 | a[d + 2] << 8 | a[d + 3]
+  }
+  for(d = 16;80 > d;d++) {
+    var e = c[d - 3] ^ c[d - 8] ^ c[d - 14] ^ c[d - 16];
+    c[d] = (e << 1 | e >>> 31) & 4294967295
+  }
+  for(var f = this.chain_[0], g = this.chain_[1], h = this.chain_[2], i = this.chain_[3], j = this.chain_[4], k, d = 0;80 > d;d++) {
+    40 > d ? 20 > d ? (e = i ^ g & (h ^ i), k = 1518500249) : (e = g ^ h ^ i, k = 1859775393) : 60 > d ? (e = g & h | i & (g | h), k = 2400959708) : (e = g ^ h ^ i, k = 3395469782), e = (f << 5 | f >>> 27) + e + j + k + c[d] & 4294967295, j = i, i = h, h = (g << 30 | g >>> 2) & 4294967295, g = f, f = e
+  }
+  this.chain_[0] = this.chain_[0] + f & 4294967295;
+  this.chain_[1] = this.chain_[1] + g & 4294967295;
+  this.chain_[2] = this.chain_[2] + h & 4294967295;
+  this.chain_[3] = this.chain_[3] + i & 4294967295;
+  this.chain_[4] = this.chain_[4] + j & 4294967295
+};
+goog.crypt.Sha1.prototype.update = function(a, b) {
+  goog.isDef(b) || (b = a.length);
+  var c = this.buf_, d = this.inbuf_, e = 0;
+  if(goog.isString(a)) {
+    for(;e < b;) {
+      c[d++] = a.charCodeAt(e++), 64 == d && (this.compress_(c), d = 0)
+    }
+  }else {
+    for(;e < b;) {
+      c[d++] = a[e++], 64 == d && (this.compress_(c), d = 0)
+    }
+  }
+  this.inbuf_ = d;
+  this.total_ += b
+};
+goog.crypt.Sha1.prototype.digest = function() {
+  var a = [], b = 8 * this.total_;
+  56 > this.inbuf_ ? this.update(this.pad_, 56 - this.inbuf_) : this.update(this.pad_, 64 - (this.inbuf_ - 56));
+  for(var c = 63;56 <= c;c--) {
+    this.buf_[c] = b & 255, b /= 256
+  }
+  this.compress_(this.buf_);
+  for(c = b = 0;5 > c;c++) {
+    for(var d = 24;0 <= d;d -= 8) {
+      a[b++] = this.chain_[c] >> d & 255
+    }
+  }
+  return a
+};
+goog.crypt.Md5 = function() {
+  goog.crypt.Hash.call(this);
+  this.chain_ = Array(4);
+  this.block_ = Array(64);
+  this.totalLength_ = this.blockLength_ = 0;
+  this.reset()
+};
+goog.inherits(goog.crypt.Md5, goog.crypt.Hash);
+goog.crypt.Md5.prototype.reset = function() {
+  this.chain_[0] = 1732584193;
+  this.chain_[1] = 4023233417;
+  this.chain_[2] = 2562383102;
+  this.chain_[3] = 271733878;
+  this.totalLength_ = this.blockLength_ = 0
+};
+goog.crypt.Md5.prototype.compress_ = function(a, b) {
+  b || (b = 0);
+  var c = Array(16);
+  if(goog.isString(a)) {
+    for(var d = 0;16 > d;++d) {
+      c[d] = a.charCodeAt(b++) | a.charCodeAt(b++) << 8 | a.charCodeAt(b++) << 16 | a.charCodeAt(b++) << 24
+    }
+  }else {
+    for(d = 0;16 > d;++d) {
+      c[d] = a[b++] | a[b++] << 8 | a[b++] << 16 | a[b++] << 24
+    }
+  }
+  var d = this.chain_[0], e = this.chain_[1], f = this.chain_[2], g = this.chain_[3], h = 0, h = d + (g ^ e & (f ^ g)) + c[0] + 3614090360 & 4294967295, d = e + (h << 7 & 4294967295 | h >>> 25), h = g + (f ^ d & (e ^ f)) + c[1] + 3905402710 & 4294967295, g = d + (h << 12 & 4294967295 | h >>> 20), h = f + (e ^ g & (d ^ e)) + c[2] + 606105819 & 4294967295, f = g + (h << 17 & 4294967295 | h >>> 15), h = e + (d ^ f & (g ^ d)) + c[3] + 3250441966 & 4294967295, e = f + (h << 22 & 4294967295 | h >>> 10), 
+  h = d + (g ^ e & (f ^ g)) + c[4] + 4118548399 & 4294967295, d = e + (h << 7 & 4294967295 | h >>> 25), h = g + (f ^ d & (e ^ f)) + c[5] + 1200080426 & 4294967295, g = d + (h << 12 & 4294967295 | h >>> 20), h = f + (e ^ g & (d ^ e)) + c[6] + 2821735955 & 4294967295, f = g + (h << 17 & 4294967295 | h >>> 15), h = e + (d ^ f & (g ^ d)) + c[7] + 4249261313 & 4294967295, e = f + (h << 22 & 4294967295 | h >>> 10), h = d + (g ^ e & (f ^ g)) + c[8] + 1770035416 & 4294967295, d = e + (h << 7 & 4294967295 | 
+  h >>> 25), h = g + (f ^ d & (e ^ f)) + c[9] + 2336552879 & 4294967295, g = d + (h << 12 & 4294967295 | h >>> 20), h = f + (e ^ g & (d ^ e)) + c[10] + 4294925233 & 4294967295, f = g + (h << 17 & 4294967295 | h >>> 15), h = e + (d ^ f & (g ^ d)) + c[11] + 2304563134 & 4294967295, e = f + (h << 22 & 4294967295 | h >>> 10), h = d + (g ^ e & (f ^ g)) + c[12] + 1804603682 & 4294967295, d = e + (h << 7 & 4294967295 | h >>> 25), h = g + (f ^ d & (e ^ f)) + c[13] + 4254626195 & 4294967295, g = d + (h << 
+  12 & 4294967295 | h >>> 20), h = f + (e ^ g & (d ^ e)) + c[14] + 2792965006 & 4294967295, f = g + (h << 17 & 4294967295 | h >>> 15), h = e + (d ^ f & (g ^ d)) + c[15] + 1236535329 & 4294967295, e = f + (h << 22 & 4294967295 | h >>> 10), h = d + (f ^ g & (e ^ f)) + c[1] + 4129170786 & 4294967295, d = e + (h << 5 & 4294967295 | h >>> 27), h = g + (e ^ f & (d ^ e)) + c[6] + 3225465664 & 4294967295, g = d + (h << 9 & 4294967295 | h >>> 23), h = f + (d ^ e & (g ^ d)) + c[11] + 643717713 & 4294967295, 
+  f = g + (h << 14 & 4294967295 | h >>> 18), h = e + (g ^ d & (f ^ g)) + c[0] + 3921069994 & 4294967295, e = f + (h << 20 & 4294967295 | h >>> 12), h = d + (f ^ g & (e ^ f)) + c[5] + 3593408605 & 4294967295, d = e + (h << 5 & 4294967295 | h >>> 27), h = g + (e ^ f & (d ^ e)) + c[10] + 38016083 & 4294967295, g = d + (h << 9 & 4294967295 | h >>> 23), h = f + (d ^ e & (g ^ d)) + c[15] + 3634488961 & 4294967295, f = g + (h << 14 & 4294967295 | h >>> 18), h = e + (g ^ d & (f ^ g)) + c[4] + 3889429448 & 
+  4294967295, e = f + (h << 20 & 4294967295 | h >>> 12), h = d + (f ^ g & (e ^ f)) + c[9] + 568446438 & 4294967295, d = e + (h << 5 & 4294967295 | h >>> 27), h = g + (e ^ f & (d ^ e)) + c[14] + 3275163606 & 4294967295, g = d + (h << 9 & 4294967295 | h >>> 23), h = f + (d ^ e & (g ^ d)) + c[3] + 4107603335 & 4294967295, f = g + (h << 14 & 4294967295 | h >>> 18), h = e + (g ^ d & (f ^ g)) + c[8] + 1163531501 & 4294967295, e = f + (h << 20 & 4294967295 | h >>> 12), h = d + (f ^ g & (e ^ f)) + c[13] + 
+  2850285829 & 4294967295, d = e + (h << 5 & 4294967295 | h >>> 27), h = g + (e ^ f & (d ^ e)) + c[2] + 4243563512 & 4294967295, g = d + (h << 9 & 4294967295 | h >>> 23), h = f + (d ^ e & (g ^ d)) + c[7] + 1735328473 & 4294967295, f = g + (h << 14 & 4294967295 | h >>> 18), h = e + (g ^ d & (f ^ g)) + c[12] + 2368359562 & 4294967295, e = f + (h << 20 & 4294967295 | h >>> 12), h = d + (e ^ f ^ g) + c[5] + 4294588738 & 4294967295, d = e + (h << 4 & 4294967295 | h >>> 28), h = g + (d ^ e ^ f) + c[8] + 
+  2272392833 & 4294967295, g = d + (h << 11 & 4294967295 | h >>> 21), h = f + (g ^ d ^ e) + c[11] + 1839030562 & 4294967295, f = g + (h << 16 & 4294967295 | h >>> 16), h = e + (f ^ g ^ d) + c[14] + 4259657740 & 4294967295, e = f + (h << 23 & 4294967295 | h >>> 9), h = d + (e ^ f ^ g) + c[1] + 2763975236 & 4294967295, d = e + (h << 4 & 4294967295 | h >>> 28), h = g + (d ^ e ^ f) + c[4] + 1272893353 & 4294967295, g = d + (h << 11 & 4294967295 | h >>> 21), h = f + (g ^ d ^ e) + c[7] + 4139469664 & 4294967295, 
+  f = g + (h << 16 & 4294967295 | h >>> 16), h = e + (f ^ g ^ d) + c[10] + 3200236656 & 4294967295, e = f + (h << 23 & 4294967295 | h >>> 9), h = d + (e ^ f ^ g) + c[13] + 681279174 & 4294967295, d = e + (h << 4 & 4294967295 | h >>> 28), h = g + (d ^ e ^ f) + c[0] + 3936430074 & 4294967295, g = d + (h << 11 & 4294967295 | h >>> 21), h = f + (g ^ d ^ e) + c[3] + 3572445317 & 4294967295, f = g + (h << 16 & 4294967295 | h >>> 16), h = e + (f ^ g ^ d) + c[6] + 76029189 & 4294967295, e = f + (h << 23 & 
+  4294967295 | h >>> 9), h = d + (e ^ f ^ g) + c[9] + 3654602809 & 4294967295, d = e + (h << 4 & 4294967295 | h >>> 28), h = g + (d ^ e ^ f) + c[12] + 3873151461 & 4294967295, g = d + (h << 11 & 4294967295 | h >>> 21), h = f + (g ^ d ^ e) + c[15] + 530742520 & 4294967295, f = g + (h << 16 & 4294967295 | h >>> 16), h = e + (f ^ g ^ d) + c[2] + 3299628645 & 4294967295, e = f + (h << 23 & 4294967295 | h >>> 9), h = d + (f ^ (e | ~g)) + c[0] + 4096336452 & 4294967295, d = e + (h << 6 & 4294967295 | h >>> 
+  26), h = g + (e ^ (d | ~f)) + c[7] + 1126891415 & 4294967295, g = d + (h << 10 & 4294967295 | h >>> 22), h = f + (d ^ (g | ~e)) + c[14] + 2878612391 & 4294967295, f = g + (h << 15 & 4294967295 | h >>> 17), h = e + (g ^ (f | ~d)) + c[5] + 4237533241 & 4294967295, e = f + (h << 21 & 4294967295 | h >>> 11), h = d + (f ^ (e | ~g)) + c[12] + 1700485571 & 4294967295, d = e + (h << 6 & 4294967295 | h >>> 26), h = g + (e ^ (d | ~f)) + c[3] + 2399980690 & 4294967295, g = d + (h << 10 & 4294967295 | h >>> 
+  22), h = f + (d ^ (g | ~e)) + c[10] + 4293915773 & 4294967295, f = g + (h << 15 & 4294967295 | h >>> 17), h = e + (g ^ (f | ~d)) + c[1] + 2240044497 & 4294967295, e = f + (h << 21 & 4294967295 | h >>> 11), h = d + (f ^ (e | ~g)) + c[8] + 1873313359 & 4294967295, d = e + (h << 6 & 4294967295 | h >>> 26), h = g + (e ^ (d | ~f)) + c[15] + 4264355552 & 4294967295, g = d + (h << 10 & 4294967295 | h >>> 22), h = f + (d ^ (g | ~e)) + c[6] + 2734768916 & 4294967295, f = g + (h << 15 & 4294967295 | h >>> 
+  17), h = e + (g ^ (f | ~d)) + c[13] + 1309151649 & 4294967295, e = f + (h << 21 & 4294967295 | h >>> 11), h = d + (f ^ (e | ~g)) + c[4] + 4149444226 & 4294967295, d = e + (h << 6 & 4294967295 | h >>> 26), h = g + (e ^ (d | ~f)) + c[11] + 3174756917 & 4294967295, g = d + (h << 10 & 4294967295 | h >>> 22), h = f + (d ^ (g | ~e)) + c[2] + 718787259 & 4294967295, f = g + (h << 15 & 4294967295 | h >>> 17), h = e + (g ^ (f | ~d)) + c[9] + 3951481745 & 4294967295;
+  this.chain_[0] = this.chain_[0] + d & 4294967295;
+  this.chain_[1] = this.chain_[1] + (f + (h << 21 & 4294967295 | h >>> 11)) & 4294967295;
+  this.chain_[2] = this.chain_[2] + f & 4294967295;
+  this.chain_[3] = this.chain_[3] + g & 4294967295
+};
+goog.crypt.Md5.prototype.update = function(a, b) {
+  goog.isDef(b) || (b = a.length);
+  for(var c = b - 64, d = this.block_, e = this.blockLength_, f = 0;f < b;) {
+    if(0 == e) {
+      for(;f <= c;) {
+        this.compress_(a, f), f += 64
+      }
+    }
+    if(goog.isString(a)) {
+      for(;f < b;) {
+        if(d[e++] = a.charCodeAt(f++), 64 == e) {
+          this.compress_(d);
+          e = 0;
+          break
+        }
+      }
+    }else {
+      for(;f < b;) {
+        if(d[e++] = a[f++], 64 == e) {
+          this.compress_(d);
+          e = 0;
+          break
+        }
+      }
+    }
+  }
+  this.blockLength_ = e;
+  this.totalLength_ += b
+};
+goog.crypt.Md5.prototype.digest = function() {
+  var a = Array((56 > this.blockLength_ ? 64 : 128) - this.blockLength_);
+  a[0] = 128;
+  for(var b = 1;b < a.length - 8;++b) {
+    a[b] = 0
+  }
+  for(var c = 8 * this.totalLength_, b = a.length - 8;b < a.length;++b) {
+    a[b] = c & 255, c /= 256
+  }
+  this.update(a);
+  a = Array(16);
+  for(b = c = 0;4 > b;++b) {
+    for(var d = 0;32 > d;d += 8) {
+      a[c++] = this.chain_[b] >>> d & 255
+    }
+  }
+  return a
+};
+var cljs_hash = {goog:{}};
+cljs_hash.goog.string__GT_bytes = function(a) {
+  return goog.crypt.stringToUtf8ByteArray(a)
+};
+cljs_hash.goog.bytes__GT_hex = function(a) {
+  return goog.crypt.byteArrayToHex(a)
+};
+cljs_hash.goog.hash_bytes = function(a, b) {
+  a.update(b);
+  return a.digest()
+};
+cljs_hash.goog.md5_ = function(a) {
+  return cljs_hash.goog.hash_bytes.call(null, new goog.crypt.Md5, a)
+};
+cljs_hash.goog.md5_bytes = function(a) {
+  return cljs_hash.goog.md5_.call(null, cljs_hash.goog.string__GT_bytes.call(null, a))
+};
+cljs_hash.goog.md5_hex = function(a) {
+  return cljs_hash.goog.bytes__GT_hex.call(null, cljs_hash.goog.md5_bytes.call(null, a))
+};
+cljs_hash.goog.sha1_ = function(a) {
+  return cljs_hash.goog.hash_bytes.call(null, new goog.crypt.Sha1, a)
+};
+cljs_hash.goog.sha1_bytes = function(a) {
+  return cljs_hash.goog.sha1_.call(null, cljs_hash.goog.string__GT_bytes.call(null, a))
+};
+cljs_hash.goog.sha1_hex = function(a) {
+  return cljs_hash.goog.bytes__GT_hex.call(null, cljs_hash.goog.sha1_bytes.call(null, a))
+};
+cljs_hash.goog.hash = function(a, b) {
+  return cljs.core._EQ_.call(null, "\ufdd0'md5", a) ? cljs_hash.goog.md5_hex.call(null, b) : cljs.core._EQ_.call(null, "\ufdd0'sha1", a) ? cljs_hash.goog.sha1_hex.call(null, b) : null
+};
 clojure.set = {};
 clojure.set.bubble_max_key = function(a, b) {
   var c = cljs.core.apply.call(null, cljs.core.max_key, a, b);
@@ -15478,6 +15715,35 @@ crate.core.html = function() {
   return b
 }();
 crate.core.h = crate.util.escape_html;
+startlabs.visitors = {};
+startlabs.visitors.gravatar_link = function() {
+  var a = function(a, b) {
+    var e = cljs.core.nth.call(null, b, 0, null), f = clojure.string.lower_case.call(null, clojure.string.trim.call(null, a));
+    return[cljs.core.str("http://www.gravatar.com/avatar/"), cljs.core.str(cljs_hash.goog.hash.call(null, "\ufdd0'md5", f)), cljs.core.str("?s="), cljs.core.str(cljs.core.truth_(e) ? e : 64)].join("")
+  }, b = function(b, d) {
+    var e = null;
+    goog.isDef(d) && (e = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0));
+    return a.call(this, b, e)
+  };
+  b.cljs$lang$maxFixedArity = 1;
+  b.cljs$lang$applyTo = function(b) {
+    var d = cljs.core.first(b), b = cljs.core.rest(b);
+    return a(d, b)
+  };
+  b.cljs$lang$arity$variadic = a;
+  return b
+}();
+startlabs.visitors.setup_visitors = function() {
+  var a = jayq.core.$.call(null, "#email"), b = jayq.core.$.call(null, "#gravatar");
+  jayq.core.on.call(null, a, "\ufdd0'keyup", function() {
+    return jayq.core.attr.call(null, b, "src", startlabs.visitors.gravatar_link.call(null, a.val()))
+  });
+  return cljs.core.truth_(cljs.core.some.call(null, function(a) {
+    return startlabs.util.exists_QMARK_.call(null, a)
+  }, cljs.core.PersistentVector.fromArray(["#hello", "#goodbye"], !0))) ? setTimeout(function() {
+    return window.location = "/signin"
+  }, 5E3) : null
+};
 cljs.reader = {};
 cljs.reader.PushbackReader = {};
 cljs.reader.read_char = function(a) {
@@ -16207,8 +16473,8 @@ startlabs.jobs.setup_job_submit = function() {
 startlabs.main = {};
 startlabs.main.handle_hash_change = function() {
   var a = function() {
-    var a = startlabs.util.mapify_hash.call(null);
-    return startlabs.util.log.call(null, [cljs.core.str("Hash changed: "), cljs.core.str(a)].join(""))
+    startlabs.util.mapify_hash.call(null);
+    return null
   }, b = function(b) {
     var d = null;
     goog.isDef(b) && (d = cljs.core.array_seq(Array.prototype.slice.call(arguments, 0), 0));
@@ -16266,5 +16532,6 @@ jayq.core.document_ready.call(null, function() {
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#me")) && startlabs.main.setup_me.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) && startlabs.jobs.setup_job_submit.call(null);
-  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#analytics")) ? startlabs.jobs.setup_job_analytics.call(null) : null
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#analytics")) && startlabs.jobs.setup_job_analytics.call(null);
+  return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#visitors")) ? startlabs.visitors.setup_visitors.call(null) : null
 });

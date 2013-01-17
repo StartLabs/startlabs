@@ -352,5 +352,38 @@
   :db/cardinality :db.cardinality/one,
   :db/doc "The person whose auth info we use for the Google Analytics API",
   :db.install/_attribute :db.part/db}
-  
+
+
+  ;; visitors of the space
+  {:db/id #db/id[:db.part/db],
+   :db/ident :visitor/name,
+   :db/valueType :db.type/string,
+   :db/cardinality :db.cardinality/one,
+   :db/doc "The name of the visitor."
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db],
+   :db/ident :visitor/email,
+   :db/valueType :db.type/string,
+   :db/cardinality :db.cardinality/one,
+   :db/doc "The visitor's email address."
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db],
+   :db/ident :visitor/id,
+   :db/valueType :db.type/string,
+   :db/cardinality :db.cardinality/one,
+   :db/unique :db.unique/value,
+   :db/doc "The visitor's ID card value."
+   :db.install/_attribute :db.part/db}
+   
+;; we infer availability based on proximity of visit date times.
+;; e.g. if there were 2 visits in the last 6 hours, then the person
+;; is no longer around.
+  {:db/id #db/id[:db.part/db],
+   :db/ident :visitor/visit-time,
+   :db/valueType :db.type/instant,
+   :db/cardinality :db.cardinality/many,
+   :db/doc "All of the visit dates. Both check-ins and check-outs."
+   :db.install/_attribute :db.part/db}
 ]

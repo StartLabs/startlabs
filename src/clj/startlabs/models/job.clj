@@ -94,8 +94,7 @@
      (if lmin-start `[(>= ~'?lstart ~lmin-start)] truff)
      (if lmax-start `[(<= ~'?lstart ~lmax-start)] truff)
      (if lmin-end `[(>= ~'?lend ~lmin-end)] truff)
-     (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)
-     ]))
+     (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)]))
 
 (defn find-upcoming-jobs 
   "returns all confirmed, non-removed jobs whose start dates 
@@ -113,8 +112,9 @@
 ;; whitelist
 
 (defn get-whitelist []
-  (let [whitelist (q '[:find ?ent ?whitelist :in $
-                       :where [?ent :joblist/whitelist ?whitelist]] (db *conn*))]
+  (let [whitelist (q '[:find ?ent ?whitelist
+                       :where [?ent :joblist/whitelist ?whitelist]]
+                     (db *conn*))]
     (first whitelist)))
 
 (defn update-whitelist [whitelist]

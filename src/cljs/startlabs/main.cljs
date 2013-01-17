@@ -3,7 +3,8 @@
         [startlabs.views.jobx :only [markdownify]]
         [startlabs.jobs :only [setup-jobs-list 
                                setup-job-submit
-                               setup-job-analytics]])
+                               setup-job-analytics]]
+        [startlabs.visitors :only [setup-visitors]])
 
   (:require [jayq.core :as jq]
             [jayq.util :as util]
@@ -15,9 +16,8 @@
 ; (repl/connect "http://localhost:9000/repl")
 
 (defn handle-hash-change [& e]
-  (let [hash-vals    (u/mapify-hash)]
-    (u/log (str "Hash changed: " hash-vals))))
-
+  (let [hash-vals    (u/mapify-hash)]))
+   
 (defn swap-picture-preview []
   (jq/attr ($ "#preview") "src" (jq/val ($ "#picture"))))
 
@@ -88,4 +88,7 @@
    (setup-job-submit))
 
  (if (u/exists? "#analytics")
-   (setup-job-analytics)))
+   (setup-job-analytics))
+
+ (if (u/exists? "#visitors")
+   (setup-visitors)))

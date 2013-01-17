@@ -1,25 +1,32 @@
 (ns startlabs.server
-  (:require [compojure.handler :as handler]
-            [compojure.route :as route]
-            [clojure.string :as str]
-            [noir.response :as response]
-            [ring.middleware.reload :as reload]
-            [startlabs.models.user :as user]
-            [startlabs.models.database :as db]
-            [startlabs.views.about :as about]
-            [startlabs.views.blog :as blog]
-            [startlabs.views.jobs :as jobs]
-            [startlabs.views.main :as main]
-            [startlabs.views.partners :as partners]
-            [startlabs.views.pay :as pay]
-            [startlabs.views.resources :as resources]
-            [startlabs.views.user :as user-views])
+  (:require
+   [compojure.handler :as handler]
+   [compojure.route :as route]
+   [clojure.string :as str]
+   [noir.response :as response]
+   [ring.middleware.reload :as reload]
 
-  (:use compojure.core
-        [noir.validation :only [wrap-noir-validation]]
-        [noir.util.middleware :only [wrap-strip-trailing-slash]]
-        [sandbar.stateful-session :only [wrap-stateful-session]]
-        [startlabs.views.common :only [*uri*]]))
+   [startlabs.models.user :as user]
+   [startlabs.models.database :as db]
+
+   [startlabs.views.about :as about]
+   [startlabs.views.blog :as blog]
+   [startlabs.views.jobs :as jobs]
+   [startlabs.views.main :as main]
+   [startlabs.views.partners :as partners]
+   [startlabs.views.pay :as pay]
+   [startlabs.views.resources :as resources]
+   [startlabs.views.user :as user-views]
+   [startlabs.views.visitors :as visitors])
+
+  (:use 
+   compojure.core
+   [environ.core :only [env]]
+   [noir.validation :only [wrap-noir-validation]]
+   [noir.util.middleware :only [wrap-strip-trailing-slash]]
+   [ring.middleware.basic-authentication :only [wrap-basic-authentication]]
+   [sandbar.stateful-session :only [wrap-stateful-session]]
+   [startlabs.views.common :only [*uri*]]))
 
 (defn init []
   (db/do-default-setup)
@@ -33,6 +40,10 @@
     (binding [*uri* (:uri req)]
       (app req))))
 
+(defn authenticated? [name pass]
+  (and (= name "pi")
+       (= pass (env :pi-password))))
+
 ;; split the job routes so /jobs is 3 pages: /jobs, /whitelist, /job/new
 (defroutes job-routes
   (GET "/" [& params] (jobs/get-edit-job params))
@@ -44,6 +55,10 @@
        (jobs/get-job-analytics id a-start-date a-end-date))
   (GET "/analytics.edn" [id a-start-date a-end-date]
        (jobs/analytics-search id a-start-date a-end-date)))
+
+(defroutes signin-routes
+  (GET "/" [& params] (visitors/get-signin params))
+  (POST "/" [& params] (visitors/post-signin params)))
 
 (defroutes main-routes
   (GET "/" [] (main/home))
@@ -86,6 +101,9 @@
   (POST "/pay" [& params] (pay/post-pay params))
   (GET "/payments" [] (pay/get-payments))
 
+  (context "/signin" [& params] 
+           (wrap-basic-authentication signin-routes authenticated?))
+
   ;; Redirect. Dead links = evil
   (GET "/company" [] (response/redirect "/about"))
   (GET "/contact" [] (response/redirect "/about"))
@@ -96,7 +114,9 @@
   (route/not-found (main/four-oh-four)))
 
 (def app
-  (-> (handler/site main-routes)
+  (-> main-routes
+      handler/site
+
       ;; comment in production
       (reload/wrap-reload)
       wrap-noir-validation
