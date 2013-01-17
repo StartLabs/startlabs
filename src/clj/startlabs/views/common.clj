@@ -49,7 +49,7 @@
 (defhtml webmaster-link [text]
   [:a {:href "mailto:ethan@startlabs.org"} text])
 
-; could autopopulate routes from defpages that are nested only one layer deep.
+; could autopopulate routes from compojure handler somehow...
 (def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] 
              [:about "/about"] [:partners "/partners"] [:team "/team"]])
 
@@ -66,8 +66,8 @@
 
 (def calendar-rss "http://www.google.com/calendar/feeds/startlabs.org_5peolh5d72ol1r9c7hf624ke9g%40group.calendar.google.com/public/basic")
 
-;; temporarily breaking request until I make a proper workaround (passing the ring map as an argument to layout,
-;; and making a nice depage macro replacement.
+
+
 (defn layout [& content]
   (let [[message-type message] (session/flash-get :message)]
     (html5
@@ -75,7 +75,8 @@
       [:title "StartLabs"]
 
       ; make mobile device interface fixed
-      [:meta {:name "viewport" :content "width=device-width, maximum-scale=1.0"}]
+      [:meta {:name "viewport" 
+              :content "width=device-width, maximum-scale=1.0"}]
 
       (font-link ["Open Sans" [300,400,600]]
                  ["Kreon" [400,700]])
@@ -123,7 +124,7 @@
       [:footer.container
        [:p "&copy; 2012 Startlabs. Follow us on "
         [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
-        [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"} 
+        [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"}
          "Facebook"]]]
 
       [:script {:type "text/javascript"} google-analytics]
