@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [clojure.string :as str]
             [noir.response :as response]
+            [ring.middleware.reload :as reload]
             [startlabs.models.user :as user]
             [startlabs.models.database :as db]
             [startlabs.views.about :as about]
@@ -78,7 +79,7 @@
 
   (context "/job/:id" [id] job-routes)
 
-  (GET "/analytics/authorize" [:as req] 
+  (GET "/analytics/authorize" [:as req]
        (user-views/authorize-analytics (get-referer req)))
 
   (GET "/pay" [& params] (pay/get-pay params))
@@ -96,7 +97,18 @@
 
 (def app
   (-> (handler/site main-routes)
+      ;; comment in production
+      (reload/wrap-reload)
       wrap-noir-validation
       wrap-strip-trailing-slash
       wrap-stateful-session
       uri-middleware))
+
+;; For interactive development, evaluate these:
+;; or try ring.util.serve
+;; (use 'ring.adapter.jetty)
+;; (defonce server (run-jetty #'app {:port 8080 :join? false}))
+
+;; To stop the server, just do:
+;; (.stop server)
+;; (.start server)

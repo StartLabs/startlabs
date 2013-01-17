@@ -30,7 +30,8 @@
                         [:error "Invalid login. Make sure you're using your email@startlabs.org."]))
   (response/redirect state))
 
-(def editable-attrs [:name :role :bio :link :studying :graduation-year :picture])
+(def editable-attrs [:name :role :bio :link 
+                     :studying :graduation-year :picture])
 
 (defhtml user-table [info-map editable?]
   [:table.table
@@ -65,7 +66,8 @@
      [:h1 "Edit my info"]
      [:form#me {:action "/me" :method "post"}
       (user-table my-info true)
-      [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]])
+      [:input.btn.btn-primary.offset2 {:type "submit" :value "Submit"}]]
+     (include-js "//api.filepicker.io/v1/filepicker.js"))
     (response/redirect "/login")))
 
 (defn correct-link [m]
