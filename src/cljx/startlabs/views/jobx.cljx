@@ -1,6 +1,5 @@
 ^:clj (ns startlabs.views.jobx
-        (:use [hiccup.core :only [html]]
-              [noir.validation :only [is-email?]]
+        (:use [noir.validation :only [is-email?]]
               [markdown.core :only [md-to-html-string]]))
 
 ^:cljs (ns startlabs.views.jobx)

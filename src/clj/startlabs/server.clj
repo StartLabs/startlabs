@@ -125,9 +125,9 @@
       uri-middleware))
 
 ;; For interactive development, evaluate these:
-;; or try ring.util.serve
 ;; 1. Initialize the database
 ;; (init)
+;; 2. Run the server
 ;; (use 'ring.adapter.jetty)
 ;; (defonce server (run-jetty #'app {:port 8000 :join? false}))
 

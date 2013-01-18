@@ -1,7 +1,7 @@
 (ns startlabs.jobs
   (:use [jayq.core :only [$]]
         [jayq.util :only [clj->js]]
-        [crate.core :only [html]]
+        [dommy.template :only [node]]
         [startlabs.views.jobx :only [job-list job-card markdownify]])
 
   (:require [cljs.reader :as reader]
@@ -248,7 +248,7 @@
   (reset! analytics-data data))
 
 (defn render-fail [msg]
-  (html
+  (
    [:div#ajax-fail.alert.alert-error
     [:button.close {:type "button" :data-dismiss "alert"} "x"]
     [:strong "Error: "] msg]))
@@ -306,7 +306,7 @@
 (defn update-job-card []
   (let [job-map (u/form-to-map ($ "#job-form"))]
     (.html ($ "#job-preview")
-           (html (job-card job-map false))))
+           (node (job-card job-map false))))
   ; singult is escaping the generated markdown :(
   (.html ($ "#job-preview .description")
          (markdownify (.val ($ "#description")))))

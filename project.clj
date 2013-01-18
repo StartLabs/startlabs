@@ -2,14 +2,13 @@
   :description "The new Start Labs Pad"
   :url "http://startlabs.org"
   :plugins [[lein-cljsbuild "0.2.10"
-             :exclusions [org.clojure/clojure]]
+             :exclusions [org.clojure/clojure
+                          com.google.guava/guava]]
             [lein-ring "0.8.0"
              :exclusions [lein-jacker
                           org.clojure/clojure]]
             [com.keminglabs/cljx "0.2.0"
-             :exclusions [org.clojure/core.logic
-                          jonase/kibit
-                          org.clojure/clojure]]]
+             :exclusions [org.clojure/clojure]]]
 
                  ;clj core
   :dependencies [[org.clojure/clojure "1.4.0"]
@@ -51,10 +50,10 @@
 
                  ;cljs
                  [cljs-hash "0.0.2"]
-                 [crate "0.2.3"]
                  [jayq "2.0.0"]
 
-                 [org.clojure/google-closure-library "0.0-2029"]]
+                 [org.clojure/google-closure-library "0.0-2029"]
+                 [prismatic/dommy "0.0.1"]]
 
   :source-paths ["src/clj" ".generated/clj"]
 
