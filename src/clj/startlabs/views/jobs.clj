@@ -407,6 +407,10 @@
     (vali/rule (vali/valid-number? (:company-size job-params))
                [:company-size "The company size must be a valid number."])
 
+    (vali/rule (vali/greater-than? (:company-size job-params) 0)
+               [:company-size "Surely you have at least one employee.
+                If not, then who's filling out this form?"])
+
     (try
       (let [err [:location "The latitude/longitude of the location are invalid."]]
         (vali/rule (and (<= (abs (Double/parseDouble (:latitude job-params))) 90)
