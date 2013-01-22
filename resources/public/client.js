@@ -13831,6 +13831,9 @@ startlabs.jobs.setup_jobs_list = function() {
   jayq.core.on.call(null, a, "\ufdd0'click", "a, button", function(a) {
     return a.stopPropagation()
   });
+  jayq.core.on.call(null, a, "\ufdd0'click", "form button", function() {
+    return jayq.core.$.call(null, this).parent().submit()
+  });
   var b = jayq.core.$.call(null, "#filter");
   jayq.core.on.call(null, b, "\ufdd0'click", "#show-fulltime, #show-internships", function(a) {
     a.preventDefault();

@@ -176,7 +176,13 @@
                      (-> ($ this)
                          (.attr "href") $ (.modal "show")))))
 
-    (jq/on $job-container :click "a, button" #(.stopPropagation %)))
+    (jq/on $job-container :click "a, button"
+           (fn [e] (.stopPropagation e)))
+
+    (jq/on $job-container :click "form button"
+           (fn [e]
+             (this-as this
+                      (.submit (.parent ($ this)))))))
 
   (let [$filter ($ "#filter")]
     (jq/on $filter :click "#show-fulltime, #show-internships" 
