@@ -74,15 +74,16 @@
     [:div.span6 [:i.icon.icon-calendar] (:start-date job-info) 
      (if (not (= (:fulltime? job-info) "true"))
        (str " - " (:end-date job-info)))]
-    [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]]
 
-   [:div.span6 [:span.label.label-info 
-                (if (= (:fulltime? job-info) "true")
-                  "Fulltime"
-                  "Internship")]]
+    [:div.span6 [:span.label.label-info 
+                 (if (= (:fulltime? job-info) "true")
+                   "Fulltime"
+                   "Internship")]]
 
-   [:div.span6.employees 
-    [:span.badge.badge-info (:company-size job-info)] "Employees"]
+    [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]
+
+    [:div.span6.employees 
+     [:span.badge.badge-info (:company-size job-info)] "Employees"]]
 
    [:a.read {:href (str "#" (more-id (:id job-info)))} "Read More..." ]])
 
@@ -115,7 +116,11 @@
      [:div.job.thumbnail {:id (:id job)}
       (job-card job editable?)])])
 
-(defn job-list [jobs editable? q page page-count]
+;; the base-url currently depends on the state of the session,
+;; which is LOUSY. Should make more robust (accept all parameters)
+;; which means we should really pass a map of filters as an argument
+;; and spit out the appropriate query string
+(defn job-list [{:keys [jobs editable? q page page-count]}]
   (let [[left-jobs right-jobs] (split-at (/ (count jobs) 2) jobs)
         base-url (str "/jobs?q=" q "&page=")
         inc-pc (inc page-count)]

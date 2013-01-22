@@ -82,8 +82,10 @@
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
 
   (GET "/jobs" [& params] (jobs/get-jobs params))
-  (GET "/jobs.edn" [& params] (jobs/job-search params))
   (POST "/jobs/filters" [& params] (jobs/post-job-filters params))
+
+  (GET ["/jobs.:fmt" :fmt #"(edn|json)"] [fmt & params] 
+       (jobs/job-search (keyword fmt) params))
 
   (GET "/whitelist" [] (jobs/get-whitelist))
   (POST "/whitelist" [the-list] (jobs/post-whitelist the-list))
@@ -117,8 +119,6 @@
   (-> main-routes
       handler/site
 
-      ;; comment in production
-      (reload/wrap-reload)
       wrap-noir-validation
       wrap-strip-trailing-slash
       wrap-stateful-session
@@ -129,6 +129,7 @@
 ;; (init)
 ;; 2. Run the server
 ;; (use 'ring.adapter.jetty)
+;; (def app (reload/wrap-reload app))
 ;; (defonce server (run-jetty #'app {:port 8000 :join? false}))
 
 ;; To stop the server, just do:

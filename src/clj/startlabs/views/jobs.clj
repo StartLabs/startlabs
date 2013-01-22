@@ -1,6 +1,6 @@
 (ns startlabs.views.jobs
   (:require [clojure.string :as str]
-            [clojure.data.json :as json]
+            [cheshire.core :as json]
             [clj-time.core :as t]
             [noir.response :as response]
             [noir.validation :as vali]
@@ -27,8 +27,6 @@
 
   (:import java.net.URI))
 
-;; jobs
-
 (defn edit-link [job-map]
   (str (u/home-uri) "/job/" (:id job-map) "?secret=" (:secret job-map)))
 
@@ -46,7 +44,7 @@
       [:p [:a {:href the-edit-link} the-edit-link]]
 
       [:p "If this email was sent in error, feel free to ignore it or contact "
-          (common/webmaster-link "our webmaster") "."]]))
+       (common/webmaster-link "our webmaster") "."]]))
 
 (defn send-confirmation-email [job-map]
   (postal/send-message ^{:host (env :email-host)
@@ -264,9 +262,10 @@
      [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
      [:button.btn.btn-primary "Save Changes"]]]])
 
-;; make browse-jobs take a page as input,
-;; operate on pages of jobs at a time...
-(defhtml browse-jobs [q sort-field page-jobs list-html]
+;; job filters should be specifiable as query
+;; params too. Otherwise you can't, say, send a friend
+;; a link of the filtered listing, which is a shame.
+(defhtml browse-jobs [q sort-field page-jobs]
   (let [filters (session/session-get :filters)]
     [:div#browse
      ;; sort by date and location.
@@ -292,49 +291,69 @@
            [:a#sort-toggle.dropdown-toggle
             {:href "#" :data-toggle "dropdown"} 
             [:i.icon-list] "Sort" [:b.caret]]
-           [:ul#sort.dropdown-menu {:role "menu" :arial-labelledby "sort-toggle"}
+           [:ul#sort.dropdown-menu
+            {:role "menu" :arial-labelledby "sort-toggle"}
             (for [field [:company :company-size :start-date :end-date 
                          :longitude :latitude]]
               [:li {:class (if (= (keyword sort-field) field) "active")}
-               [:a {:href "#" :data-field (name field)} (u/phrasify field)]])]]
+               [:a {:href "#" :data-field (name field)}
+                (u/phrasify field)]])]]
 
           [:li [:a#map-toggle {:href "#map"}
-                [:i.icon-map-marker] "Toggle Map"]]]]
-        ]]]
+                [:i.icon-map-marker] "Toggle Map"]]]]]]]
 
      [:div#job-container.row-fluid
-      (if (empty? page-jobs)
+      (if (empty? (:jobs page-jobs))
         [:h1 "Sorry, no jobs posted currently. Come back later."])
-
-      list-html]
+      ;; eventually pass entire argument map rather than
+      ;; separate args for q, page, etc.
+      (job-list page-jobs)]
      
      [:script#job-data
-      (str "window.job_data = " (json/write-str page-jobs) ";")]
-     ]))
+      (str "window.job_data = " 
+           (json/generate-string (:jobs page-jobs)) ";")]]))
 
-(defn jobs-and-list-html [{:keys [q page page-size sort-field] 
-                           :or {q "" page 1 page-size 20 
-                                sort-field (or (session/session-get :sort-field)
-                                               "company")}}]
+(defn intify [n fallback]
+  (if (vali/valid-number? n)
+    (Integer. n)
+    fallback))
+
+;; returns a hash-map containing a list of jobs
+;; filtered and sorted based on the inputs
+(defn jobs-map
+  [{:keys [q page page-size sort-field] 
+    :or {q          "" 
+         page       1 
+         page-size  20 
+         sort-field (or (session/session-get :sort-field)
+                        "company")}}]
   (session/session-put! :sort-field sort-field)
-  (let [valid-page?  (not (nil? (re-matches #"[1-9]\d+" "10")))
-        page         (Integer. (if valid-page? page 1))
-        page-size    (Integer. page-size)
+  (let [page         (intify page 1)
+        page-size    (intify page-size 20)
         filters      (session/session-get :filters)
         jobs         (filter-jobs q filters)
         page-jobs    (jobs-on-page jobs page page-size)
-        show-delete? (user/logged-in?)
         page-count   (ceil (/ (count jobs) page-size))
-        body         (job-list page-jobs show-delete? q page page-count)]
-    [page-jobs body]))
+        editable?    (user/logged-in?)]
+    {:jobs page-jobs 
+     :q q
+     :page page
+     :page-count page-count
+     :editable? editable?}))
 
-;; [:get /jobs.edn?q=...]
-(defn job-search [params]
-  (let [[jobs list-html] (jobs-and-list-html params)
-        body (str {:html (html list-html) 
-                   :jobs jobs})]
+;; add xml eventually, slightly more involved
+(defn job-format-fn [fmt]
+  (condp = fmt
+    :edn  pr-str
+    :json #(json/generate-string % {:pretty true})))
+
+;; [:get /jobs.(edn|json|xml)?q=...]
+;; see jobs-and-list-html for all possible arguments
+(defn job-search [fmt params]
+  (let [body ((job-format-fn fmt) 
+              (jobs-map params))]
     (-> (rr/response body)
-        (rr/content-type "text/edn"))))
+        (rr/content-type (str "text/" (name fmt))))))
 
 (defn split-sites [sitelist]
   (str/split sitelist #"\s+"))
@@ -351,11 +370,11 @@
 
 ;; [:get /jobs]
 (defn get-jobs [{:keys [q] :as params}]
-  (let [[page-jobs list-html] (jobs-and-list-html params)
+  (let [page-jobs (jobs-map params)
         sort-field (session/session-get :sort-field)]
     (common/layout
      (nav-buttons :jobs)
-     [:div (browse-jobs q sort-field page-jobs list-html)])))
+     [:div (browse-jobs q sort-field page-jobs)])))
 
 
 (defn get-hostname [url]
@@ -565,8 +584,8 @@
       [:h1 "Job Analytics"]
 
       [:div.row-fluid
-       [:form.form-horizontal.span6 {:method "GET" 
-                                     :action (str "/job/" id "/analytics.edn")}
+       [:form.form-horizontal.span6 
+        {:method "GET" :action (str "/job/" id "/analytics.edn")}
         (for [[n v l] [["a-start-date" start-date "Start Date"] 
                        ["a-end-date" end-date "End Date"]]]
           [:div.control-group

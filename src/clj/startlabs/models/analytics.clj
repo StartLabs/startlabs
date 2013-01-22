@@ -5,7 +5,6 @@
         [startlabs.models.database :only [*conn*]]
         [startlabs.util :only [after-now? stringify-values]])
   (:require [clojure.string :as str]
-            [clojure.data.json :as json]
             [clj-http.client :as client]
             [clj-time.core :as t]
             [clj-time.format :as tf]

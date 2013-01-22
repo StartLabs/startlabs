@@ -12,12 +12,12 @@
 
                  ;clj core
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [org.clojure/data.json "0.2.1"]
                  [org.clojure/tools.logging "0.2.4"]
                  [org.clojure/core.incubator "0.1.2"] ; for -?> goodness
                  [org.clojure/math.numeric-tower "0.0.2"]
                  
                  ;clj other
+                 [cheshire "5.0.1"]
                  [climp "0.1.2"
                   :exclusions [cheshire]]
                  [clj-aws-s3 "0.3.3"]

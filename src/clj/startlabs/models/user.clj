@@ -5,7 +5,6 @@
         [startlabs.models.database :only [*conn*]]
         [startlabs.util :only [stringify-values home-uri]])
   (:require [clojure.string :as str]
-            [clojure.data.json :as json]
             [clj-http.client :as client]
             [clj-time.core :as t]
             [sandbar.stateful-session :as session]

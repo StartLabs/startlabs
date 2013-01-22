@@ -30,7 +30,7 @@
 
 
 (defn make-marker [options]
-  ( google.maps.Marker. (clj->js options)))
+  (google.maps.Marker. (clj->js options)))
 
 (defn make-job-marker [job map coords & [opts]]
   (make-marker (merge opts
@@ -96,10 +96,16 @@
     (jq/ajax (str "/jobs.edn?" params)
              {:contentType :text/edn
               :success (fn [data status xhr]
-                         (let [data (reader/read-string data)]
+                         (let [data     (reader/read-string data)
+                               new-list (job-list data)]
                            (reset! filtered-jobs (:jobs data))
                            (.remove $job-list)
-                           (.html parent (:html data))))})))
+                           (.html parent (node new-list))
+                           ;; why do all of the js hiccup libs
+                           ;; fail at literal html?
+                           (doseq [elem ($ ".job-info .description")]
+                             (let [$elem ($ elem)]
+                               (.html $elem (.text $elem))))))})))
 
 (defn add-jobs-marker [job] 
   (fn [coords]
@@ -197,14 +203,15 @@
                                                (u/log (str "Error: " status))))
                                   :type "POST"}))))))
 
-  (jq/on ($ "#sort") :click "a" (fn [e]
-                                  (.preventDefault e)
-                                  (.removeClass ($ "#sort li") "active")
-                                  (this-as this
-                                           (let [$this ($ this)
-                                                 field (.data $this "field")]
-                                             (.addClass (.parent $this "li") "active")
-                                             (swap! query-map assoc :sort-field field)))))
+  (jq/on ($ "#sort") :click "a" 
+         (fn [e]
+           (.preventDefault e)
+           (.removeClass ($ "#sort li") "active")
+           (this-as this
+                    (let [$this ($ this)
+                          field (.data $this "field")]
+                      (.addClass (.parent $this "li") "active")
+                      (swap! query-map assoc :sort-field field)))))
 
   (reset! filtered-jobs job-data))
 
