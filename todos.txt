@@ -4,3 +4,4 @@
 - Make a note when a person first logs in to fill out their profile
 - Add precondition to any function that deals with job maps
   to guarantee that secrets are never leaked.
+- Output job list to RSS feed (need post-date field in schema) and email.
