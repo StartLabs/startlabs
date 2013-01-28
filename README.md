@@ -4,10 +4,11 @@
 
 StartLabs is written entirely in [Clojure](http://www.clojure.org) and ClojureScript (Clojure which compiles down to JavaScript).
 
-It relies on Twitter Bootstrap and Leaflet (for mapping), which have been included as
-git submodules, so please run:
+It relies on a modified version of Twitter Bootstrap and (within Bootstrap), Bootstrap Datepicker. These have been included as git submodules, so please run:
 
-`git submodule init && git submodule update;`
+```
+git submodule update --init --recursive
+```
 
 after cloning this repository for the first time.
 
@@ -52,9 +53,8 @@ If you're editing the ClojureScript files (in `src/cljs`), run
 [cljsbuild](https://github.com/emezeske/lein-cljsbuild) to automatically
 compile them into JavaScript: `lein cljsbuild auto`
 
-Stylesheets are preprocessed with less.js. Less was chosen for compatability with Twitter Bootstrap.
-We're using a forked version of Bootstrap, and the primary stylesheet specific to StartLabs
-is located at `bootstrap/less/startlabs.less`. Again, make sure to do `git submodule init && git submodule update;` if you don't see the `bootstrap` folder in this directory's root.
+Stylesheets are preprocessed with less.js. Less was chosen for compatability with Twitter Bootstrap. We're using a forked version of Bootstrap, and the primary stylesheet specific to StartLabs is located at `bootstrap/less/startlabs.less`. Again, make sure to do `git submodule update --init --recursive;` if you don't see the `bootstrap` folder in this directory's root.
+
 To rebuild all of boostrap, just call `make bootstrap` or `make watch` within the bootstrap directory.
 
 _NOTE:_ We've reverted to editing raw CSS currently. The site's stylesheet is located in `resources/public/css/custom.pretty.css`.

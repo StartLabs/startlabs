@@ -124,10 +124,12 @@
      [:h2 "Law Firms and Lawyers"]
      [:ul (map #(apply ablank-li %)
                [["http://www.goodwinprocter.com/" "Goodwin Procter"]
-                ["http://www.siliconlegal.com/" "Silicon Legal"]
                 ["http://www.grellas.com/" "Grellas Shah, LLP"]
+                ["http://www.siliconlegal.com/" "Silicon Legal"]
                 ["http://walkercorporatelaw.com/" 
-                 "Walker Corporate Law Group"]])]]
+                 "Walker Corporate Law Group"]
+                ["http://www.wilmerhale.com/corporate/emerging-company/"
+                 "WilmerHale"]])]]
 
     [:div.pull-left.span3
      [:h2 "Legal Tools"]
