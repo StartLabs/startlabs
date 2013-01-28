@@ -1,6 +1,6 @@
 (ns startlabs.main
   (:use [jayq.core :only [$]]
-        [startlabs.views.jobx :only [markdownify]]
+        [startlabs.views.job-list :only [markdownify]]
         [startlabs.jobs :only [setup-jobs-list 
                                setup-job-submit
                                setup-job-analytics]]

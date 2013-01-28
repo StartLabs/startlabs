@@ -7,8 +7,7 @@
             [lein-ring "0.8.0"
              :exclusions [lein-jacker
                           org.clojure/clojure]]
-            [com.keminglabs/cljx "0.2.0"
-             :exclusions [org.clojure/clojure]]]
+            [com.birdseye-sw/lein-dalap "0.1.0"]]
 
                  ;clj core
   :dependencies [[org.clojure/clojure "1.4.0"]
@@ -17,6 +16,7 @@
                  [org.clojure/math.numeric-tower "0.0.2"]
                  
                  ;clj other
+                 [aleph "0.3.0-beta7"]
                  [cheshire "5.0.1"]
                  [climp "0.1.2"
                   :exclusions [cheshire]]
@@ -55,7 +55,9 @@
                  [org.clojure/google-closure-library "0.0-2029"]
                  [prismatic/dommy "0.0.1"]]
 
-  :source-paths ["src/clj" ".generated/clj"]
+  :source-paths ["src/clj"]
+
+  :hooks [leiningen.dalap]
 
   :cljsbuild {:builds 
               [{:source-path "src/cljs"
@@ -63,19 +65,6 @@
                            :pretty-print true
                            :optimizations :simple}}]}
                            ; switch to :advanced for production
-
-  :cljx {:builds 
-         [ ;clj
-          {:source-paths ["src/cljx"]
-           :output-path ".generated/clj"
-           :rules cljx.rules/clj-rules}
-           ;cljs
-          {:source-paths ["src/cljx"]
-           ;careful! cannot give cljx and cljs files conflicting names
-           :output-path "src/cljs"
-           :extension "cljs"
-           :include-meta true
-           :rules cljx.rules/cljs-rules}]}
 
   :datomic {:schemas ["conf" ["schema.dtm"]]}
 

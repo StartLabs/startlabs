@@ -1,8 +1,7 @@
 (ns startlabs.jobs
   (:use [jayq.core :only [$]]
-        [jayq.util :only [clj->js]]
         [dommy.template :only [node]]
-        [startlabs.views.jobx :only [job-list job-card markdownify]])
+        [startlabs.views.job-list :only [job-list job-card markdownify]])
 
   (:require [cljs.reader :as reader]
             [clojure.string :as str]
@@ -53,12 +52,12 @@
       (let [coords (.-location (.-geometry (nth result 0)))]
         (success-fn coords)))))
 
-(def map-options (clj->js {:center (google.maps.LatLng. 30 0)
-                           :zoom 2
-                           :mapTypeId google.maps.MapTypeId.ROADMAP}))
-
 (defn lat-lng [lat lng]
   (google.maps.LatLng. (js/parseFloat lat) (js/parseFloat lng)))
+
+(def map-options (clj->js {:center (lat-lng 30 0)
+                           :zoom 2
+                           :mapTypeId google.maps.MapTypeId.ROADMAP}))
 
 (def mit (lat-lng 42.358449 -71.09122))
 

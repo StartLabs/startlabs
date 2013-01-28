@@ -1,19 +1,22 @@
-^:clj (ns startlabs.views.jobx
-        (:use [noir.validation :only [is-email?]]
-              [markdown.core :only [md-to-html-string]]))
+^{:cljs
+  '(ns startlabs.views.job-list)}
 
-^:cljs (ns startlabs.views.jobx)
+(ns startlabs.views.job-list
+  (:use [noir.validation :only [is-email?]]
+        [markdown.core :only [md-to-html-string]]))
 
 ; this is taken straight from lib-noir.validation
-^:cljs  (defn is-email? [v]
-          (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v))
+#_(:cljs 
+   (defn is-email? [v]
+     (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v)))
 
-^:clj  (def markdownify md-to-html-string)
-^:cljs (def converter (Markdown/getSanitizingConverter.))
-^:cljs (defn markdownify [text] (.makeHtml converter text))
+(def ^:clj markdownify md-to-html-string)
+#_(:cljs (def converter (Markdown/getSanitizingConverter.)))
+#_(:cljs (defn markdownify [text] (.makeHtml converter text)))
 
 (defn is-phone? 
-  "Naive, really just checks that the characters are only numbers, digits, dashes, parens, or dots."
+  "Naive, really just checks that the characters are only 
+   numbers, digits, dashes, parens, or dots."
   [v]
   (re-matches #"^[\d-\.\(\)\s]{7,15}$" v))
 

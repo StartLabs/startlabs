@@ -23,7 +23,7 @@
         [environ.core :only [env]]
         [hiccup.core :only [html]]
         [hiccup.def :only [defhtml]]
-        [startlabs.views.jobx :only [job-card job-list]])
+        [startlabs.views.job-list :only [job-card job-list]])
 
   (:import java.net.URI))
 
