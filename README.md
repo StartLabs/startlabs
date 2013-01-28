@@ -74,12 +74,15 @@ sudo nginx -c /The/full/path/to/conf/startlabs.conf
 ```
 
 ##Production Mode Differences##
-Currently, whenever you edit a .clj file, you need to recompile by restarting the server.
-Use `screen -R` then press tab to load up the current screen instance.
-Use `ctrl+a n` to cycle through screens.
-Find the screen corresponding the server. Kill it with `ctrl+c`.
-Then type `supervise startlabs` to recompile the server and get it running once more.
-This is a poor, temporary solution. Still trying to devise a better setup.
+On the production server, auto-reloading of modified .clj files is disabled.
+So, after pulling changes, you'll need to start up a new instance of the 
+server on a different port, and then kill the old server.
+
+Use `screen -ls` to determine the name of the currently running screen instance. Then do `screen -R the-screen-instance-name` to load up the current screen instance.
+
+Use `ctrl+a n` to cycle through screens. Find a screen with no active process, and do `lein ring server-headless 8000`, or do port 8001 if 8000 is already in use. Once you've verified that the new server is running, feel free to cycle to the old server and kill it with  `ctrl+c`.
+
+Although this setup avoids any downtime, it could certainly be automated. Still trying to devise a better system. May eventually transition to something along the lines of Elastic Beanstalk.
 
 ##Epilogue
 
