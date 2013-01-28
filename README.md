@@ -45,13 +45,12 @@ the one specified on `project.clj` (0.8.3692 as of writing this):
 ##Tweaking The Site
 
 If you want to start modifying the guts of the application, the main place to look is `src`.
-We use [cljx](https://github.com/lynaghk/cljx), 
-an intermediate format, for code that we want to run both client and server-side.
-Whenever you modify a .cljx file, make sure to run `lein cljx` to recompile things.
+We use [lein-dalap](http://birdseyesoftware.github.com/lein-dalap.docs/), 
+in order to share code between the client and server. To see a list of all `.clj` files that are converted with lein-dalap, check out `dalap_rules.clj` in the project root.
 
 If you're editing the ClojureScript files (in `src/cljs`), run 
 [cljsbuild](https://github.com/emezeske/lein-cljsbuild) to automatically
-compile them into JavaScript: `lein cljsbuild auto`
+compile them into JavaScript: `lein cljsbuild auto`.
 
 Stylesheets are preprocessed with less.js. Less was chosen for compatability with Twitter Bootstrap. We're using a forked version of Bootstrap, and the primary stylesheet specific to StartLabs is located at `bootstrap/less/startlabs.less`. Again, make sure to do `git submodule update --init --recursive;` if you don't see the `bootstrap` folder in this directory's root.
 
