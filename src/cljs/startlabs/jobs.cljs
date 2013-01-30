@@ -95,8 +95,7 @@
     (jq/ajax (str "/jobs.edn?" params)
              {:contentType :text/edn
               :success (fn [data status xhr]
-                         (let [data     (reader/read-string data)
-                               new-list (job-list data)]
+                         (let [new-list (job-list data)]
                            (reset! filtered-jobs (:jobs data))
                            (.remove $job-list)
                            (.html parent (node new-list))
@@ -283,8 +282,7 @@
           (jq/ajax url
                    {:contentType :text/edn
                     :success (fn [data status xhr]
-                               (let [data (reader/read-string data)]
-                                 (reset-analytics! data)))
+                               (reset-analytics! data))
                     :complete check-for-failure})))))
 
   (add-watch analytics-data :redraw-analytics

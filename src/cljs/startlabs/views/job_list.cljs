@@ -1,6 +1,6 @@
 ;; This file was generated with lein-dalap from
 ;;
-;; src/clj/startlabs/views/job_list.clj @ Mon Jan 28 18:19:24 EST 2013
+;; src/clj/startlabs/views/job_list.clj @ Wed Jan 30 01:36:52 EST 2013
 ;;
 (ns startlabs.views.job-list)
 (do (defn is-email? [v] (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v)))

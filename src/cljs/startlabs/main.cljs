@@ -7,7 +7,6 @@
         [startlabs.visitors :only [setup-visitors]])
 
   (:require [jayq.core :as jq]
-            [jayq.util :as util]
             [startlabs.util :as u])
   
   (:require-macros [jayq.macros :as jm]))
@@ -38,9 +37,9 @@
            (fn [e]
              (.preventDefault e)
              (.pick js/filepicker 
-                    (util/clj->js {:mimetypes "image/*"})
-                    (fn [url metadata]
-                      (jq/attr ($ "#picture") "value" url)
+                    (clj->js {:mimetypes "image/*"})
+                    (fn [fp-file]
+                      (jq/attr ($ "#picture") "value" (.-url fp-file))
                       (swap-picture-preview)))))
 
     ; picture and bio live previews

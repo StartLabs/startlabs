@@ -358,6 +358,13 @@ goog.base = function(a, b, c) {
 goog.scope = function(a) {
   a.call(goog.global)
 };
+goog.debug = {};
+goog.debug.Error = function(a) {
+  Error.captureStackTrace ? Error.captureStackTrace(this, goog.debug.Error) : this.stack = Error().stack || "";
+  a && (this.message = String(a))
+};
+goog.inherits(goog.debug.Error, Error);
+goog.debug.Error.prototype.name = "CustomError";
 goog.string = {};
 goog.string.Unicode = {NBSP:"\u00a0"};
 goog.string.startsWith = function(a, b) {
@@ -687,13 +694,6 @@ goog.string.parseInt = function(a) {
   isFinite(a) && (a = String(a));
   return goog.isString(a) ? /^\s*-?0x/i.test(a) ? parseInt(a, 16) : parseInt(a, 10) : NaN
 };
-goog.debug = {};
-goog.debug.Error = function(a) {
-  Error.captureStackTrace ? Error.captureStackTrace(this, goog.debug.Error) : this.stack = Error().stack || "";
-  a && (this.message = String(a))
-};
-goog.inherits(goog.debug.Error, Error);
-goog.debug.Error.prototype.name = "CustomError";
 goog.asserts = {};
 goog.asserts.ENABLE_ASSERTS = goog.DEBUG;
 goog.asserts.AssertionError = function(a, b) {
@@ -14319,74 +14319,6 @@ jayq.util.log = function() {
 }();
 goog.crypt.Hash = function() {
 };
-goog.crypt.Sha1 = function() {
-  goog.crypt.Hash.call(this);
-  this.chain_ = [];
-  this.buf_ = [];
-  this.W_ = [];
-  this.pad_ = [];
-  this.pad_[0] = 128;
-  for(var a = 1;64 > a;++a) {
-    this.pad_[a] = 0
-  }
-  this.reset()
-};
-goog.inherits(goog.crypt.Sha1, goog.crypt.Hash);
-goog.crypt.Sha1.prototype.reset = function() {
-  this.chain_[0] = 1732584193;
-  this.chain_[1] = 4023233417;
-  this.chain_[2] = 2562383102;
-  this.chain_[3] = 271733878;
-  this.chain_[4] = 3285377520;
-  this.total_ = this.inbuf_ = 0
-};
-goog.crypt.Sha1.prototype.compress_ = function(a, b) {
-  b || (b = 0);
-  for(var c = this.W_, d = b;d < b + 64;d += 4) {
-    c[d / 4] = a[d] << 24 | a[d + 1] << 16 | a[d + 2] << 8 | a[d + 3]
-  }
-  for(d = 16;80 > d;d++) {
-    var e = c[d - 3] ^ c[d - 8] ^ c[d - 14] ^ c[d - 16];
-    c[d] = (e << 1 | e >>> 31) & 4294967295
-  }
-  for(var f = this.chain_[0], g = this.chain_[1], h = this.chain_[2], i = this.chain_[3], j = this.chain_[4], k, d = 0;80 > d;d++) {
-    40 > d ? 20 > d ? (e = i ^ g & (h ^ i), k = 1518500249) : (e = g ^ h ^ i, k = 1859775393) : 60 > d ? (e = g & h | i & (g | h), k = 2400959708) : (e = g ^ h ^ i, k = 3395469782), e = (f << 5 | f >>> 27) + e + j + k + c[d] & 4294967295, j = i, i = h, h = (g << 30 | g >>> 2) & 4294967295, g = f, f = e
-  }
-  this.chain_[0] = this.chain_[0] + f & 4294967295;
-  this.chain_[1] = this.chain_[1] + g & 4294967295;
-  this.chain_[2] = this.chain_[2] + h & 4294967295;
-  this.chain_[3] = this.chain_[3] + i & 4294967295;
-  this.chain_[4] = this.chain_[4] + j & 4294967295
-};
-goog.crypt.Sha1.prototype.update = function(a, b) {
-  goog.isDef(b) || (b = a.length);
-  var c = this.buf_, d = this.inbuf_, e = 0;
-  if(goog.isString(a)) {
-    for(;e < b;) {
-      c[d++] = a.charCodeAt(e++), 64 == d && (this.compress_(c), d = 0)
-    }
-  }else {
-    for(;e < b;) {
-      c[d++] = a[e++], 64 == d && (this.compress_(c), d = 0)
-    }
-  }
-  this.inbuf_ = d;
-  this.total_ += b
-};
-goog.crypt.Sha1.prototype.digest = function() {
-  var a = [], b = 8 * this.total_;
-  56 > this.inbuf_ ? this.update(this.pad_, 56 - this.inbuf_) : this.update(this.pad_, 64 - (this.inbuf_ - 56));
-  for(var c = 63;56 <= c;c--) {
-    this.buf_[c] = b & 255, b /= 256
-  }
-  this.compress_(this.buf_);
-  for(c = b = 0;5 > c;c++) {
-    for(var d = 24;0 <= d;d -= 8) {
-      a[b++] = this.chain_[c] >> d & 255
-    }
-  }
-  return a
-};
 goog.crypt.Md5 = function() {
   goog.crypt.Hash.call(this);
   this.chain_ = Array(4);
@@ -14475,6 +14407,74 @@ goog.crypt.Md5.prototype.digest = function() {
   for(b = c = 0;4 > b;++b) {
     for(var d = 0;32 > d;d += 8) {
       a[c++] = this.chain_[b] >>> d & 255
+    }
+  }
+  return a
+};
+goog.crypt.Sha1 = function() {
+  goog.crypt.Hash.call(this);
+  this.chain_ = [];
+  this.buf_ = [];
+  this.W_ = [];
+  this.pad_ = [];
+  this.pad_[0] = 128;
+  for(var a = 1;64 > a;++a) {
+    this.pad_[a] = 0
+  }
+  this.reset()
+};
+goog.inherits(goog.crypt.Sha1, goog.crypt.Hash);
+goog.crypt.Sha1.prototype.reset = function() {
+  this.chain_[0] = 1732584193;
+  this.chain_[1] = 4023233417;
+  this.chain_[2] = 2562383102;
+  this.chain_[3] = 271733878;
+  this.chain_[4] = 3285377520;
+  this.total_ = this.inbuf_ = 0
+};
+goog.crypt.Sha1.prototype.compress_ = function(a, b) {
+  b || (b = 0);
+  for(var c = this.W_, d = b;d < b + 64;d += 4) {
+    c[d / 4] = a[d] << 24 | a[d + 1] << 16 | a[d + 2] << 8 | a[d + 3]
+  }
+  for(d = 16;80 > d;d++) {
+    var e = c[d - 3] ^ c[d - 8] ^ c[d - 14] ^ c[d - 16];
+    c[d] = (e << 1 | e >>> 31) & 4294967295
+  }
+  for(var f = this.chain_[0], g = this.chain_[1], h = this.chain_[2], i = this.chain_[3], j = this.chain_[4], k, d = 0;80 > d;d++) {
+    40 > d ? 20 > d ? (e = i ^ g & (h ^ i), k = 1518500249) : (e = g ^ h ^ i, k = 1859775393) : 60 > d ? (e = g & h | i & (g | h), k = 2400959708) : (e = g ^ h ^ i, k = 3395469782), e = (f << 5 | f >>> 27) + e + j + k + c[d] & 4294967295, j = i, i = h, h = (g << 30 | g >>> 2) & 4294967295, g = f, f = e
+  }
+  this.chain_[0] = this.chain_[0] + f & 4294967295;
+  this.chain_[1] = this.chain_[1] + g & 4294967295;
+  this.chain_[2] = this.chain_[2] + h & 4294967295;
+  this.chain_[3] = this.chain_[3] + i & 4294967295;
+  this.chain_[4] = this.chain_[4] + j & 4294967295
+};
+goog.crypt.Sha1.prototype.update = function(a, b) {
+  goog.isDef(b) || (b = a.length);
+  var c = this.buf_, d = this.inbuf_, e = 0;
+  if(goog.isString(a)) {
+    for(;e < b;) {
+      c[d++] = a.charCodeAt(e++), 64 == d && (this.compress_(c), d = 0)
+    }
+  }else {
+    for(;e < b;) {
+      c[d++] = a[e++], 64 == d && (this.compress_(c), d = 0)
+    }
+  }
+  this.inbuf_ = d;
+  this.total_ += b
+};
+goog.crypt.Sha1.prototype.digest = function() {
+  var a = [], b = 8 * this.total_;
+  56 > this.inbuf_ ? this.update(this.pad_, 56 - this.inbuf_) : this.update(this.pad_, 64 - (this.inbuf_ - 56));
+  for(var c = 63;56 <= c;c--) {
+    this.buf_[c] = b & 255, b /= 256
+  }
+  this.compress_(this.buf_);
+  for(c = b = 0;5 > c;c++) {
+    for(var d = 24;0 <= d;d -= 8) {
+      a[b++] = this.chain_[c] >> d & 255
     }
   }
   return a
@@ -14823,7 +14823,7 @@ startlabs.jobs.toggle_job_details = function(a) {
 startlabs.jobs.find_jobs = function() {
   var a = jayq.core.$.call(null, "#job-list"), b = a.parent(), c = jQuery.param(cljs.core.clj__GT_js.call(null, cljs.core.deref.call(null, startlabs.jobs.query_map)));
   return jayq.core.ajax.call(null, [cljs.core.str("/jobs.edn?"), cljs.core.str(c)].join(""), cljs.core.ObjMap.fromObject(["\ufdd0'contentType", "\ufdd0'success"], {"\ufdd0'contentType":"\ufdd0'text/edn", "\ufdd0'success":function(c) {
-    var c = cljs.reader.read_string.call(null, c), e = startlabs.views.job_list.job_list.call(null, c);
+    var e = startlabs.views.job_list.job_list.call(null, c);
     cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, (new cljs.core.Keyword("\ufdd0'jobs")).call(null, c));
     a.remove();
     b.html(dommy.template.node.call(null, e));
@@ -14985,7 +14985,6 @@ startlabs.jobs.setup_job_analytics = function() {
   jayq.core.on.call(null, jayq.core.$.call(null, "#analytics"), "\ufdd0'changeDate", "#a-start-date, #a-end-date", function() {
     var a = jayq.core.$.call(null, this).parents("form"), c = a.attr("action"), a = [cljs.core.str(c), cljs.core.str("?"), cljs.core.str(a.serialize())].join("");
     return jayq.core.ajax.call(null, a, cljs.core.ObjMap.fromObject(["\ufdd0'contentType", "\ufdd0'success", "\ufdd0'complete"], {"\ufdd0'contentType":"\ufdd0'text/edn", "\ufdd0'success":function(a) {
-      a = cljs.reader.read_string.call(null, a);
       return startlabs.jobs.reset_analytics_BANG_.call(null, a)
     }, "\ufdd0'complete":startlabs.jobs.check_for_failure}))
   });
@@ -15085,8 +15084,8 @@ startlabs.main.setup_me = function() {
   filepicker.setKey("AuL8SYGe7TXG-aEqBK1S1z");
   jayq.core.on.call(null, a, "\ufdd0'click", "#new-picture", function(a) {
     a.preventDefault();
-    return filepicker.pick(jayq.util.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'mimetypes"], {"\ufdd0'mimetypes":"image/*"})), function(a) {
-      jayq.core.attr.call(null, jayq.core.$.call(null, "#picture"), "value", a);
+    return filepicker.pick(cljs.core.clj__GT_js.call(null, cljs.core.ObjMap.fromObject(["\ufdd0'mimetypes"], {"\ufdd0'mimetypes":"image/*"})), function(a) {
+      jayq.core.attr.call(null, jayq.core.$.call(null, "#picture"), "value", a.url);
       return startlabs.main.swap_picture_preview.call(null)
     })
   });
