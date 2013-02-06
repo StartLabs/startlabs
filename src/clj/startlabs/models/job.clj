@@ -1,7 +1,7 @@
 (ns startlabs.models.job
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [*conn*]]
-        [startlabs.util :only [stringify-values uuid after-now?]])
+        [startlabs.util :only [stringify-values uuid after-now? now-date]])
   (:require [clojure.string :as str]
             [clj-http.client :as client]
             [clj-time.coerce :as tc]
@@ -31,21 +31,24 @@
   (let [original-map (util/map-for-datom (job-with-id job-id) :job)]
     (stringify-values original-map)))
 
-(defn update-job-field [job-id field value & [err-msg]]
+(defn update-job-fields [job-id field-map & [err-msg]]
   (try
     (let [job       (job-with-id job-id)
-          field-map {:db/id job field value}]
+          field-map (assoc field-map :db/id job)]
       @(d/transact *conn* (list field-map))
-      value)
+      ;; return true to indicate success
+      true)
     (catch Exception e
       (session/flash-put! :message [:error 
         (if err-msg
           (str err-msg ": " e)
-          (str "Trouble updating " (name field) ": " e))])
+          ;; no default error message provided
+          (str "Trouble updating " 
+               (str/join ", " (apply name (keys field-map))) ": " e))])
       false)))
 
 (defn update-job
-  "Expects new-fact-map to *not* already be namespaced with user/"
+  "Expects new-fact-map to *not* already be namespaced with job/"
   [job-id new-fact-map]
   (try
     (let [job           (job-with-id job-id)
@@ -61,10 +64,13 @@
       false)))
 
 (defn confirm-job [job-id]
-  (update-job-field job-id :job/confirmed? true "Trouble confirming job"))
+  (update-job-fields job-id {:job/confirmed? true
+                             :job/post-date (now-date)}
+                     "Trouble confirming job"))
 
 (defn remove-job [job-id]
-  (update-job-field job-id :job/removed? true "Trouble deleting job"))
+  (update-job-fields job-id {:job/removed? true}
+                     "Trouble deleting job"))
 
 ;; HERE BE DRAGONS.
 (defn upcoming-jobs-q [{:keys [show-internships show-fulltime
@@ -105,9 +111,31 @@
         job-maps  (util/maps-for-datoms job-ids :job)
         ;; make sure to remove the secret!
         safe-maps (map #(dissoc % :secret) job-maps)]
-
     (map stringify-values safe-maps)))
 
+;; unfortunately, cannot do negations currently in datomic where clauses,
+;; so we must specify not removed here.
+(defn get-all-jobs [sort-field filters]
+  (sort-by (keyword sort-field)
+           (filter #(not= (:removed? %) "true")
+                   (find-upcoming-jobs filters))))
+
+;; COMMENT THIS IN PRODUCTION
+(comment
+  (defn get-all-jobs [sort-field filters]
+    (map u/stringify-values
+         (sort-by (keyword sort-field)
+                  (repeatedly 100 #(u/fake-job))))))
+
+(defn filtered-jobs [query sort-field filters]
+  (let [all-jobs (get-all-jobs sort-field filters)]
+    (if (empty? query)
+      all-jobs
+      ;; search
+      (filter (fn [job]
+        (some #(re-find (re-pattern (str "(?i)" query)) %) 
+              (map job [:position :company :location])))
+        all-jobs))))
 
 ;; whitelist
 

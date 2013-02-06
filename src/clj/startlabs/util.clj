@@ -26,6 +26,9 @@
 (defn unparse-date [the-date]
   (tf/unparse default-date-formatter the-date))
 
+(defn now-date []
+  (to-date (t/now)))
+
 (defn after-now?
   "Determines if the provided date is in the future."
   [date]

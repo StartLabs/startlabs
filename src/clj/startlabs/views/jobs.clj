@@ -182,31 +182,6 @@
     (session/session-put! :filters parsed-filters)
     params))
 
-;; add arguments for sort and entries-per-page and current page...
-;; unfortunately, cannot do negations currently in datomic where clauses,
-;; so we must specify not removed here.
-(defn get-all-jobs [sort-field filters]
-  (sort-by sort-field
-           (filter #(not= (:removed? %) "true")
-                   (job/find-upcoming-jobs filters))))
-
-;; COMMENT THIS IN PRODUCTION
-(comment
-  (defn get-all-jobs [sort-field filters]
-    (map u/stringify-values
-         (sort-by sort-field
-                  (repeatedly 100 #(u/fake-job))))))
-
-(defn filter-jobs [query filters]
-  (let [sort-field (keyword (session/session-get :sort-field))
-        all-jobs   (get-all-jobs sort-field filters)]
-    (if (empty? query)
-      all-jobs
-      (filter (fn [job]
-        (some #(re-find (re-pattern (str "(?i)" query)) %) 
-              (map job [:position :company :location])))
-        all-jobs))))
-
 (defn jobs-on-page [jobs page page-size]
   (take page-size (drop (* (dec page) page-size) jobs)))
 
@@ -262,6 +237,11 @@
      [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
      [:button.btn.btn-primary "Save Changes"]]]])
 
+(def sort-field-choices 
+  [:post-date :company :company-size 
+   :start-date :end-date
+   :longitude :latitude])
+
 ;; job filters should be specifiable as query
 ;; params too. Otherwise you can't, say, send a friend
 ;; a link of the filtered listing, which is a shame.
@@ -293,8 +273,7 @@
             [:i.icon-list] "Sort" [:b.caret]]
            [:ul#sort.dropdown-menu
             {:role "menu" :arial-labelledby "sort-toggle"}
-            (for [field [:company :company-size :start-date :end-date 
-                         :longitude :latitude]]
+            (for [field sort-field-choices]
               [:li {:class (if (= (keyword sort-field) field) "active")}
                [:a {:href "#" :data-field (name field)}
                 (u/phrasify field)]])]]
@@ -318,23 +297,30 @@
     (Integer. n)
     fallback))
 
-;; returns a hash-map containing a list of jobs
+(defn get-sort-field [sort-field]
+  (or
+   sort-field
+   (session/session-get :sort-field)
+   ;; default to post date
+   :post-date))
+
+;; returns a hash-map containing a list of jobs for the current page
 ;; filtered and sorted based on the inputs
 (defn jobs-map
   [{:keys [q page page-size sort-field] 
     :or {q          "" 
          page       1 
-         page-size  20 
-         sort-field (or (session/session-get :sort-field)
-                        "company")}}]
+         page-size  20
+         sort-field (get-sort-field nil)}}]
   (session/session-put! :sort-field sort-field)
   (let [page         (intify page 1)
         page-size    (intify page-size 20)
         filters      (session/session-get :filters)
-        jobs         (filter-jobs q filters)
+        jobs         (job/filtered-jobs q sort-field filters)
         page-jobs    (jobs-on-page jobs page page-size)
         page-count   (ceil (/ (count jobs) page-size))
         editable?    (user/logged-in?)]
+
     {:jobs page-jobs 
      :q q
      :page page
@@ -369,9 +355,10 @@
          :href "/job/new"} "Submit a Job"]])
 
 ;; [:get /jobs]
-(defn get-jobs [{:keys [q] :as params}]
-  (let [page-jobs (jobs-map params)
-        sort-field (session/session-get :sort-field)]
+(defn get-jobs [{:keys [q sort-field] :as params}]
+  (let [page-jobs  (jobs-map params)
+        sort-field (or sort-field
+                       (session/session-get :sort-field))]
     (common/layout
      (nav-buttons :jobs)
      [:div (browse-jobs q sort-field page-jobs)])))
@@ -546,7 +533,7 @@
        ;; here we find the existing secret or create a new one
        (let [map-secret (:secret job-map)
              secret     (if (empty? map-secret) 
-                          (job/update-job-field id :job/secret (u/uuid))
+                          (job/update-job-fields id {:job/secret (u/uuid)})
                           map-secret)
              secret-map (assoc job-map :secret secret)]
          (send-edit-email secret-map)

@@ -257,6 +257,13 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
+  :db/ident :job/post-date,
+  :db/valueType :db.type/instant,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "The date that the job was posted (and confirmed)",
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db],
   :db/ident :job/removed?,
   :db/valueType :db.type/boolean,
   :db/cardinality :db.cardinality/one,
