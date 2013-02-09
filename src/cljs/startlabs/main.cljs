@@ -61,7 +61,7 @@
            (fn [e]
              (this-as this
                       (let [new-text (.val ($ this))]
-                        (.html ($ "#event-info") 
+                        (.html ($ "#event-info")
                                (markdownify new-text))))))))
 
 (defn main []

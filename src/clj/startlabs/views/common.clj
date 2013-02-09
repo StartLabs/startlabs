@@ -36,14 +36,14 @@
     [:li.dropdown.pull-right
       [:a.dropdown-toggle {:data-toggle "dropdown" :href "#"}
         (:name info)
-        [:b.caret]
-      ]
+        [:b.caret]]
+
       [:ul.dropdown-menu
         [:li [:a {:href (str "/team/" (user/username info))} "My Info"]]
         [:li [:a {:href "/me"} "Edit Profile"]]
         [:li.divider]
-        [:li [:a {:href "/logout"} "Logout"]]
-       ]]
+        [:li [:a {:href "/logout"} "Logout"]]]]
+
     [:li.pull-right [:a {:href "/login"} "Login &rsaquo;"]]))
 
 (defhtml webmaster-link [text]

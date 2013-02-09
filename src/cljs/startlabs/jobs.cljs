@@ -88,10 +88,14 @@
              (-> $this (.find ".more") .toggle)
              (-> $this (.find ".read") .toggle))))
 
+(defn drop-nil-pairs [m]
+  (into {} (filter second m)))
+
 (defn find-jobs []
   (let [$job-list ($ "#job-list")
         parent    (.parent $job-list)
-        params    (js/jQuery.param (clj->js @query-map))]
+        params    (js/jQuery.param
+                   (clj->js (drop-nil-pairs @query-map)))]
     (jq/ajax (str "/jobs.edn?" params)
              {:contentType :text/edn
               :success (fn [data status xhr]
@@ -207,7 +211,7 @@
                                                (u/log (str "Error: " status))))
                                   :type "POST"}))))))
 
-  (jq/on ($ "#sort") :click "a" 
+  (jq/on ($ "#sort") :click "li a"
          (fn [e]
            (.preventDefault e)
            (.removeClass ($ "#sort li") "active")
@@ -216,6 +220,18 @@
                           field (.data $this "field")]
                       (.addClass (.parent $this "li") "active")
                       (swap! query-map assoc :sort-field field)))))
+
+  (jq/on ($ "#sort-order") :click 
+         (fn [e]
+           (this-as this
+                    (let [$this         ($ this)
+                          current-order (.data $this "order")
+                          new-order     (mod (inc current-order) 2)]
+                      (.preventDefault e)
+                      (.data $this "order" new-order)
+                      (-> (.children $this "span")
+                          (.toggleClass "hidden"))
+                      (swap! query-map assoc :sort-order new-order)))))
 
   (reset! filtered-jobs job-data))
 

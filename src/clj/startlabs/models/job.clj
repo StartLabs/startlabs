@@ -106,29 +106,36 @@
   "returns all confirmed, non-removed jobs whose start dates 
    are after a certain date"
   [filters]
+  {:post [(nil? (:secret (first %)))]}
   (let [jobs      (q (upcoming-jobs-q filters) (db *conn*))
         job-ids   (map first jobs)
         job-maps  (util/maps-for-datoms job-ids :job)
         ;; make sure to remove the secret!
         safe-maps (map #(dissoc % :secret) job-maps)]
-    (map stringify-values safe-maps)))
+    safe-maps))
 
 ;; unfortunately, cannot do negations currently in datomic where clauses,
 ;; so we must specify not removed here.
-(defn get-all-jobs [sort-field filters]
-  (sort-by (keyword sort-field)
-           (filter #(not= (:removed? %) "true")
-                   (find-upcoming-jobs filters))))
+(def sort-order-fn {0 #(compare %1 %2)
+                    1 #(compare %2 %1)})
+
+(defn get-all-jobs [sort-field sort-order filters]
+  (map stringify-values
+       (sort-by (keyword sort-field)
+                (sort-order-fn sort-order)
+                (filter #(not= (:removed? %) "true")
+                        (find-upcoming-jobs filters)))))
 
 ;; COMMENT THIS IN PRODUCTION
 (comment
-  (defn get-all-jobs [sort-field filters]
-    (map u/stringify-values
+  (defn get-all-jobs [sort-field sort-order filters]
+    (map stringify-values
          (sort-by (keyword sort-field)
+                  (sort-order-fn sort-order)
                   (repeatedly 100 #(u/fake-job))))))
 
-(defn filtered-jobs [query sort-field filters]
-  (let [all-jobs (get-all-jobs sort-field filters)]
+(defn filtered-jobs [query sort-field sort-order filters]
+  (let [all-jobs (get-all-jobs sort-field sort-order filters)]
     (if (empty? query)
       all-jobs
       ;; search

@@ -4,6 +4,7 @@
    [compojure.route :as route]
    [clojure.string :as str]
    [noir.response :as response]
+   [org.httpkit.server :as http]
    [ring.middleware.reload :as reload]
 
    [startlabs.models.user :as user]
@@ -125,13 +126,14 @@
       uri-middleware))
 
 ;; For interactive development, evaluate these:
-;; 1. Initialize the database
-;; (init)
-;; 2. Run the server
-;; (use 'ring.adapter.jetty)
-;; (def app (reload/wrap-reload app))
-;; (defonce server (run-jetty #'app {:port 8000 :join? false}))
+(comment
+  (do
+    ;; 1. Initialize the database
+    (init)
+    ;; 2. Run the server
+    (def app (reload/wrap-reload app))
+    (defonce server (http/run-server #'app {:port 8000})))
+)
 
 ;; To stop the server, just do:
-;; (.stop server)
-;; (.start server)
+;; (server)

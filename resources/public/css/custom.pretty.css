@@ -6943,3 +6943,8 @@ input.round-right {
 .job-info .meta > div {
     margin-left: 0px;
 }
+
+.asc-desc {
+    display: block;
+    margin: 8px auto;
+}

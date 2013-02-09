@@ -246,7 +246,8 @@
 ;; params too. Otherwise you can't, say, send a friend
 ;; a link of the filtered listing, which is a shame.
 (defhtml browse-jobs [q sort-field page-jobs]
-  (let [filters (session/session-get :filters)]
+  (let [filters    (session/session-get :filters)
+        sort-order (or (session/session-get :sort-order) 1)]
     [:div#browse
      ;; sort by date and location.
      ;; search descriptions and company names
@@ -265,14 +266,22 @@
         [:div.nav-collapse.collapse
          [:ul.nav.pull-right
           [:li [:a#filter-toggle {:href "#filter" :data-toggle "modal"} 
-                [:i.icon-filter] "Filter"]]
+                [:i.icopn-filter] "Filter"]]
 
           [:li.dropdown
            [:a#sort-toggle.dropdown-toggle
-            {:href "#" :data-toggle "dropdown"} 
+            {:href "#" :data-toggle "dropdown"}
             [:i.icon-list] "Sort" [:b.caret]]
            [:ul#sort.dropdown-menu
             {:role "menu" :arial-labelledby "sort-toggle"}
+
+            [:li [:button#sort-order.asc-desc.btn.btn-primary
+                  {:type "button" :data-order sort-order}
+                  [:span {:class (if (= sort-order 1) "hidden")}
+                   "Ascending"]
+                  [:span {:class (if (= sort-order 0) "hidden")}
+                   "Descending"]]]
+
             (for [field sort-field-choices]
               [:li {:class (if (= (keyword sort-field) field) "active")}
                [:a {:href "#" :data-field (name field)}
@@ -307,16 +316,21 @@
 ;; returns a hash-map containing a list of jobs for the current page
 ;; filtered and sorted based on the inputs
 (defn jobs-map
-  [{:keys [q page page-size sort-field] 
+  [{:keys [q page page-size sort-field sort-order]
     :or {q          "" 
          page       1 
          page-size  20
-         sort-field (get-sort-field nil)}}]
+         sort-field (get-sort-field nil)
+         sort-order 1}}]
+
   (session/session-put! :sort-field sort-field)
+  (session/session-put! :sort-order sort-order)
+
   (let [page         (intify page 1)
         page-size    (intify page-size 20)
+        sort-order   (intify sort-order 1)
         filters      (session/session-get :filters)
-        jobs         (job/filtered-jobs q sort-field filters)
+        jobs         (job/filtered-jobs q sort-field sort-order filters)
         page-jobs    (jobs-on-page jobs page page-size)
         page-count   (ceil (/ (count jobs) page-size))
         editable?    (user/logged-in?)]
@@ -663,7 +677,8 @@
             (response/redirect "/jobs"))
             ; else
           (flash-error-and-render
-           "Unable to update job. Sorry for the inconvenience." id fixed-params))
+           "Unable to update job. Sorry for the inconvenience." 
+           id fixed-params))
 
         ; invalid job, flash an error message, return to edit page
         (flash-error-and-render job-error id fixed-params))
@@ -689,7 +704,8 @@
      [:div
       [:h1 "Thanks for Confirming"]
       [:p "Your listing should now be posted."]
-      [:p "Check it out " [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
+      [:p "Check it out "
+       [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
      ;; else
      (unexpected-error))))
 
@@ -715,8 +731,7 @@
         [:input.btn.btn-primary.span3 {:type "submit"}]]
 
        [:div.span5
-        [:input.btn.btn-primary.span3 {:type "submit"}]]]
-      ])))
+        [:input.btn.btn-primary.span3 {:type "submit"}]]]])))
 
 ;; [:post "/whitelist"]
 (defn post-whitelist [the-list]

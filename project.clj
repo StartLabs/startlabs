@@ -16,7 +16,7 @@
                  [org.clojure/math.numeric-tower "0.0.2"]
                  
                  ;clj other
-                 [aleph "0.3.0-beta7"]
+                 [http-kit "2.0.0-RC2"]
                  [cheshire "5.0.1"]
                  [climp "0.1.2"
                   :exclusions [cheshire]]

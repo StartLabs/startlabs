@@ -14820,8 +14820,11 @@ startlabs.jobs.toggle_job_details = function(a) {
   a.find(".more").toggle();
   return a.find(".read").toggle()
 };
+startlabs.jobs.drop_nil_pairs = function(a) {
+  return cljs.core.into.call(null, cljs.core.ObjMap.EMPTY, cljs.core.filter.call(null, cljs.core.second, a))
+};
 startlabs.jobs.find_jobs = function() {
-  var a = jayq.core.$.call(null, "#job-list"), b = a.parent(), c = jQuery.param(cljs.core.clj__GT_js.call(null, cljs.core.deref.call(null, startlabs.jobs.query_map)));
+  var a = jayq.core.$.call(null, "#job-list"), b = a.parent(), c = jQuery.param(cljs.core.clj__GT_js.call(null, startlabs.jobs.drop_nil_pairs.call(null, cljs.core.deref.call(null, startlabs.jobs.query_map))));
   return jayq.core.ajax.call(null, [cljs.core.str("/jobs.edn?"), cljs.core.str(c)].join(""), cljs.core.ObjMap.fromObject(["\ufdd0'contentType", "\ufdd0'success"], {"\ufdd0'contentType":"\ufdd0'text/edn", "\ufdd0'success":function(c) {
     var e = startlabs.views.job_list.job_list.call(null, c);
     cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, (new cljs.core.Keyword("\ufdd0'jobs")).call(null, c));
@@ -14917,12 +14920,19 @@ startlabs.jobs.setup_jobs_list = function() {
       return cljs.core._EQ_.call(null, b, "success") ? startlabs.jobs.find_jobs.call(null) : startlabs.util.log.call(null, [cljs.core.str("Error: "), cljs.core.str(b)].join(""))
     }, "\ufdd0'type":"POST"}))
   });
-  jayq.core.on.call(null, jayq.core.$.call(null, "#sort"), "\ufdd0'click", "a", function(a) {
+  jayq.core.on.call(null, jayq.core.$.call(null, "#sort"), "\ufdd0'click", "li a", function(a) {
     a.preventDefault();
     jayq.core.$.call(null, "#sort li").removeClass("active");
     var a = jayq.core.$.call(null, this), b = a.data("field");
     a.parent("li").addClass("active");
     return cljs.core.swap_BANG_.call(null, startlabs.jobs.query_map, cljs.core.assoc, "\ufdd0'sort-field", b)
+  });
+  jayq.core.on.call(null, jayq.core.$.call(null, "#sort-order"), "\ufdd0'click", function(a) {
+    var b = jayq.core.$.call(null, this), e = b.data("order"), e = cljs.core.mod.call(null, e + 1, 2);
+    a.preventDefault();
+    b.data("order", e);
+    b.children("span").toggleClass("hidden");
+    return cljs.core.swap_BANG_.call(null, startlabs.jobs.query_map, cljs.core.assoc, "\ufdd0'sort-order", e)
   });
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };
