@@ -1,6 +1,6 @@
 [submodule "bootstrap"]
 	path = bootstrap
-	url = https://github.com/sherbondy/bootstrap.git
+	url = https://github.com/StartLabs/bootstrap.git
 [submodule "resources/pagedown"]
 	path = resources/pagedown
 	url = https://github.com/sherbondy/pagedown.git
