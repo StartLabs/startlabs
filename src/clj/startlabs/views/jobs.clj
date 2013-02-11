@@ -387,9 +387,26 @@
     (catch Exception e
       "")))
 
+(defn abs<=
+  "Verify that (abs num) is <= max"
+  [num-str max]
+  (<= (abs (if (number? num-str)
+               num-str
+               (Double/parseDouble num-str))) max))
+;; (abs<= 60 50) => false
+;; (abs<= "10" 50) => true
+
+(defn whitelist-contains? [whitelist site-host]
+  (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist))
+
+(defn email-domain [email]
+  (second (str/split email #"@")))
+
 (defn valid-job? [job-params]
   (let [site-host (get-hostname (:website job-params))
-        whitelist (second (job/get-whitelist))
+        ;; add startlabs to the whitelist
+        whitelist (str (second (job/get-whitelist)) 
+                       "\n startlabs.org")
         fulltime? (:fulltime? job-params)]
 
     (dorun (map u/empty-rule job-params))
@@ -398,11 +415,13 @@
                [:website "Must be a valid website." site-host])
 
     ; also allow submissions from startlabs members
-    (vali/rule (or (re-matches (re-pattern (str ".*" site-host "$")) (:email job-params))
-                   (re-matches #".*@startlabs.org$" (:email job-params)))
-               [:email "Your email address must match the company website."])
+    (vali/rule (whitelist-contains?
+                whitelist
+                (email-domain (:email job-params)))
+                   
+               [:email "Your email address domain is not on our whitelist."])
 
-    (vali/rule (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist)
+    (vali/rule (whitelist-contains? whitelist site-host)
                [:website "Sorry, your site is not on our whitelist."])
 
     (vali/rule (vali/valid-number? (:company-size job-params))
@@ -413,9 +432,10 @@
                 If not, then who's filling out this form?"])
 
     (try
-      (let [err [:location "The latitude/longitude of the location are invalid."]]
-        (vali/rule (and (<= (abs (Double/parseDouble (:latitude job-params))) 90)
-                        (<= (abs (Double/parseDouble (:longitude job-params))) 180))
+      (let [err [:location 
+                 "The latitude/longitude of the location are invalid."]]
+        (vali/rule (and (abs<= (:latitude job-params) 90)
+                        (abs<= (:longitude job-params) 180))
                    err))
         (catch Exception err))
 
@@ -433,6 +453,7 @@
      [:end-date "The end date must come after the start date."])
 
     (not (apply vali/errors? ordered-job-keys))))
+
 
 (defn fix-job-params [params]
   (let [website    (:website params)
