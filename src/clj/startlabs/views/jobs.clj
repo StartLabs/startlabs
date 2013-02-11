@@ -431,13 +431,14 @@
                [:company-size "Surely you have at least one employee.
                 If not, then who's filling out this form?"])
 
-    (try
       (let [err [:location 
                  "The latitude/longitude of the location are invalid."]]
-        (vali/rule (and (abs<= (:latitude job-params) 90)
-                        (abs<= (:longitude job-params) 180))
-                   err))
-        (catch Exception err))
+        (try
+          (vali/rule (and (abs<= (:latitude job-params) 90)
+                          (abs<= (:longitude job-params) 180))
+                     err)
+          (catch Exception e
+            (vali/rule false err))))
 
     (doseq [date [:start-date :end-date]]
       (vali/rule
