@@ -94,10 +94,12 @@
     (str "http://" url)
     url))
 
-(defn home-uri [] 
-  (if (env :dev)
-    (str "http://localhost:" (or (env :port) "8000"))
-    "http://www.startlabs.org"))
+(defn home-uri [& [route]]
+  (str
+   (if (env :dev)
+     (str "http://localhost:" (or (env :port) "8000"))
+     "http://www.startlabs.org") route))
+;; (home-uri "/jobs")
 
 (defn empty-rule [[k v]]
   (vali/rule 

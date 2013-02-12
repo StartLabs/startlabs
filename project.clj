@@ -23,6 +23,8 @@
                  [clj-aws-s3 "0.3.3"]
                  [clj-http "0.6.3"
                   :exclusions [commons-codec]]
+                 [clj-rss "0.1.2"
+                  :exclusions [org.clojure/clojure]]
                  [clj-time "0.4.4"]
                  [compojure "1.1.5"
                   :exclusions [org.clojure/tools.macro]]

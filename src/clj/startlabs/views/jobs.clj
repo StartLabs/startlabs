@@ -1,7 +1,9 @@
 (ns startlabs.views.jobs
   (:require [clojure.string :as str]
             [cheshire.core :as json]
+            [clj-rss.core :as rss]
             [clj-time.core :as t]
+            [clj-time.coerce :as tc]
             [noir.response :as response]
             [noir.validation :as vali]
             [postal.core :as postal]
@@ -28,10 +30,10 @@
   (:import java.net.URI))
 
 (defn edit-link [job-map]
-  (str (u/home-uri) "/job/" (:id job-map) "?secret=" (:secret job-map)))
+  (u/home-uri (str "/job/" (:id job-map) "?secret=" (:secret job-map))))
 
 (defhtml job-email-body [job-map]
-  (let [conf-link     (str (u/home-uri) "/job/" (:id job-map) "/confirm")
+  (let [conf-link     (u/home-uri (str "/job/" (:id job-map) "/confirm"))
         the-edit-link (edit-link job-map)]
     [:div
       [:p "Hey there,"]
@@ -168,8 +170,7 @@ We prefer candidates who wear green clothing."
        [:div#job-preview
         (job-card (if has-params? params sample-job-fields) false)]
        [:h3.centered "Job Location Preview (Drag Pin to Relocate)"]
-       [:div#job-location]]
-      ]]))
+       [:div#job-location]]]]))
 
 (defn parse-job-filters [filters]
   (apply merge (for [[k v] filters]
@@ -348,11 +349,39 @@ We prefer candidates who wear green clothing."
      :page-count page-count
      :editable? editable?}))
 
-;; add xml eventually, slightly more involved
+(defn job-rss [job-map]
+  (apply rss/channel-xml
+         (cons {:title "StartLabs Jobs List"
+                :link (u/home-uri "/jobs")
+                :description "A continually updated listing of Startup job and internship offerings geared towards MIT students"
+                :language "en-us" :webMaster "ethan@startlabs.org"
+                :image (u/home-uri "/img/logo_small.png")}
+               (for [job (:jobs job-map)]
+                 (let [post-date (tc/to-date 
+                                  (or (u/parse-date (:post-date job))
+                                      ;; random date
+                                      (t/date-time 2013 1 01)))]
+                   {:title       (str (:company job) ": " (:position job))
+                    :description (str
+                                  "*Location:* " (:location job) " \n"
+                                  "*Start Date:* " (:start-date job) " \n\n"
+                                  (:description job))
+                    :author      (:contact-info job)
+                    :category    (if (:fulltime? job)
+                                   "Fulltime" 
+                                   "Internship")
+                    :guid        (:id job)
+                    ;; hack, parsing stingified date. Should really
+                    ;; delay formatting of values to the view rather
+                    ;; than doing it in the model...
+                    :pubDate     post-date})))))
+
+
 (defn job-format-fn [fmt]
   (condp = fmt
     :edn  pr-str
-    :json #(json/generate-string % {:pretty true})))
+    :json #(json/generate-string % {:pretty true})
+    :xml  job-rss))
 
 ;; [:get /jobs.(edn|json|xml)?q=...]
 ;; see jobs-and-list-html for all possible arguments

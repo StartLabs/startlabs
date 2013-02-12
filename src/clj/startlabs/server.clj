@@ -85,7 +85,7 @@
   (GET "/jobs" [& params] (jobs/get-jobs params))
   (POST "/jobs/filters" [& params] (jobs/post-job-filters params))
 
-  (GET ["/jobs.:fmt" :fmt #"(edn|json)"] [fmt & params] 
+  (GET ["/jobs.:fmt" :fmt #"(edn|json|xml)"] [fmt & params] 
        (jobs/job-search (keyword fmt) params))
 
   (GET "/whitelist" [] (jobs/get-whitelist))
