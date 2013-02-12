@@ -58,7 +58,8 @@
              :content (job-email-body job-map)}]}))
 
 (def ordered-job-keys
-  [:company :position :location :website :fulltime? :start-date :end-date 
+  [:company :position :location :website 
+   :fulltime? :start-date :end-date 
    :company-size :description :contact-info :email])
 
 (def hidden-job-keys [:longitude :latitude])
@@ -120,9 +121,10 @@
    :location "Cambridge, Massachusetts"
    :website "http://www.startlabs.org" 
    :start-date "May 30, 2013" :end-date "August 30, 2013"
-   :description "Smart people tackling difficult problems at a great location with *nice perks*.
-\n\nMust have **4+ years** of lab experience.
-\n\nWe prefer candidates who wear green clothing."
+   :description "Smart people tackling difficult problems at a 
+                 great location with *nice perks*.\n\n
+                 Must have **4+ years** of lab experience.\n\n
+                 We prefer candidates who wear green clothing."
    :contact-info "contact@startlabs.org"})
 
 (def job-list-email-body
@@ -263,7 +265,11 @@
          [:input#job-search.search-query
           {:type "text" :placeholder "Search" :name "q" :value q}]]
 
-        [:div.nav-collapse.collapse
+        [:div.btn.btn-navbar {:data-toggle "collapse" 
+                              :data-target "#job-toggles"}
+         (repeat 3 [:span.icon-bar])]
+
+        [:div#job-toggles.nav-collapse.collapse
          [:ul.nav.pull-right
           [:li [:a#filter-toggle {:href "#filter" :data-toggle "modal"} 
                 [:i.icopn-filter] "Filter"]]

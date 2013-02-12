@@ -6948,3 +6948,16 @@ input.round-right {
     display: block;
     margin: 8px auto;
 }
+
+#job-toggles.in {
+        margin-top: 44px;
+}
+
+#job-toggles.in #sort-toggle {
+    display: none;
+}
+
+#job-toggles a:hover, #job-toggles li.active a {
+    color: #fff;
+    text-shadow: 0px 1px 0px #000;
+}
