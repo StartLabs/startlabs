@@ -121,10 +121,11 @@
    :location "Cambridge, Massachusetts"
    :website "http://www.startlabs.org" 
    :start-date "May 30, 2013" :end-date "August 30, 2013"
-   :description "Smart people tackling difficult problems at a 
-                 great location with *nice perks*.\n\n
-                 Must have **4+ years** of lab experience.\n\n
-                 We prefer candidates who wear green clothing."
+   :description "Smart people tackling difficult problems at a great location with *nice perks*.
+
+Must have **4+ years** of lab experience.
+
+We prefer candidates who wear green clothing."
    :contact-info "contact@startlabs.org"})
 
 (def job-list-email-body
