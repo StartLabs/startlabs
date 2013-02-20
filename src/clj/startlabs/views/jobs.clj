@@ -25,6 +25,7 @@
         [environ.core :only [env]]
         [hiccup.core :only [html]]
         [hiccup.def :only [defhtml]]
+        [markdown.core :only [md-to-html-string]]
         [startlabs.views.job-list :only [job-card job-list]])
 
   (:import java.net.URI))
@@ -362,10 +363,13 @@ We prefer candidates who wear green clothing."
                                       ;; random date
                                       (t/date-time 2013 1 01)))]
                    {:title       (str (:company job) ": " (:position job))
-                    :description (str
-                                  "*Location:* " (:location job) " \n"
-                                  "*Start Date:* " (:start-date job) " \n\n"
-                                  (:description job))
+
+                    :description (md-to-html-string 
+                                  (str
+                                   "**Location:** " (:location job) ", "
+                                   "**Start Date:** " (:start-date job) "\n\n"
+                                   (:description job)))
+
                     :author      (:contact-info job)
                     :category    (if (:fulltime? job)
                                    "Fulltime" 

@@ -64,9 +64,18 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();")
 
-(def calendar-rss "http://www.google.com/calendar/feeds/startlabs.org_5peolh5d72ol1r9c7hf624ke9g%40group.calendar.google.com/public/basic")
+;; calendar links
+(def calendar-id 
+  "startlabs.org_5peolh5d72ol1r9c7hf624ke9g@group.calendar.google.com")
 
+(def gcal-home "http://www.google.com/calendar/")
 
+(def calendar-rss  (str gcal-home "feeds/" calendar-id "/public/basic"))
+(def calendar-link (str gcal-home "embed?src=" calendar-id))
+
+(defhtml rss-link [title href]
+  [:link {:rel "alternate" :type "application/rss+xml" 
+          :title title :href href}])
 
 (defn layout [& content]
   (let [[message-type message] (session/flash-get :message)]
@@ -81,9 +90,8 @@
       (font-link ["Open Sans" [300,400,600]]
                  ["Kreon" [400,700]])
 
-      [:link {:rel "alternate" :type "application/rss+xml" 
-              :title "StartLabs Events Calendar"
-              :href calendar-rss}]
+      (rss-link "StartLabs Events Calendar" calendar-rss)
+      (rss-link "StartLabs Jobs List" "/jobs.xml")
 
       (include-js "//www.google.com/jsapi"
                   (str "//maps.googleapis.com/maps/api/js?key=" 

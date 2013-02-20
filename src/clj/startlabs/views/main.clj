@@ -17,7 +17,7 @@
   (common/layout
     [:h1.slug "Interested in " [:strong "Startups"] "?"]
     [:div.row-fluid
-      [:div.span5
+      [:div.span6
         [:h2.centered "You've come to the right place."]
         [:p [:strong "StartLabs"] " was established by MIT engineering students
             in the summer of 2011 to spread entrepreneurship.
@@ -28,16 +28,11 @@
               [:li "Work in rapidly expanding companies – place students in internships
                     and full-time positions at promising startups."]]
        [:p "We are creating the next generation of technical entrepreneurs."]]
-	[:div.span2.centered
-	  [:h2.centered "Register For"]
-	  [:a.guestlist-event-136884 {:href "#"} [:img {:src "/img/career-fair.png" :width "auto"}]]
-	  [:a {:href "https://guestlistapp.com/events/136884"} "More Information"]
-	  [:script {:src "https://guestlistapp.com/javascripts/guestlist-embed.js"}]]
        
      (let [event-descr (second (event/get-event))
            logged-in?  (user/logged-in?)]
             
-        [:div#upcoming-events.span5
+        [:div#upcoming-events.span6
          [:h2.centered "Upcoming Events"
           (if logged-in?
             [:a#edit-upcoming.btn.pull-right {:href "#"} "Edit"])]
@@ -52,8 +47,7 @@
             (md-to-html-string event-descr)]
 
           [:p "To keep up with going-ons, subscribe to our "
-            [:a {:href common/calendar-rss} "event calendar"] "."]])
-     ]
+            [:a {:href common/calendar-link} "event calendar"] "."]])]
 
      [:div.row-fluid.push-down
        [:div.span4]
@@ -64,10 +58,8 @@
                              :placeholder "Your email address"
                              :value (if (not (empty? email)) email "")}]
         [:button#submit.btn.btn-primary.span3.pull-left
-         {:type "submit"} "Submit"]
-        ]]
-       [:div.span4]
-      ]))
+         {:type "submit"} "Submit"]]]
+       [:div.span4]]))
 
 ;; :post "/event"
 (defn post-event [{:keys [description] :as event-map}]
