@@ -14,7 +14,6 @@
 (def partner-list
   [["Andreessen Horowitz" "http://a16z.com"]
    ["Atlas Venture" "http://www.atlasventure.com"]
-   ["Bessemer Venture Partners" "http://www.bvp.com"] 
    ["Boston Seed Capital" "http://www.bostonseed.com"]
    ["General Catalyst Partners (founding partner)" "http://www.generalcatalyst.com"]
    ["Goodwin Procter" "http://www.goodwinprocter.com"]

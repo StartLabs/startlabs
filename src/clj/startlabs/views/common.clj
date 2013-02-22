@@ -51,7 +51,8 @@
 
 ; could autopopulate routes from compojure handler somehow...
 (def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] 
-             [:about "/about"] [:partners "/partners"] [:team "/team"]])
+             [:about "/about"] [:partners "/partners"] [:team "/team"]
+             [:blog "/blog"]])
 
 (def google-analytics 
   "var _gaq = _gaq || [];
