@@ -2,12 +2,10 @@
   (:require
    [compojure.handler :as handler]
    [compojure.route :as route]
-   [clojure.string :as str]
    [noir.response :as response]
    [org.httpkit.server :as http]
    [ring.middleware.reload :as reload]
 
-   [startlabs.models.user :as user]
    [startlabs.models.database :as db]
 
    [startlabs.views.about :as about]

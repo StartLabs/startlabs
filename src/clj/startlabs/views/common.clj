@@ -1,6 +1,7 @@
 (ns startlabs.views.common
-  (:require [sandbar.stateful-session :as session]
+  (:require [clj-time.core :as t]
             [clojure.string :as str]
+            [sandbar.stateful-session :as session]
             [startlabs.models.user :as user]
             [startlabs.util :as u])
   (:use [hiccup.def :only [defhtml]]
@@ -131,10 +132,10 @@
         [:div.push]]]
 
       [:footer.container
-       [:p "&copy; 2012 Startlabs. Follow us on "
+       [:p "&copy; " (t/year (t/now)) " Startlabs. Follow us on "
         [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
         [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"}
-         "Facebook"]]]
+         "Facebook"] "."]]
 
       [:script {:type "text/javascript"} google-analytics]
 
