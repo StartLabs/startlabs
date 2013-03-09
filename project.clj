@@ -10,13 +10,13 @@
             [com.birdseye-sw/lein-dalap "0.1.0"]]
 
                  ;clj core
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.0"]
                  [org.clojure/tools.logging "0.2.4"]
                  [org.clojure/core.incubator "0.1.2"] ; for -?> goodness
                  [org.clojure/math.numeric-tower "0.0.2"]
                  
                  ;clj other
-                 [http-kit "2.0.0-RC2"]
+                 [http-kit "2.0.0-RC4"]
                  [cheshire "5.0.1"]
                  [climp "0.1.2"
                   :exclusions [cheshire]]
@@ -37,7 +37,7 @@
                  [ring-basic-authentication "1.0.1"]
 
                  ;clj other other
-                 [com.datomic/datomic-free "0.8.3731"
+                 [com.datomic/datomic-free "0.8.3826"
                   :exclusions [com.amazonaws/aws-java-sdk
                                org.codehaus.jackson/jackson-core-asl
                                org.slf4j/slf4j-nop
