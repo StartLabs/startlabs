@@ -1,15 +1,15 @@
 (ns startlabs.models.util
+  (:require [aws.sdk.s3 :as s3]
+            [clojure.string :as str]
+            [clj-time.format :as t]
+            [sandbar.stateful-session :as session]
+            [startlabs.util :as u])
   (:use [clj-time.core :only [after? now]]
         [clj-time.coerce :only [to-long to-date]]
         [clojure.java.io :only [input-stream]]
         [datomic.api :only [q db ident] :as d]
         [environ.core :only [env]]
         [startlabs.models.database :only [*conn*]])
-  (:require [aws.sdk.s3 :as s3]
-            [clojure.string :as str]
-            [clj-time.format :as t]
-            [sandbar.stateful-session :as session]
-            [startlabs.util :as u])
   (:import java.net.URI))
 
 ; http://www.filepicker.io/api/file/l2qAORqsTSaNAfNB6uP1
@@ -194,5 +194,4 @@
       (let [new-fact (txify-new-entity ns ent-map)]
         @(d/transact *conn* new-fact)))
     (catch Exception e
-      (session/flash-put! :message
-                          [:error (str "Trouble setting " (name ns) ": " e)]))))
+      (u/flash-message! :error (str "Trouble setting " (name ns) ": " e)))))

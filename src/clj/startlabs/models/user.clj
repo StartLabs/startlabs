@@ -3,7 +3,7 @@
         [environ.core :only [env]]
         [oauth.io :only [request]]
         [startlabs.models.database :only [*conn*]]
-        [startlabs.util :only [stringify-values home-uri]])
+        [startlabs.util :only [stringify-values home-uri flash-message!]])
   (:require [clojure.string :as str]
             [clj-http.client :as client]
             [clj-time.core :as t]
@@ -73,7 +73,7 @@
       user-info)
 
     (catch Exception e
-      (session/flash-put! :message [:error (str "Trouble creating user: " e)]))))
+      (flash-message! :error (str "Trouble creating user: " e)))))
 
 (defn user-with-id [& args]
   (apply util/elem-with-attr :user/id args))
@@ -97,7 +97,7 @@
           idented-facts (assoc tranny-facts :db/id user)]
       @(d/transact *conn* (list idented-facts)))
     (catch Exception e
-      (session/flash-put! :message [:error (str "Trouble updating user: " e)]))))
+      (flash-message! :error (str "Trouble updating user: " e)))))
 
 (defn refresh-user [user-map oauth-map]
   (let [real-refresh-token (or (:refresh-token oauth-map)
@@ -164,17 +164,20 @@
     (if user-id
       (do
         (update-user user-id new-fact-map)
-        (session/flash-put! :message [:success (str "Updated info successfully!")]))
+        (flash-message! :success (str "Updated info successfully!")))
       
-      (session/flash-put! :message [:error "Please log back in"]))))
+      (flash-message! :error "Please log back in"))))
 
 (defn get-my-info []
   (try
     (if-let [user-id (session/session-get :id)]
       (let [my-info (stringify-values (find-user-with-id user-id))]
         (when (empty? (:graduation-year my-info))
-          (session/flash-put! :message 
-                              [:warning "You will not appear on the team page until you fill out the Graduation Year field in your profile."]))
+          (flash-message! 
+           :warning 
+           (str "You will not appear on the team page" 
+                " until you fill out the Graduation Year" 
+                " field in your profile.")))
         my-info)
       nil)
 

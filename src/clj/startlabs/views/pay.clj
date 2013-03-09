@@ -71,16 +71,21 @@
       (let [response (payment/charge-payment "Career fair admittance fee" params)]
         (if (= response :success)
           (do
-            (session/flash-put! :message [:success "Thanks! Your payment has been received. See you at the Career Fair."])
+            (u/flash-message! 
+             :success 
+             (str "Thanks! Your payment has been received."
+                  " See you at the Career Fair."))
             (response/redirect "/"))
           ;else
           (do
-            (session/flash-put! :message 
-                                [:error response])
+            (u/flash-message! :error response)
             (render get-pay params))))
       ;else
       (do
-        (session/flash-put! :message [:error "Make sure you entered a valid email address and filled in all of the fields."])
+        (u/flash-message! 
+         :error 
+         (str "Make sure you entered a valid email address" 
+              " and filled in all of the fields."))
         (render get-pay params)))))
 
 (defn get-payments []
@@ -92,5 +97,6 @@
 
     ;else
     (do
-      (session/flash-put! :message [:error "You must be logged in to view the payments page."])
+      (u/flash-message! 
+       :error "You must be logged in to view the payments page.")
       (response/redirect "/"))))

@@ -6,7 +6,8 @@
             [sandbar.stateful-session :as session]
             [startlabs.models.event :as event]
             [startlabs.models.user :as user]
-            [startlabs.views.common :as common])
+            [startlabs.views.common :as common]
+            [startLabs.util :as ul])
   (:use [compojure.response :only [render]]
         [hiccup.def :only [defhtml]]
         [markdown.core :only [md-to-html-string]]
@@ -67,25 +68,25 @@
     (event/create-event event-map)
 
     ;; else
-    (session/flash-put! :message [:error "You must be logged in to do that."]))
+    (u/flash-message! :error "You must be logged in to do that."))
   (response/redirect "/"))
 
 ;; :post "/"
 (defn post-mailing-list [email]
   (if (not (vali/is-email? email))
     (do
-      (session/flash-put! :message [:error "Invalid email address."])
+      (u/flash-message! :error "Invalid email address.")
       (render home email))
     (try
       (let [list-id (env :mc_list_id)]
         (binding [mc/*mc-api-key* (env :mc_api_key)]
           (mc/subscribe list-id email)
-          (session/flash-put! :message
-                              [:success "You've been subscribed! We promise not to spam you. <3"])
+          (u/flash-message! 
+           :success "You've been subscribed! We promise not to spam you. <3")
           (response/redirect "/")))
       (catch Exception e
-        (session/flash-put! :message
-                            [:error "Unexpected error. Try again later."])))))
+        (u/flash-message!
+         :error "Unexpected error. Try again later.")))))
 
 (defn internal-error []
   (common/layout

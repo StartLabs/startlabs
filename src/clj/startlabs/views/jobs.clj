@@ -399,14 +399,14 @@ We prefer candidates who wear green clothing."
   (str/split sitelist #"\s+"))
 
 (defhtml nav-buttons [active-tab]
-   [:div#job-toggle.btn-group.pull-right
-    [:a {:class (u/cond-class "btn" [(= active-tab :jobs) "active"]) 
-         :href "/jobs"} "Browse Available"]
-    (if (user/logged-in?)
-      [:a {:class (u/cond-class "btn" [(= active-tab :whitelist) "active"]) 
-           :href "/whitelist"} "Whitelist"])
-    [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) 
-         :href "/job/new"} "Submit a Job"]])
+  [:div#job-toggle.btn-group.pull-right
+   [:a {:class (u/cond-class "btn" [(= active-tab :jobs) "active"]) 
+        :href "/jobs"} "Browse Available"]
+   (if (user/logged-in?)
+     [:a {:class (u/cond-class "btn" [(= active-tab :whitelist) "active"]) 
+          :href "/whitelist"} "Whitelist"])
+   [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) 
+        :href "/job/new"} "Submit a Job"]])
 
 ;; [:get /jobs]
 (defn get-jobs [{:keys [q sort-field] :as params}]
@@ -485,7 +485,7 @@ We prefer candidates who wear green clothing."
        (u/parse-date (date job-params))
        [date "Invalid date."]))
 
-  ; make sure the end date comes after the start
+    ; make sure the end date comes after the start
     (vali/rule
      (let [[start end] (map #(u/parse-date (% job-params)) 
                             [:start-date :end-date])]
@@ -514,7 +514,7 @@ We prefer candidates who wear green clothing."
 
 (def job-error  "Please correct the form and resubmit.")
 (defn flash-job-error []
-  (session/flash-put! :message [:error job-error]))
+  (u/flash-message! :error job-error))
 
 (defn trim-and-fix-params [params]
   (let [trimmed-params (u/trim-vals params)
@@ -538,13 +538,14 @@ We prefer candidates who wear green clothing."
             (do
               (response/redirect "/job/success"))
             (do
-              (session/flash-put! 
-                :message [:error "Trouble sending confirmation email:" 
-                          (:message email-res)])
+              (u/flash-message!
+               :error (str "Trouble sending confirmation email:" 
+                           (:message email-res)))
               (render get-new-job fixed-params))))
 
         (catch Exception e
-          (session/flash-put! :message [:error (str "Trouble connecting to the database:" e)])
+          (u/flash-message!
+           :error (str "Trouble connecting to the database:" e))
           (render get-new-job fixed-params)))
 
       (do ;invalid job, flash an error message
@@ -579,7 +580,8 @@ We prefer candidates who wear green clothing."
 
 
 (defhtml job-edit-email-body [job-map]
-  (let [the-link (edit-link job-map)]
+  (let
+      [the-link (edit-link job-map)]
     [:div
       [:p "Hey there,"]
       [:p "To edit your StartLabs jobs posting, please visit this link:"]
@@ -689,7 +691,7 @@ We prefer candidates who wear green clothing."
   (let [data (analytics-data id start end)]
     (if (:error data)
       (do
-        (session/flash-put! :message [:error (:error data)])
+        (u/flash-message! :error (:error data))
         (response/redirect "/jobs"))
 
     (job-analytics-view id data))))
@@ -713,11 +715,11 @@ We prefer candidates who wear green clothing."
           (job-not-found))])
       ;else
       (do
-        (session/flash-put! :message [:error "You cannot edit this job."])
+        (u/flash-message! :error "You cannot edit this job.")
         (response/redirect "/jobs")))))
 
 (defn flash-error-and-render [error job-id params]
-  (session/flash-put! :message [:error error])
+  (u/flash-message! :error error)
   (render get-edit-job params))
 
 ;;[:post "/job/:id"]
@@ -735,7 +737,8 @@ We prefer candidates who wear green clothing."
       (if (valid-job? fixed-params)
         (if (job/update-job id params)
           (do
-            (session/flash-put! :message [:success "Your job has been updated successfully."])
+            (u/flash-message! 
+             :success "Your job has been updated successfully.")
             (response/redirect "/jobs"))
             ; else
           (flash-error-and-render
@@ -753,9 +756,9 @@ We prefer candidates who wear green clothing."
 (defn delete-job [id]
   (if (user/logged-in?)
     (if (job/remove-job id)
-      (session/flash-put! :message [:success "The job has been removed."]))
+      (u/flash-message! :success "The job has been removed."))
     ;; else
-    (session/flash-put! :message [:error "You cannot delete that job!"]))
+    (u/flash-message! :error "You cannot delete that job!"))
   (response/redirect "/jobs"))
 
 
@@ -800,9 +803,11 @@ We prefer candidates who wear green clothing."
   (if (user/logged-in?)
     (do
       (job/update-whitelist the-list)
-      (session/flash-put! :message [:success "The whitelist has been updated successfully."])
+      (u/flash-message!
+       :success "The whitelist has been updated successfully.")
       (response/redirect "/whitelist"))
     ;else
     (do
-      (session/flash-put! :message [:error "You must be logged in to change the whitelist."])
+      (u/flash-message! 
+       :error "You must be logged in to change the whitelist.")
       (response/redirect "/jobs"))))

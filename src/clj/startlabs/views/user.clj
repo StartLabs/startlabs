@@ -26,8 +26,9 @@
 
 (defn oauth-callback [state code]
   (if (not (user/verify-code code))
-    (session/flash-put! :message
-                        [:error "Invalid login. Make sure you're using your email@startlabs.org."]))
+    (u/flash-message!
+     :error 
+     "Invalid login. Make sure you're using your email@startlabs.org."))
   (response/redirect state))
 
 (def editable-attrs [:name :role :bio :link 
@@ -82,16 +83,18 @@
           new-facts (u/map-diff params my-info)]
       (if (not (empty? new-facts))
         ; s3 api is having trouble with pulling a file from an https url (yields SunCertPathBuilderException)
-        (if-let [picture-url (-?> (:picture new-facts) (str/replace #"^https" "http"))]
+        (if-let [picture-url (-?> (:picture new-facts) 
+                                  (str/replace #"^https" "http"))]
           (let  [file-name   (user/username my-info)]
             (try
               (user/update-my-info 
                 (assoc new-facts :picture (mu/save-file-to-s3 picture-url file-name)))
               (catch Exception e
-                (session/flash-put! :message [:error "Unable to grab the specified picture"]))))
+                (u/flash-message! 
+                 :error "Unable to grab the specified picture"))))
           (user/update-my-info new-facts))))
     (catch Exception e
-      (session/flash-put! :message [:error e])))
+      (u/flash-message! :error e)))
 
   (response/redirect "/me"))
 
@@ -100,9 +103,10 @@
     ;; indicate in the database the user id for analytics
     (do
       (analytics/set-analytics-user (user/user-with-id (:id my-info)))
-      (session/flash-put! :message [:success "Your account is now set as the analytics provider."]))
+      (u/flash-message! 
+       :success "Your account is now set as the analytics provider."))
 
-    (session/flash-put! :message [:error "You must be logged in to authorize analytics."]))
+    (u/flash-message! :error "You must be logged in to authorize analytics."))
   (response/redirect referer))
 
 (defn get-team-member [name]
@@ -143,9 +147,9 @@
   (if-let [my-info (user/get-my-info)]
     (do
       (user/refresh-user-with-info my-info)
-      (session/flash-put! :message [:success "Your access token has been refreshed."]))
+      (u/flash-message! :success "Your access token has been refreshed."))
     (do
-      (session/flash-put! :message [:error "You are not currently logged in."])))
+      (u/flash-message! :error "You are not currently logged in.")))
   (response/redirect referer))
 
 (defhtml team-member [person]

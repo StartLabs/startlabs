@@ -2,7 +2,8 @@
   (:require [clj-time.core :as t]
             [clj-time.format :as tf]
             [clojure.string :as str]
-            [noir.validation :as vali])
+            [noir.validation :as vali]
+            [sandbar.stateful-session :as session])
   (:use [clj-time.coerce :only [from-date to-date to-long]]
         [environ.core :only [env]])
   (:import java.util.Date)
@@ -192,3 +193,8 @@
   with re-find."
   [test-value & clauses]
   `(fcase re-find ~test-value ~@clauses))
+
+
+;; get rid of session boilerplate
+(defn flash-message! [type message]
+  (session/flash-put! :message [type message]))

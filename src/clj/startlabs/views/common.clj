@@ -51,8 +51,12 @@
   [:a {:href "mailto:ethan@startlabs.org"} text])
 
 ; could autopopulate routes from compojure handler somehow...
-(def routes [[:home "/"] [:jobs "/jobs"] [:resources "/resources"] 
-             [:about "/about"] [:partners "/partners"] [:team "/team"]
+(def routes [[:home "/"] 
+             [:jobs [[:jobs-list "/jobs"] [:cofounder-search "/cofounders"]]] 
+             [:resources "/resources"] 
+             [:about "/about"]
+             [:partners "/partners"]
+             [:team "/team"]
              [:blog "/blog"]])
 
 (def google-analytics 
@@ -78,6 +82,24 @@
 (defhtml rss-link [title href]
   [:link {:rel "alternate" :type "application/rss+xml" 
           :title title :href href}])
+
+;; if the route is a singular link, then simply return a list-item,
+;; otherwise, if return a dropdown of the choices in the route sequence
+(defn route-link [title route current-uri]
+  (if (sequential? route)
+    (let [active? (not (nil? (some #{current-uri} route)))]
+      [:li.dropdown
+       [:a.dropdown-toggle {:data-toggle "dropdown" :href "#" 
+                            :class (if active? "active")}
+        (u/phrasify title) [:b.caret]]
+       [:ul.dropdown-menu
+        (for [[nom url] route]
+          [:li [:a {:href url} (u/phrasify nom)]])]])
+    ;; else
+    (let [active? (= current-uri route)]
+      [:li 
+       [:a {:href route :class (if active? "active")}
+        (u/phrasify title)]])))
 
 (defn layout [& content]
   (let [[message-type message] (session/flash-get :message)]
@@ -115,10 +137,7 @@
            [:div.nav-collapse
             [:ul.nav.nav-pills
              (for [[page location] routes]
-               [:li [:a {:href location
-                         :class (if (= current-uri location) "active")}
-                     (str/capitalize (name page))]])
-
+               (route-link page location current-uri))
              (login-info)]])]]
 
        [:div#content.container

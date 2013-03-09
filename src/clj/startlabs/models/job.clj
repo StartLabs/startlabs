@@ -1,7 +1,8 @@
 (ns startlabs.models.job
   (:use [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [*conn*]]
-        [startlabs.util :only [stringify-values uuid after-now? now-date]])
+        [startlabs.util :only 
+         [stringify-values uuid after-now? now-date flash-message!]])
   (:require [clojure.string :as str]
             [clj-http.client :as client]
             [clj-time.coerce :as tc]
@@ -39,12 +40,13 @@
       ;; return true to indicate success
       true)
     (catch Exception e
-      (session/flash-put! :message [:error 
-        (if err-msg
-          (str err-msg ": " e)
-          ;; no default error message provided
-          (str "Trouble updating " 
-               (str/join ", " (apply name (keys field-map))) ": " e))])
+      (flash-message! 
+       :error 
+       (if err-msg
+         (str err-msg ": " e)
+         ;; no default error message provided
+         (str "Trouble updating " 
+              (str/join ", " (apply name (keys field-map))) ": " e)))
       false)))
 
 (defn update-job
@@ -56,11 +58,11 @@
           tranny-facts  (util/namespace-and-transform :job map-no-secret)
           idented-facts (assoc tranny-facts :db/id job)]
       @(d/transact *conn* (list idented-facts))
-      (session/flash-put! :message [:success (str "Updated info successfully!")])
+      (flash-message! :success (str "Updated info successfully!"))
       true)
     (catch Exception e
       (println e)
-      (session/flash-put! :message [:error (str "Trouble updating job: " e)])
+      (flash-message! :error (str "Trouble updating job: " e))
       false)))
 
 (defn confirm-job [job-id]
