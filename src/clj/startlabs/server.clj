@@ -124,14 +124,14 @@
       uri-middleware))
 
 ;; For interactive development, evaluate these:
-(comment
-  (do
-    ;; 1. Initialize the database
-    (init)
-    ;; 2. Run the server
-    (def app (reload/wrap-reload app))
-    (defonce server (http/run-server #'app {:port 8000})))
-)
+(comment)
+(do
+  ;; 1. Initialize the database
+  (init)
+  ;; 2. Run the server
+  (def app (reload/wrap-reload app))
+  (defonce server (http/run-server #'app {:port 8000})))
+
 
 
 ;; To stop the server, just do:

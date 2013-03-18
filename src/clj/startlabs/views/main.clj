@@ -7,7 +7,7 @@
             [startlabs.models.event :as event]
             [startlabs.models.user :as user]
             [startlabs.views.common :as common]
-            [startLabs.util :as ul])
+            [startlabs.util :as ul])
   (:use [compojure.response :only [render]]
         [hiccup.def :only [defhtml]]
         [markdown.core :only [md-to-html-string]]
