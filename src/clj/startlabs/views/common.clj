@@ -52,7 +52,7 @@
 
 ; could autopopulate routes from compojure handler somehow...
 (def routes [[:home "/"] 
-             [:jobs [[:jobs-list "/jobs"] [:cofounder-search "/cofounders"]]] 
+             [:jobs "/jobs"] 
              [:resources "/resources"] 
              [:about "/about"]
              [:partners "/partners"]
