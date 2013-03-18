@@ -29,7 +29,7 @@
   :db/ident :user/gender,
   :db/valueType :db.type/ref,
   :db/cardinality :db.cardinality/one,
-  :db/doc "A user gender enu value",
+  :db/doc "A user gender enum value",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -269,12 +269,28 @@
   :db/cardinality :db.cardinality/one,
   :db/doc "Indicates whether the job has been removed",
   :db.install/_attribute :db.part/db}
+  
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/approved?,
+  :db/valueType :db.type/boolean,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "Indicates whether the job has been approved by StartLabs",
+  :db.install/_attribute :db.part/db}
 
+ ;; no longer used! See :job/role
  {:db/id #db/id[:db.part/db],
   :db/ident :job/fulltime?,
   :db/valueType :db.type/boolean,
   :db/cardinality :db.cardinality/one,
   :db/doc "Is this a fulltime position?",
+  :db.install/_attribute :db.part/db}
+ 
+ ;; internship, fulltime, or cofounder? 
+ {:db/id #db/id[:db.part/db],
+  :db/ident :job/role,
+  :db/valueType :db.type/ref,
+  :db/cardinality :db.cardinality/one,
+  :db/doc "An enum value of the job role, either internship, fulltime, or cofounder",
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db],
@@ -293,8 +309,19 @@
   :db/cardinality :db.cardinality/many,
   :db/doc "Keyword tags associated with a job",
   :db.install/_attribute :db.part/db}
+ 
+ 
+   ;; job/role enum values
+ {:db/id #db/id[:db.part/user],
+  :db/ident :job.role/internship}
 
-  ;; job whitelist
+ {:db/id #db/id[:db.part/user],
+  :db/ident :job.role/fulltime}
+
+ {:db/id #db/id[:db.part/user],
+  :db/ident :job.role/cofounder}
+
+  ;; job whitelist: NO LONGER USED. See :job/approved?
 
  {:db/id #db/id[:db.part/db],
   :db/ident :joblist/whitelist,
