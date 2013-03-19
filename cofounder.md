@@ -22,3 +22,5 @@ can filter...***
   
 - Convert existing entries to new enum scheme -> fulltime bool -> values
 ... can keep the fulltime? attribute around, but stop using it when making new entries.
+
+- Ensure that entries are still editable via email

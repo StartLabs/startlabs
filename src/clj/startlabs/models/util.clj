@@ -195,3 +195,27 @@
         @(d/transact *conn* new-fact)))
     (catch Exception e
       (u/flash-message! :error (str "Trouble setting " (name ns) ": " e)))))
+
+
+
+(defn ident-to-ns 
+  ":job/role => :job.role"
+  [ident]
+  (keyword (str (namespace ident) "." (name ident))))
+
+;; (ident-to-ns :job/role) => :job.role
+
+(defn get-enum-vals 
+  "Get all enum values from a field of type ref with ident"
+  [ident]
+  (let [the-ns (name (ident-to-ns ident))]
+    (map keyword
+      (flatten
+       (vec
+        (q '[:find ?value :in $ ?the-ns
+           :where [_ :db/ident ?ident]
+                  [(name ?ident) ?value]
+                  [(namespace ?ident) ?ns]
+                  [(= ?ns ?the-ns)]] (db *conn*) the-ns))))))
+
+;; (get-enum-vals :job/role) => (:internship :cofounder :fulltime)

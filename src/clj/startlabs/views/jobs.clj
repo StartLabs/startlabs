@@ -88,7 +88,7 @@
 
 (defmethod input-for-field :ref [field type docs v]
   [:div.btn-group {:data-toggle-name field :data-toggle "buttons-radio"}
-   (for [choice [:internship :fulltime :cofounder]]
+   (for [choice (mu/get-enum-vals :job/role)]
      (let [val (u/phrasify choice)]
        [:button.btn {:value choice :data-toggle "button"} val]))
    [:input {:type "hidden" :name field :id field :value v}]])

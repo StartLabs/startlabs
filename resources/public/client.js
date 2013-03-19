@@ -14592,11 +14592,8 @@ startlabs.views.job_list.half_list = function(a, b) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", function d(a) {
     return new cljs.core.LazySeq(null, !1, function() {
       for(;;) {
-        if(cljs.core.seq.call(null, a)) {
-          var f = cljs.core.first.call(null, a);
-          return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.job.thumbnail", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":(new cljs.core.Keyword("\ufdd0'id")).call(null, f)}), startlabs.views.job_list.job_card.call(null, f, b)], !0), d.call(null, cljs.core.rest.call(null, a)))
-        }
-        return null
+        var f = cljs.core.seq.call(null, a);
+        return f ? (f = cljs.core.first.call(null, f), cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'div.job.thumbnail", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":(new cljs.core.Keyword("\ufdd0'id")).call(null, f)}), startlabs.views.job_list.job_card.call(null, f, b)], !0), d.call(null, cljs.core.rest.call(null, a)))) : null
       }
     }, null)
   }.call(null, a)], !0)
@@ -14608,11 +14605,9 @@ startlabs.views.job_list.job_list = function(a) {
   cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, c, 1) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, c, 1) ? "#" : [cljs.core.str(g), cljs.core.str(c - 1)].join("")}), "Prev"], !0)], !0), function i(a) {
     return new cljs.core.LazySeq(null, !1, function() {
       for(;;) {
-        if(cljs.core.seq.call(null, a)) {
-          var b = cljs.core.first.call(null, a);
-          return cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, c, b) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, c, b) ? "#" : [cljs.core.str(g), cljs.core.str(b)].join("")}), b], !0)], !0), i.call(null, cljs.core.rest.call(null, a)))
-        }
-        return null
+        var b = cljs.core.seq.call(null, a);
+        return b ? (b = cljs.core.first.call(null, b), cljs.core.cons.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, c, b) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, c, b) ? "#" : [cljs.core.str(g), cljs.core.str(b)].join("")}), b], !0)], !0), i.call(null, cljs.core.rest.call(null, 
+        a)))) : null
       }
     }, null)
   }.call(null, cljs.core.range.call(null, 1, d)), cljs.core.PersistentVector.fromArray(["\ufdd0'li", cljs.core.ObjMap.fromObject(["\ufdd0'class"], {"\ufdd0'class":cljs.core._EQ_.call(null, c, a) ? "disabled" : "active"}), cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":cljs.core._EQ_.call(null, c, a) ? "#" : [cljs.core.str(g), cljs.core.str(c + 1)].join("")}), "Next"], !0)], !0)], !0)], !0)], !0)
