@@ -549,7 +549,12 @@ We prefer candidates who wear green clothing."
 (defn job-success []
   (common/layout
     [:h1 "Submission Received"]
-    [:p "Please check your email for a confirmation link."]))
+    [:p "Please check your email for a confirmation link."]
+    [:p (str "Once you've confirmed the listing, it may take a few business days "
+             "until your post is approved by the StartLabs team.")]
+    [:p "We'll send you an email as soon as your submission has been approved."]
+    [:p "If you have any concerns, feel free to contact us by email at: "
+     [:a {:href "mailto:jobs@startlabs.org"} "jobs@startlabs.org"] "."]))
 
 
 
