@@ -210,12 +210,13 @@
   [ident]
   (let [the-ns (name (ident-to-ns ident))]
     (map keyword
-      (flatten
-       (vec
-        (q '[:find ?value :in $ ?the-ns
-           :where [_ :db/ident ?ident]
-                  [(name ?ident) ?value]
-                  [(namespace ?ident) ?ns]
-                  [(= ?ns ?the-ns)]] (db *conn*) the-ns))))))
+      (-> (q '[:find ?value :in $ ?the-ns
+         :where [_ :db/ident ?ident]
+                [(name ?ident) ?value]
+                [(namespace ?ident) ?ns]
+                [(= ?ns ?the-ns)]] (db *conn*) the-ns)
+          vec
+          flatten
+          sort))))
 
 ;; (get-enum-vals :job/role) => (:internship :cofounder :fulltime)

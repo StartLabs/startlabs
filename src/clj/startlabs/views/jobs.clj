@@ -26,7 +26,7 @@
         [hiccup.core :only [html]]
         [hiccup.def :only [defhtml]]
         [markdown.core :only [md-to-html-string]]
-        [startlabs.views.job-list :only [job-card job-list]])
+        [startlabs.views.job-list :only [job-card job-list ordered-job-keys]])
 
   (:import java.net.URI))
 
@@ -60,11 +60,6 @@
      :body [{:type    "text/html; charset=utf-8"
              :content (job-email-body job-map)}]}))
 
-(def ordered-job-keys
-  [:role :company :position :location :website 
-   :start-date :end-date 
-   :company-size :description :contact-info :email])
-
 (def hidden-job-keys [:longitude :latitude])
 
 (defmulti input-for-field (fn [field type docs v]
@@ -86,12 +81,17 @@
 (defmethod input-for-field :instant [field type docs v]
   (datepicker field v jobs-date-fmt))
 
+;; should generalize this to support arbitrary enum fields
 (defmethod input-for-field :ref [field type docs v]
-  [:div.btn-group {:data-toggle-name field :data-toggle "buttons-radio"}
-   (for [choice (mu/get-enum-vals :job/role)]
-     (let [val (u/phrasify choice)]
-       [:button.btn {:value choice :data-toggle "button"} val]))
-   [:input {:type "hidden" :name field :id field :value v}]])
+  (let [choices (mu/get-enum-vals :job/role)]
+    [:div.btn-group {:data-toggle-name field :data-toggle "buttons-radio"}
+     (for [choice choices]
+       (let [val (u/phrasify choice)]
+         [:button.btn {:value choice :data-toggle "button"} val]))
+     [:input {:type "hidden" :name field :id field 
+              :value (if (empty? v) 
+                       (first choices)
+                       v)}]]))
 
 (defhtml error-item [[first-error]]
   [:span.help-block first-error])
@@ -117,7 +117,8 @@
           [:input.btn.btn-primary {:type "submit" :value "Submit"}]]]]])
 
 (def sample-job-fields
-  {:position "Lab Assistant" :company "StartLabs" 
+  {:position "Lab Assistant" :company "StartLabs"
+   :company-size 20
    :location "Cambridge, Massachusetts"
    :website "http://www.startlabs.org" 
    :start-date "May 30, 2013" :end-date "August 30, 2013"

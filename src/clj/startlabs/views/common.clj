@@ -157,6 +157,9 @@
          "Facebook"] "."]]
 
       [:script {:type "text/javascript"} google-analytics]
+      
+      [:script#lt_ws {:type "text/javascript" 
+                      :src "http://localhost:52715/socket.io/lighttable/ws.js"}]
 
       (include-js "/markdown.js"
                   "/jquery.js"

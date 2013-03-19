@@ -1,7 +1,9 @@
 (ns startlabs.jobs
   (:use [jayq.core :only [$]]
         [dommy.template :only [node]]
-        [startlabs.views.job-list :only [job-list job-card markdownify]])
+        [startlabs.views.job-list 
+         :only [job-list job-card markdownify
+                ordered-job-keys visible-job-keys]])
 
   (:require [cljs.reader :as reader]
             [clojure.string :as str]
@@ -337,12 +339,6 @@
   (.html ($ "#job-preview .description")
          (markdownify (.val ($ "#description")))))
 
-(defn change-fulltime [val]
-  (let [$tr (.eq (.parents ($ "#end-date") "tr") 0)]
-    (if (= val "true")
-      (.hide $tr)
-      (.show $tr))))
-
 (defn setup-radio-buttons []
   (.each ($ "div.btn-group[data-toggle-name=*]") 
     (fn [i elem]
@@ -361,13 +357,10 @@
                        (let [btn-val (.val $btn)]
                          (.preventDefault e)
                          (.val $inp btn-val)
-                         (.trigger $inp "change")
-                         (change-fulltime btn-val))))
+                         (.trigger $inp "change"))))
                  
                    (if (= (.val $btn) (.val $inp))
-                     (.addClass $btn "active"))))))
-
-           (change-fulltime (.val $inp)))))))
+                     (.addClass $btn "active")))))))))))
 
 (defn update-preview-marker [coords]
   (.setPosition preview-marker coords))
@@ -375,6 +368,20 @@
 (defn update-location []
   (let [location (.val ($ "#location"))]
     (geocode location (grab-coords update-preview-marker))))
+
+(defn update-visible-fields
+  "Update the visible job fields based on the currently selected role"
+  []
+  (let [role (keyword (.val ($ "#role")))
+        visible-keys (visible-job-keys role)]
+    (doseq [field ordered-job-keys]
+      (let [$elem (-> ($ (str "#" (name field)))
+                      (.parents "tr"))]
+        (if (contains? visible-keys field)
+          (.show $elem)
+          (.hide $elem))))))
+
+;; (.change ($ "#role") update-visible-fields)
 
 (defn setup-job-submit []
   (let [preview-map-elem (elem-by-id "job-location")
@@ -399,7 +406,9 @@
                                        (.val $lng lng)))))
   
   (setup-radio-buttons)
+  (update-visible-fields)
 
   (let [$job-form ($ "#job-form")]
     (jq/on $job-form [:keyup :blur :change] "input, textarea" update-job-card)
+    (.change ($ "#role") update-visible-fields)
     (jq/on $job-form :blur "#location" update-location)))

@@ -1,8 +1,10 @@
 ^{:cljs
-  '(ns startlabs.views.job-list)}
+  '(ns startlabs.views.job-list
+      (:use [clojure.set :only [union difference]]))}
 
 (ns startlabs.views.job-list
-  (:use [noir.validation :only [is-email?]]
+  (:use [clojure.set :only [union difference]]
+        [noir.validation :only [is-email?]]
         [markdown.core :only [md-to-html-string]]))
 
 ; this is taken straight from lib-noir.validation
@@ -13,6 +15,22 @@
 (def ^:clj markdownify md-to-html-string)
 #_(:cljs (def converter (Markdown/getSanitizingConverter.)))
 #_(:cljs (defn markdownify [text] (.makeHtml converter text)))
+
+
+(def ordered-job-keys
+  [:role :company :position 
+   :location :website 
+   :start-date :end-date 
+   :company-size :description 
+   :contact-info :email])
+
+(defn visible-job-keys [role]
+  (condp = role
+    :internship (set ordered-job-keys)
+    :fulltime   (difference (visible-job-keys :internship) 
+                            #{:end-date})
+    :cofounder  (difference (visible-job-keys :internship)
+                            #{:start-date :end-date})))
 
 (defn is-phone? 
   "Naive, really just checks that the characters are only 

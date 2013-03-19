@@ -14540,6 +14540,225 @@ startlabs.visitors.setup_visitors = function() {
     return window.location = "/signin"
   }, 5E3) : null
 };
+clojure.set = {};
+clojure.set.bubble_max_key = function(a, b) {
+  var c = cljs.core.apply.call(null, cljs.core.max_key, a, b);
+  return cljs.core.cons.call(null, c, cljs.core.remove.call(null, function(a) {
+    return c === a
+  }, b))
+};
+clojure.set.union = function() {
+  var a = null, b = function() {
+    return cljs.core.PersistentHashSet.EMPTY
+  }, c = function(a, b) {
+    return cljs.core.count.call(null, a) < cljs.core.count.call(null, b) ? cljs.core.reduce.call(null, cljs.core.conj, b, a) : cljs.core.reduce.call(null, cljs.core.conj, a, b)
+  }, d = function(a, b, c) {
+    a = clojure.set.bubble_max_key.call(null, cljs.core.count, cljs.core.conj.call(null, c, b, a));
+    return cljs.core.reduce.call(null, cljs.core.into, cljs.core.first.call(null, a), cljs.core.rest.call(null, a))
+  }, e = function(a, b, c) {
+    var e = null;
+    goog.isDef(c) && (e = cljs.core.array_seq(Array.prototype.slice.call(arguments, 2), 0));
+    return d.call(this, a, b, e)
+  };
+  e.cljs$lang$maxFixedArity = 2;
+  e.cljs$lang$applyTo = function(a) {
+    var b = cljs.core.first(a), c = cljs.core.first(cljs.core.next(a)), a = cljs.core.rest(cljs.core.next(a));
+    return d(b, c, a)
+  };
+  e.cljs$lang$arity$variadic = d;
+  a = function(a, d, h) {
+    switch(arguments.length) {
+      case 0:
+        return b.call(this);
+      case 1:
+        return a;
+      case 2:
+        return c.call(this, a, d);
+      default:
+        return e.cljs$lang$arity$variadic(a, d, cljs.core.array_seq(arguments, 2))
+    }
+    throw Error("Invalid arity: " + arguments.length);
+  };
+  a.cljs$lang$maxFixedArity = 2;
+  a.cljs$lang$applyTo = e.cljs$lang$applyTo;
+  a.cljs$lang$arity$0 = b;
+  a.cljs$lang$arity$1 = function(a) {
+    return a
+  };
+  a.cljs$lang$arity$2 = c;
+  a.cljs$lang$arity$variadic = e.cljs$lang$arity$variadic;
+  return a
+}();
+clojure.set.intersection = function() {
+  var a = null, b = function(a, b) {
+    for(;;) {
+      if(cljs.core.count.call(null, b) < cljs.core.count.call(null, a)) {
+        var c = a, a = b, b = c
+      }else {
+        return cljs.core.reduce.call(null, function(a, b) {
+          return function(a, c) {
+            return cljs.core.contains_QMARK_.call(null, b, c) ? a : cljs.core.disj.call(null, a, c)
+          }
+        }(a, b), a, a)
+      }
+    }
+  }, c = function(b, c, d) {
+    b = clojure.set.bubble_max_key.call(null, function(a) {
+      return-cljs.core.count.call(null, a)
+    }, cljs.core.conj.call(null, d, c, b));
+    return cljs.core.reduce.call(null, a, cljs.core.first.call(null, b), cljs.core.rest.call(null, b))
+  }, d = function(a, b, d) {
+    var h = null;
+    goog.isDef(d) && (h = cljs.core.array_seq(Array.prototype.slice.call(arguments, 2), 0));
+    return c.call(this, a, b, h)
+  };
+  d.cljs$lang$maxFixedArity = 2;
+  d.cljs$lang$applyTo = function(a) {
+    var b = cljs.core.first(a), d = cljs.core.first(cljs.core.next(a)), a = cljs.core.rest(cljs.core.next(a));
+    return c(b, d, a)
+  };
+  d.cljs$lang$arity$variadic = c;
+  a = function(a, c, g) {
+    switch(arguments.length) {
+      case 1:
+        return a;
+      case 2:
+        return b.call(this, a, c);
+      default:
+        return d.cljs$lang$arity$variadic(a, c, cljs.core.array_seq(arguments, 2))
+    }
+    throw Error("Invalid arity: " + arguments.length);
+  };
+  a.cljs$lang$maxFixedArity = 2;
+  a.cljs$lang$applyTo = d.cljs$lang$applyTo;
+  a.cljs$lang$arity$1 = function(a) {
+    return a
+  };
+  a.cljs$lang$arity$2 = b;
+  a.cljs$lang$arity$variadic = d.cljs$lang$arity$variadic;
+  return a
+}();
+clojure.set.difference = function() {
+  var a = null, b = function(a, b) {
+    return cljs.core.count.call(null, a) < cljs.core.count.call(null, b) ? cljs.core.reduce.call(null, function(a, c) {
+      return cljs.core.contains_QMARK_.call(null, b, c) ? cljs.core.disj.call(null, a, c) : a
+    }, a, a) : cljs.core.reduce.call(null, cljs.core.disj, a, b)
+  }, c = function(b, c, d) {
+    return cljs.core.reduce.call(null, a, b, cljs.core.conj.call(null, d, c))
+  }, d = function(a, b, d) {
+    var h = null;
+    goog.isDef(d) && (h = cljs.core.array_seq(Array.prototype.slice.call(arguments, 2), 0));
+    return c.call(this, a, b, h)
+  };
+  d.cljs$lang$maxFixedArity = 2;
+  d.cljs$lang$applyTo = function(a) {
+    var b = cljs.core.first(a), d = cljs.core.first(cljs.core.next(a)), a = cljs.core.rest(cljs.core.next(a));
+    return c(b, d, a)
+  };
+  d.cljs$lang$arity$variadic = c;
+  a = function(a, c, g) {
+    switch(arguments.length) {
+      case 1:
+        return a;
+      case 2:
+        return b.call(this, a, c);
+      default:
+        return d.cljs$lang$arity$variadic(a, c, cljs.core.array_seq(arguments, 2))
+    }
+    throw Error("Invalid arity: " + arguments.length);
+  };
+  a.cljs$lang$maxFixedArity = 2;
+  a.cljs$lang$applyTo = d.cljs$lang$applyTo;
+  a.cljs$lang$arity$1 = function(a) {
+    return a
+  };
+  a.cljs$lang$arity$2 = b;
+  a.cljs$lang$arity$variadic = d.cljs$lang$arity$variadic;
+  return a
+}();
+clojure.set.select = function(a, b) {
+  return cljs.core.reduce.call(null, function(b, d) {
+    return cljs.core.truth_(a.call(null, d)) ? b : cljs.core.disj.call(null, b, d)
+  }, b, b)
+};
+clojure.set.project = function(a, b) {
+  return cljs.core.set.call(null, cljs.core.map.call(null, function(a) {
+    return cljs.core.select_keys.call(null, a, b)
+  }, a))
+};
+clojure.set.rename_keys = function(a, b) {
+  return cljs.core.reduce.call(null, function(a, b) {
+    var e = cljs.core.nth.call(null, b, 0, null), f = cljs.core.nth.call(null, b, 1, null), g;
+    g = (g = cljs.core.not_EQ_.call(null, e, f)) ? cljs.core.contains_QMARK_.call(null, a, e) : g;
+    return g ? cljs.core.dissoc.call(null, cljs.core.assoc.call(null, a, f, cljs.core._lookup.call(null, a, e, null)), e) : a
+  }, a, b)
+};
+clojure.set.rename = function(a, b) {
+  return cljs.core.set.call(null, cljs.core.map.call(null, function(a) {
+    return clojure.set.rename_keys.call(null, a, b)
+  }, a))
+};
+clojure.set.index = function(a, b) {
+  return cljs.core.reduce.call(null, function(a, d) {
+    var e = cljs.core.select_keys.call(null, d, b);
+    return cljs.core.assoc.call(null, a, e, cljs.core.conj.call(null, cljs.core._lookup.call(null, a, e, cljs.core.PersistentHashSet.EMPTY), d))
+  }, cljs.core.ObjMap.EMPTY, a)
+};
+clojure.set.map_invert = function(a) {
+  return cljs.core.reduce.call(null, function(a, c) {
+    var d = cljs.core.nth.call(null, c, 0, null), e = cljs.core.nth.call(null, c, 1, null);
+    return cljs.core.assoc.call(null, a, e, d)
+  }, cljs.core.ObjMap.EMPTY, a)
+};
+clojure.set.join = function() {
+  var a = null, b = function(a, b) {
+    var c;
+    c = (c = cljs.core.seq.call(null, a)) ? cljs.core.seq.call(null, b) : c;
+    if(c) {
+      var g = clojure.set.intersection.call(null, cljs.core.set.call(null, cljs.core.keys.call(null, cljs.core.first.call(null, a))), cljs.core.set.call(null, cljs.core.keys.call(null, cljs.core.first.call(null, b)))), h = cljs.core.count.call(null, a) <= cljs.core.count.call(null, b) ? cljs.core.PersistentVector.fromArray([a, b], !0) : cljs.core.PersistentVector.fromArray([b, a], !0);
+      c = cljs.core.nth.call(null, h, 0, null);
+      var h = cljs.core.nth.call(null, h, 1, null), i = clojure.set.index.call(null, c, g);
+      return cljs.core.reduce.call(null, function(a, b) {
+        var c = i.call(null, cljs.core.select_keys.call(null, b, g));
+        return cljs.core.truth_(c) ? cljs.core.reduce.call(null, function(a, c) {
+          return cljs.core.conj.call(null, a, cljs.core.merge.call(null, c, b))
+        }, a, c) : a
+      }, cljs.core.PersistentHashSet.EMPTY, h)
+    }
+    return cljs.core.PersistentHashSet.EMPTY
+  }, c = function(a, b, c) {
+    var a = cljs.core.count.call(null, a) <= cljs.core.count.call(null, b) ? cljs.core.PersistentVector.fromArray([a, b, clojure.set.map_invert.call(null, c)], !0) : cljs.core.PersistentVector.fromArray([b, a, c], !0), b = cljs.core.nth.call(null, a, 0, null), c = cljs.core.nth.call(null, a, 1, null), g = cljs.core.nth.call(null, a, 2, null), h = clojure.set.index.call(null, b, cljs.core.vals.call(null, g));
+    return cljs.core.reduce.call(null, function(a, b) {
+      var c = h.call(null, clojure.set.rename_keys.call(null, cljs.core.select_keys.call(null, b, cljs.core.keys.call(null, g)), g));
+      return cljs.core.truth_(c) ? cljs.core.reduce.call(null, function(a, c) {
+        return cljs.core.conj.call(null, a, cljs.core.merge.call(null, c, b))
+      }, a, c) : a
+    }, cljs.core.PersistentHashSet.EMPTY, c)
+  }, a = function(a, e, f) {
+    switch(arguments.length) {
+      case 2:
+        return b.call(this, a, e);
+      case 3:
+        return c.call(this, a, e, f)
+    }
+    throw Error("Invalid arity: " + arguments.length);
+  };
+  a.cljs$lang$arity$2 = b;
+  a.cljs$lang$arity$3 = c;
+  return a
+}();
+clojure.set.subset_QMARK_ = function(a, b) {
+  var c = cljs.core.count.call(null, a) <= cljs.core.count.call(null, b);
+  return c ? cljs.core.every_QMARK_.call(null, function(a) {
+    return cljs.core.contains_QMARK_.call(null, b, a)
+  }, a) : c
+};
+clojure.set.superset_QMARK_ = function(a, b) {
+  var c = cljs.core.count.call(null, a) >= cljs.core.count.call(null, b);
+  return c ? cljs.core.every_QMARK_.call(null, function(b) {
+    return cljs.core.contains_QMARK_.call(null, a, b)
+  }, b) : c
+};
 startlabs.views = {};
 startlabs.views.job_list = {};
 startlabs.views.job_list.is_email_QMARK_ = function(a) {
@@ -14548,6 +14767,20 @@ startlabs.views.job_list.is_email_QMARK_ = function(a) {
 startlabs.views.job_list.converter = new Markdown.getSanitizingConverter;
 startlabs.views.job_list.markdownify = function(a) {
   return startlabs.views.job_list.converter.makeHtml(a)
+};
+startlabs.views.job_list.ordered_job_keys = cljs.core.PersistentVector.fromArray("\ufdd0'role \ufdd0'company \ufdd0'position \ufdd0'location \ufdd0'website \ufdd0'start-date \ufdd0'end-date \ufdd0'company-size \ufdd0'description \ufdd0'contact-info \ufdd0'email".split(" "), !0);
+startlabs.views.job_list.visible_job_keys = function visible_job_keys(b) {
+  var c = cljs.core._EQ_;
+  if(c.call(null, "\ufdd0'internship", b)) {
+    return cljs.core.set.call(null, startlabs.views.job_list.ordered_job_keys)
+  }
+  if(c.call(null, "\ufdd0'fulltime", b)) {
+    return clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date"]))
+  }
+  if(c.call(null, "\ufdd0'cofounder", b)) {
+    return clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date", "\ufdd0'start-date"]))
+  }
+  throw Error([cljs.core.str("No matching clause: "), cljs.core.str(b)].join(""));
 };
 startlabs.views.job_list.is_phone_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /^[\d-\.\(\)\s]{7,15}$/, a)
@@ -14964,8 +15197,9 @@ startlabs.jobs.datify = function(a) {
   return cljs.core.cons.call(null, cljs.core.first.call(null, a), function c(a) {
     return new cljs.core.LazySeq(null, !1, function() {
       for(;;) {
-        if(cljs.core.seq.call(null, a)) {
-          var e = cljs.core.first.call(null, a), f = cljs.core.nth.call(null, e, 0, null), g = cljs.core.nthnext.call(null, e, 1);
+        var e = cljs.core.seq.call(null, a);
+        if(e) {
+          var e = cljs.core.first.call(null, e), f = cljs.core.nth.call(null, e, 0, null), g = cljs.core.nthnext.call(null, e, 1);
           return cljs.core.cons.call(null, function() {
             var a = new Date(parseInt(f.substring(0, 4), 10), parseInt(f.substring(4, 6), 10) - 1, parseInt(f.substring(6, 8), 10));
             return cljs.core.cons.call(null, a, g)
@@ -15017,25 +15251,19 @@ startlabs.jobs.update_job_card = function() {
   jayq.core.$.call(null, "#job-preview").html(dommy.template.node.call(null, startlabs.views.job_list.job_card.call(null, a, !1)));
   return jayq.core.$.call(null, "#job-preview .description").html(startlabs.views.job_list.markdownify.call(null, jayq.core.$.call(null, "#description").val()))
 };
-startlabs.jobs.change_fulltime = function(a) {
-  var b = jayq.core.$.call(null, "#end-date").parents("tr").eq(0);
-  return cljs.core._EQ_.call(null, a, "true") ? b.hide() : b.show()
-};
 startlabs.jobs.setup_radio_buttons = function() {
   return jayq.core.$.call(null, "div.btn-group[data-toggle-name=*]").each(function() {
     var a = jayq.core.$.call(null, this), b = a.parents("form").eq(0), c = a.attr("data-toggle-name"), d = jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(c), cljs.core.str("']")].join(""), b);
-    jayq.core.$.call(null, "button", a).each(function() {
+    return jayq.core.$.call(null, "button", a).each(function() {
       var a = jayq.core.$.call(null, this);
       jayq.core.bind.call(null, a, "\ufdd0'click", function(b) {
         var c = a.val();
         b.preventDefault();
         d.val(c);
-        d.trigger("change");
-        return startlabs.jobs.change_fulltime.call(null, c)
+        return d.trigger("change")
       });
       return cljs.core._EQ_.call(null, a.val(), d.val()) ? a.addClass("active") : null
-    });
-    return startlabs.jobs.change_fulltime.call(null, d.val())
+    })
   })
 };
 startlabs.jobs.update_preview_marker = function(a) {
@@ -15044,6 +15272,17 @@ startlabs.jobs.update_preview_marker = function(a) {
 startlabs.jobs.update_location = function() {
   var a = jayq.core.$.call(null, "#location").val();
   return startlabs.jobs.geocode.call(null, a, startlabs.jobs.grab_coords.call(null, startlabs.jobs.update_preview_marker))
+};
+startlabs.jobs.update_visible_fields = function() {
+  for(var a = cljs.core.keyword.call(null, jayq.core.$.call(null, "#role").val()), a = startlabs.views.job_list.visible_job_keys.call(null, a), b = cljs.core.seq.call(null, startlabs.views.job_list.ordered_job_keys);;) {
+    if(b) {
+      var c = cljs.core.first.call(null, b), d = jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str(cljs.core.name.call(null, c))].join("")).parents("tr");
+      cljs.core.contains_QMARK_.call(null, a, c) ? d.show() : d.hide();
+      b = cljs.core.next.call(null, b)
+    }else {
+      return null
+    }
+  }
 };
 startlabs.jobs.setup_job_submit = function() {
   var a = startlabs.jobs.elem_by_id.call(null, "job-location"), b = jayq.core.$.call(null, "#latitude"), c = jayq.core.$.call(null, "#longitude"), d = cljs.core.truth_(startlabs.jobs.have_values_QMARK_.call(null, b, c)) ? startlabs.jobs.lat_lng.call(null, b.val(), c.val()) : startlabs.jobs.mit;
@@ -15055,8 +15294,10 @@ startlabs.jobs.setup_job_submit = function() {
     return c.val(d)
   });
   startlabs.jobs.setup_radio_buttons.call(null);
+  startlabs.jobs.update_visible_fields.call(null);
   a = jayq.core.$.call(null, "#job-form");
   jayq.core.on.call(null, a, cljs.core.PersistentVector.fromArray(["\ufdd0'keyup", "\ufdd0'blur", "\ufdd0'change"], !0), "input, textarea", startlabs.jobs.update_job_card);
+  jayq.core.$.call(null, "#role").change(startlabs.jobs.update_visible_fields);
   return jayq.core.on.call(null, a, "\ufdd0'blur", "#location", startlabs.jobs.update_location)
 };
 startlabs.main = {};
