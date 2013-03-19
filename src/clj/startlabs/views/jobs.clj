@@ -61,8 +61,8 @@
              :content (job-email-body job-map)}]}))
 
 (def ordered-job-keys
-  [:company :position :location :website 
-   :fulltime? :start-date :end-date 
+  [:role :company :position :location :website 
+   :start-date :end-date 
    :company-size :description :contact-info :email])
 
 (def hidden-job-keys [:longitude :latitude])
@@ -86,15 +86,12 @@
 (defmethod input-for-field :instant [field type docs v]
   (datepicker field v jobs-date-fmt))
 
-(defmethod input-for-field :boolean [field type docs v]
-  (let [str-v (if (or (false? v) (true? v)) (str v) "false")]
-    [:div.btn-group {:data-toggle-name field :data-toggle "buttons-radio"}
-     (let [choices (if (= field :fulltime?) 
-                     [["Fulltime" "true"] ["Internship" "false"]]
-                     [["True" "true"] ["False" "false"]])]
-       (for [[k val] choices]
-         [:button.btn {:value val :data-toggle "button"} k]))
-     [:input {:type "hidden" :name field :id field :value str-v}]]))
+(defmethod input-for-field :ref [field type docs v]
+  [:div.btn-group {:data-toggle-name field :data-toggle "buttons-radio"}
+   (for [choice [:internship :fulltime :cofounder]]
+     (let [val (u/phrasify choice)]
+       [:button.btn {:value choice :data-toggle "button"} val]))
+   [:input {:type "hidden" :name field :id field :value v}]])
 
 (defhtml error-item [[first-error]]
   [:span.help-block first-error])
@@ -152,11 +149,6 @@ We prefer candidates who wear green clothing."
      [:h1 heading]
      [:form#job-form.row-fluid {:method "post" :action action}
       [:div.span6
-       (if (not editing?)
-         [:div.well "In order to submit a job, your email address and company website domain must match. Also, "
-          [:strong "your company must be preapproved"] ". Please " 
-          [:a {:href (str "mailto:jobs@startlabs.org?subject=Jobs List Request: [Your Company Name]&body=" job-list-email-body)} "email us"] 
-          " for consideration for the Jobs List."])
        (fields-from-schema (job/job-fields) ordered-job-keys params)]
 
       (if editing?
