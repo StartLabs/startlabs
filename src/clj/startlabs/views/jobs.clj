@@ -435,6 +435,8 @@ We prefer candidates who wear green clothing."
 (defn email-domain [email]
   (second (str/split email #"@")))
 
+
+
 (defn valid-job? [job-params]
   (let [site-host       (get-hostname (:website job-params))
         fulltime?       (= "fulltime" (:role job-params))
@@ -495,12 +497,15 @@ We prefer candidates who wear green clothing."
                       (t/plus start-date (t/months 6)) 
                       (t/plus (t/now) (t/months 6)))]
     (conj params
-      {:website (if (not (empty? website)) 
-                  (u/httpify-url website) 
-                  "")
-       :end-date (if internship?
-                   (:end-date params)
-                   (u/unparse-date end-date))})))
+      {:website    (if (not (empty? website)) 
+                    (u/httpify-url website) 
+                    "")
+       :start-date (if start-date
+                     start-date
+                     (t/now))
+       :end-date   (if internship?
+                     (:end-date params)
+                     (u/unparse-date end-date))})))
 
 (def job-error  "Please correct the form and resubmit.")
 (defn flash-job-error []

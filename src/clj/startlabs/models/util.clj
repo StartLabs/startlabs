@@ -67,7 +67,8 @@
 (defmethod transform-attr [String :user/gender] [attr _]
   (keyword (str "user.gender/" attr)))
 
-
+(defmethod transform-attr [String :job/role] [attr _]
+  (keyword (str "job.role/" attr)))
 
 (defn transform-tx-values
   "Takes a map for a pending transaction and transforms the values, 
@@ -211,12 +212,19 @@
   (let [the-ns (name (ident-to-ns ident))]
     (map keyword
       (-> (q '[:find ?value :in $ ?the-ns
-         :where [_ :db/ident ?ident]
-                [(name ?ident) ?value]
-                [(namespace ?ident) ?ns]
-                [(= ?ns ?the-ns)]] (db *conn*) the-ns)
+               :where [_ :db/ident ?ident]
+                      [(name ?ident) ?value]
+                      [(namespace ?ident) ?ns]
+                      [(= ?ns ?the-ns)]] (db *conn*) the-ns)
           vec
           flatten
           sort))))
+
+(defn get-enum-entity [ident]
+  (ffirst (q '[:find ?ent :in $ ?ident
+               :where [?ent :db/ident ?ident]] 
+             (db *conn*) ident)))
+
+;; (get-enum-entity :job.role/internship)
 
 ;; (get-enum-vals :job/role) => (:internship :cofounder :fulltime)

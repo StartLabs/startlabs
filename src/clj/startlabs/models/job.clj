@@ -15,8 +15,12 @@
 (defn job-fields []
   (util/map-of-entity-tuples :job))
 
+(defn job-role-ent [role]
+  (util/get-enum-entity (keyword (str "job.role/" role))))
+
 (defn create-job [job-map]
-  (let [job-map-with-id (conj job-map {:id (uuid) :secret (uuid)})
+  (let [job-map-with-id (conj job-map {:id (uuid) 
+                                       :secret (uuid)})
         tx-data         (util/txify-new-entity :job job-map-with-id)]
     @(d/transact *conn* tx-data)
     job-map-with-id))
