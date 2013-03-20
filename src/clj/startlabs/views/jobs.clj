@@ -26,7 +26,8 @@
         [hiccup.core :only [html]]
         [hiccup.def :only [defhtml]]
         [markdown.core :only [md-to-html-string]]
-        [startlabs.views.job-list :only [job-card job-list ordered-job-keys]])
+        [startlabs.views.job-list 
+         :only [job-card job-list ordered-job-keys required-job-keys]])
 
   (:import java.net.URI))
 
@@ -437,34 +438,26 @@ We prefer candidates who wear green clothing."
   (second (str/split email #"@")))
 
 (defn valid-job? [job-params]
-  (let [site-host (get-hostname (:website job-params))
-        ;; add startlabs to the whitelist
-        whitelist (str (second (job/get-whitelist)) 
-                       "\n startlabs.org")
-        fulltime? (:fulltime? job-params)]
+  (let [site-host       (get-hostname (:website job-params))
+        fulltime?       (= "fulltime" (:role job-params))
+        required-params (required-job-keys (keyword (:role job-params)))]
 
-    (dorun (map u/empty-rule job-params))
+    (doseq [param required-params]
+      (u/empty-rule param (job-params param)))
 
-    (vali/rule (not (or (nil? site-host) (= "" site-host)))
-               [:website "Must be a valid website." site-host])
+    (if (not (empty? (:website job-params)))
+      (vali/rule (not (or (nil? site-host) (= "" site-host)))
+                 [:website "Must be a valid website." site-host]))
 
-    ; also allow submissions from startlabs members
-    (vali/rule (whitelist-contains?
-                whitelist
-                (email-domain (:email job-params)))
-                   
-               [:email "Your email address domain is not on our whitelist."])
+    (if (not (empty? (:company-size job-params)))
+      (vali/rule (vali/valid-number? (:company-size job-params))
+                 [:company-size "The company size must be a valid number."])
 
-    (vali/rule (whitelist-contains? whitelist site-host)
-               [:website "Sorry, your site is not on our whitelist."])
+      (vali/rule (vali/greater-than? (:company-size job-params) 0)
+                 [:company-size "Surely you have at least one employee.
+                  If not, then who's filling out this form?"]))
 
-    (vali/rule (vali/valid-number? (:company-size job-params))
-               [:company-size "The company size must be a valid number."])
-
-    (vali/rule (vali/greater-than? (:company-size job-params) 0)
-               [:company-size "Surely you have at least one employee.
-                If not, then who's filling out this form?"])
-
+    (if (not (empty? (:location job-params)))
       (let [err [:location 
                  "The latitude/longitude of the location are invalid."]]
         (try
@@ -472,39 +465,40 @@ We prefer candidates who wear green clothing."
                           (abs<= (:longitude job-params) 180))
                      err)
           (catch Exception e
-            (vali/rule false err))))
+            (vali/rule false err)))))
 
     (doseq [date [:start-date :end-date]]
-      (vali/rule
-       (u/parse-date (date job-params))
-       [date "Invalid date."]))
+      (if (contains? required-params date)
+        (vali/rule
+         (u/parse-date (date job-params))
+         [date "Invalid date."])))
 
     ; make sure the end date comes after the start
-    (vali/rule
-     (let [[start end] (map #(u/parse-date (% job-params)) 
-                            [:start-date :end-date])]
-       (and (and start end) 
-            (= -1 (apply compare (map to-long [start end])))))
-     [:end-date "The end date must come after the start date."])
+    (if (contains? required-params :start-date)
+      (vali/rule
+       (let [[start end] (map #(u/parse-date (% job-params)) 
+                              [:start-date :end-date])]
+         (and (and start end) 
+              (= -1 (apply compare (map to-long [start end])))))
+       [:end-date "The end date must come after the start date."]))
 
     (not (apply vali/errors? ordered-job-keys))))
 
 
 (defn fix-job-params [params]
-  (let [website    (:website params)
-        fulltime?  (if (= (:fulltime? params) "true") true false)
-        start-date (u/parse-date (:start-date params))
-        end-date   (if start-date
-                     (t/plus start-date (t/months 6)) 
-                     (t/plus (t/now) (t/months 6)))]
+  (let [website     (:website params)
+        internship? (= (:role params) "internship")
+        start-date  (u/parse-date (:start-date params))
+        end-date    (if start-date
+                      (t/plus start-date (t/months 6)) 
+                      (t/plus (t/now) (t/months 6)))]
     (conj params
       {:website (if (not (empty? website)) 
                   (u/httpify-url website) 
                   "")
-       :fulltime? fulltime?
-       :end-date (if fulltime? 
-                   (u/unparse-date end-date)
-                   (:end-date params))})))
+       :end-date (if internship?
+                   (:end-date params)
+                   (u/unparse-date end-date))})))
 
 (def job-error  "Please correct the form and resubmit.")
 (defn flash-job-error []

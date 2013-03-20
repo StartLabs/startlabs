@@ -1,6 +1,6 @@
 ;; This file was generated with lein-dalap from
 ;;
-;; src/clj/startlabs/views/job_list.clj @ Tue Mar 19 20:04:05 EDT 2013
+;; src/clj/startlabs/views/job_list.clj @ Tue Mar 19 20:25:35 EDT 2013
 ;;
 (ns startlabs.views.job-list (:use [clojure.set :only [union difference]]))
 (do (defn is-email? [v] (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v)))
@@ -8,7 +8,8 @@
 (do (def converter (Markdown/getSanitizingConverter.)))
 (do (defn markdownify [text] (.makeHtml converter text)))
 (def ordered-job-keys [:role :company :position :location :website :start-date :end-date :company-size :description :contact-info :email])
-(defn visible-job-keys [role] (condp = role :internship (set ordered-job-keys) :fulltime (difference (visible-job-keys :internship) #{:end-date}) :cofounder (difference (visible-job-keys :internship) #{:end-date :start-date})))
+(defn visible-job-keys [role] (condp = role :internship (set ordered-job-keys) :fulltime (difference (visible-job-keys :internship) #{:end-date}) :cofounder (difference (visible-job-keys :internship) #{:position :end-date :start-date}) (visible-job-keys :internship)))
+(defn required-job-keys [role] (condp = role :internship (visible-job-keys role) :fulltime (visible-job-keys role) :cofounder (difference (visible-job-keys role) #{:company-size :website})))
 (defn is-phone? "Naive, really just checks that the characters are only \n   numbers, digits, dashes, parens, or dots." [v] (re-matches #"^[\d-\.\(\)\s]{7,15}$" v))
 (defn is-www? "Checks if site begins with www. (but not http)" [v] (not (nil? (re-find #"^www\." v))))
 (defn linkify "Converts an email address, telephone number, or url into a proper link\n   to be used as the href attribute in an HTML anchor." [text] (str (condp apply [text] nil? "" is-email? "mailto:" is-phone? "tel://" is-www? "http://" "") text))

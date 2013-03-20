@@ -30,7 +30,15 @@
     :fulltime   (difference (visible-job-keys :internship) 
                             #{:end-date})
     :cofounder  (difference (visible-job-keys :internship)
-                            #{:start-date :end-date})))
+                            #{:start-date :end-date :position})
+    (visible-job-keys :internship)))
+
+(defn required-job-keys [role]
+  (condp = role
+    :internship (visible-job-keys role)
+    :fulltime   (visible-job-keys role)
+    :cofounder  (difference (visible-job-keys role)
+                            #{:website :company-size})))
 
 (defn is-phone? 
   "Naive, really just checks that the characters are only 

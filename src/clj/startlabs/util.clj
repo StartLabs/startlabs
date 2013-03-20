@@ -102,7 +102,7 @@
      "http://www.startlabs.org") route))
 ;; (home-uri "/jobs")
 
-(defn empty-rule [[k v]]
+(defn empty-rule [k v]
   (vali/rule 
     (or (false? v) (vali/has-value? v)) [k "This field cannot be empty."]))
 

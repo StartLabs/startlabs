@@ -14771,16 +14771,18 @@ startlabs.views.job_list.markdownify = function(a) {
 startlabs.views.job_list.ordered_job_keys = cljs.core.PersistentVector.fromArray("\ufdd0'role \ufdd0'company \ufdd0'position \ufdd0'location \ufdd0'website \ufdd0'start-date \ufdd0'end-date \ufdd0'company-size \ufdd0'description \ufdd0'contact-info \ufdd0'email".split(" "), !0);
 startlabs.views.job_list.visible_job_keys = function visible_job_keys(b) {
   var c = cljs.core._EQ_;
-  if(c.call(null, "\ufdd0'internship", b)) {
-    return cljs.core.set.call(null, startlabs.views.job_list.ordered_job_keys)
+  return c.call(null, "\ufdd0'internship", b) ? cljs.core.set.call(null, startlabs.views.job_list.ordered_job_keys) : c.call(null, "\ufdd0'fulltime", b) ? clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date"])) : c.call(null, "\ufdd0'cofounder", b) ? clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'position", "\ufdd0'end-date", "\ufdd0'start-date"])) : 
+  visible_job_keys.call(null, "\ufdd0'internship")
+};
+startlabs.views.job_list.required_job_keys = function(a) {
+  var b = cljs.core._EQ_;
+  if(b.call(null, "\ufdd0'internship", a) || b.call(null, "\ufdd0'fulltime", a)) {
+    return startlabs.views.job_list.visible_job_keys.call(null, a)
   }
-  if(c.call(null, "\ufdd0'fulltime", b)) {
-    return clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date"]))
+  if(b.call(null, "\ufdd0'cofounder", a)) {
+    return clojure.set.difference.call(null, startlabs.views.job_list.visible_job_keys.call(null, a), cljs.core.PersistentHashSet.fromArray(["\ufdd0'company-size", "\ufdd0'website"]))
   }
-  if(c.call(null, "\ufdd0'cofounder", b)) {
-    return clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date", "\ufdd0'start-date"]))
-  }
-  throw Error([cljs.core.str("No matching clause: "), cljs.core.str(b)].join(""));
+  throw Error([cljs.core.str("No matching clause: "), cljs.core.str(a)].join(""));
 };
 startlabs.views.job_list.is_phone_QMARK_ = function(a) {
   return cljs.core.re_matches.call(null, /^[\d-\.\(\)\s]{7,15}$/, a)
