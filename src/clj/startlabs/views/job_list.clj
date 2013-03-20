@@ -99,7 +99,7 @@
     [:div.span6 [:span.label.label-info (:role job-info)]]
     [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]
 
-    (if (> 0 (:company-size job-info))
+    (if (not (empty? (str (:company-size job-info))))
       [:div.span6.employees 
        [:span.badge.badge-info (:company-size job-info)] "Employees"])
 
