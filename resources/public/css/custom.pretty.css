@@ -6965,3 +6965,7 @@ input.round-right {
     color: #fff;
     text-shadow: 0px 1px 0px #000;
 }
+
+#job-form .required label {
+  font-weight: bold;
+}

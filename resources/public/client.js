@@ -15276,11 +15276,12 @@ startlabs.jobs.update_location = function() {
   return startlabs.jobs.geocode.call(null, a, startlabs.jobs.grab_coords.call(null, startlabs.jobs.update_preview_marker))
 };
 startlabs.jobs.update_visible_fields = function() {
-  for(var a = cljs.core.keyword.call(null, jayq.core.$.call(null, "#role").val()), a = startlabs.views.job_list.visible_job_keys.call(null, a), b = cljs.core.seq.call(null, startlabs.views.job_list.ordered_job_keys);;) {
-    if(b) {
-      var c = cljs.core.first.call(null, b), d = jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str(cljs.core.name.call(null, c))].join("")).parents("tr");
-      cljs.core.contains_QMARK_.call(null, a, c) ? d.show() : d.hide();
-      b = cljs.core.next.call(null, b)
+  for(var a = cljs.core.keyword.call(null, jayq.core.$.call(null, "#role").val()), b = startlabs.views.job_list.visible_job_keys.call(null, a), a = startlabs.views.job_list.required_job_keys.call(null, a), c = cljs.core.seq.call(null, startlabs.views.job_list.ordered_job_keys);;) {
+    if(c) {
+      var d = cljs.core.first.call(null, c), e = jayq.core.$.call(null, [cljs.core.str("#"), cljs.core.str(cljs.core.name.call(null, d))].join("")).parents("tr");
+      cljs.core.contains_QMARK_.call(null, b, d) ? e.show() : e.hide();
+      cljs.core.contains_QMARK_.call(null, a, d) ? e.addClass("required") : e.removeClass("required");
+      c = cljs.core.next.call(null, c)
     }else {
       return null
     }

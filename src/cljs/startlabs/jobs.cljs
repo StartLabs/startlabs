@@ -3,7 +3,9 @@
         [dommy.template :only [node]]
         [startlabs.views.job-list 
          :only [job-list job-card markdownify
-                ordered-job-keys visible-job-keys]])
+                ordered-job-keys
+                required-job-keys
+                visible-job-keys]])
 
   (:require [cljs.reader :as reader]
             [clojure.string :as str]
@@ -373,13 +375,17 @@
   "Update the visible job fields based on the currently selected role"
   []
   (let [role (keyword (.val ($ "#role")))
-        visible-keys (visible-job-keys role)]
+        visible-keys (visible-job-keys role)
+        required-keys (required-job-keys role)]
     (doseq [field ordered-job-keys]
       (let [$elem (-> ($ (str "#" (name field)))
                       (.parents "tr"))]
         (if (contains? visible-keys field)
           (.show $elem)
-          (.hide $elem))))))
+          (.hide $elem))
+        (if (contains? required-keys field)
+          (.addClass $elem "required")
+          (.removeClass $elem "required"))))))
 
 ;; (.change ($ "#role") update-visible-fields)
 
