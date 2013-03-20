@@ -93,20 +93,18 @@
    [:div.row-fluid.meta
     ; need to format dates
     [:div.span6 [:i.icon.icon-calendar] (:start-date job-info) 
-     (if (not (= (:fulltime? job-info) "true"))
+     (if (= (:role job-info) "internship")
        (str " - " (:end-date job-info)))]
 
-    [:div.span6 [:span.label.label-info 
-                 (if (= (:fulltime? job-info) "true")
-                   "Fulltime"
-                   "Internship")]]
-
+    [:div.span6 [:span.label.label-info (:role job-info)]]
     [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]
 
-    [:div.span6.employees 
-     [:span.badge.badge-info (:company-size job-info)] "Employees"]]
+    (if (> 0 (:company-size job-info))
+      [:div.span6.employees 
+       [:span.badge.badge-info (:company-size job-info)] "Employees"])
 
-   [:a.read {:href (str "#" (more-id (:id job-info)))} "Read More..." ]])
+   [:a.read {:href (str "#" (more-id (:id job-info)))}
+    "Read More..." ]]])
 
 (defn job-card [job-info editable?]
   [:div.job-info

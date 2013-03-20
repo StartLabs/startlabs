@@ -119,6 +119,7 @@
 (def sample-job-fields
   {:position "Lab Assistant" :company "StartLabs"
    :company-size 20
+   :role "internship"
    :location "Cambridge, Massachusetts"
    :website "http://www.startlabs.org" 
    :start-date "May 30, 2013" :end-date "August 30, 2013"
