@@ -38,7 +38,8 @@
     :internship (visible-job-keys role)
     :fulltime   (visible-job-keys role)
     :cofounder  (difference (visible-job-keys role)
-                            #{:website :company-size})))
+                            #{:website :company-size})
+    (required-job-keys :internship)))
 
 (defn is-phone? 
   "Naive, really just checks that the characters are only 

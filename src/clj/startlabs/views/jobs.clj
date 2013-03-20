@@ -366,9 +366,7 @@ We prefer candidates who wear green clothing."
                                    (:description job)))
 
                     :author      (:contact-info job)
-                    :category    (if (:fulltime? job)
-                                   "Fulltime" 
-                                   "Internship")
+                    :category    (:role job)
                     :guid        (:id job)
                     ;; hack, parsing stingified date. Should really
                     ;; delay formatting of values to the view rather
@@ -444,6 +442,10 @@ We prefer candidates who wear green clothing."
 
     (doseq [param required-params]
       (u/empty-rule param (job-params param)))
+    
+    (vali/rule 
+     (contains? (set (mu/get-enum-vals :job/role)) (keyword (:role job-params)))
+     [:role "Invalid role. Please choose one of the listed options."])
 
     (if (not (empty? (:website job-params)))
       (vali/rule (not (or (nil? site-host) (= "" site-host)))
