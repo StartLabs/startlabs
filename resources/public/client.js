@@ -14768,6 +14768,9 @@ startlabs.views.job_list.converter = new Markdown.getSanitizingConverter;
 startlabs.views.job_list.markdownify = function(a) {
   return startlabs.views.job_list.converter.makeHtml(a)
 };
+startlabs.views.job_list.intify = function() {
+  return null
+};
 startlabs.views.job_list.intify = function(a) {
   return parseInt(a)
 };
