@@ -1,13 +1,12 @@
 ;; This file was generated with lein-dalap from
 ;;
-;; src/clj/startlabs/views/job_list.clj @ Thu Mar 21 02:59:05 EDT 2013
+;; src/clj/startlabs/views/job_list.clj @ Thu Mar 21 03:04:31 EDT 2013
 ;;
 (ns startlabs.views.job-list (:use [clojure.set :only [union difference]]))
 (do (defn is-email? [v] (re-matches #"(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" v)))
 (def md-to-html-string)
 (do (def converter (Markdown/getSanitizingConverter.)))
 (do (defn markdownify [text] (.makeHtml converter text)))
-(defn intify [n] (Integer. n))
 (do (defn intify [n] (js/parseInt n)))
 (def ordered-job-keys [:role :company :founder-name :position :location :website :start-date :end-date :company-size :description :contact-info :email])
 (defn visible-job-keys [role] (condp = role :internship (difference (set ordered-job-keys) #{:founder-name}) :fulltime (difference (visible-job-keys :internship) #{:end-date}) :cofounder (union (difference (visible-job-keys :internship) #{:position :end-date :start-date}) #{:founder-name}) (visible-job-keys :internship)))

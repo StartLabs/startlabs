@@ -16,7 +16,7 @@
 #_(:cljs (def converter (Markdown/getSanitizingConverter.)))
 #_(:cljs (defn markdownify [text] (.makeHtml converter text)))
 
-(defn intify [n] (Integer. n))
+#_(:clj (defn intify [n] (Integer. n)))
 #_(:cljs (defn intify [n] (js/parseInt n)))
 
 (def ordered-job-keys

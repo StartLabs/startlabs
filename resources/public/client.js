@@ -14769,9 +14769,6 @@ startlabs.views.job_list.markdownify = function(a) {
   return startlabs.views.job_list.converter.makeHtml(a)
 };
 startlabs.views.job_list.intify = function(a) {
-  return new startlabs.views.job_list.Integer(a)
-};
-startlabs.views.job_list.intify = function(a) {
   return parseInt(a)
 };
 startlabs.views.job_list.ordered_job_keys = cljs.core.PersistentVector.fromArray("\ufdd0'role \ufdd0'company \ufdd0'founder-name \ufdd0'position \ufdd0'location \ufdd0'website \ufdd0'start-date \ufdd0'end-date \ufdd0'company-size \ufdd0'description \ufdd0'contact-info \ufdd0'email".split(" "), !0);
