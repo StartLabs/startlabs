@@ -337,11 +337,6 @@ We prefer candidates who wear green clothing."
       (str "window.job_data = " 
            (json/generate-string (:jobs page-jobs)) ";")]]))
 
-(defn intify [n fallback]
-  (if (vali/valid-number? n)
-    (Integer. n)
-    fallback))
-
 (defn get-sort-field [sort-field]
   (or
    sort-field
@@ -362,9 +357,9 @@ We prefer candidates who wear green clothing."
   (session/session-put! :sort-field sort-field)
   (session/session-put! :sort-order sort-order)
 
-  (let [page         (intify page 1)
-        page-size    (intify page-size 20)
-        sort-order   (intify sort-order 1)
+  (let [page         (u/intify page 1)
+        page-size    (u/intify page-size 20)
+        sort-order   (u/intify sort-order 1)
         filters      (session/session-get :filters)
         jobs         (job/filtered-jobs q sort-field sort-order filters)
         page-jobs    (jobs-on-page jobs page page-size)

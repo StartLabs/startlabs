@@ -24,3 +24,20 @@ can filter...***
 ... can keep the fulltime? attribute around, but stop using it when making new entries.
 
 - Ensure that entries are still editable via email
+
+
+To approve existing jobs, I executed the following queries:
+
+```
+(def jobs (map first (q '[:find ?job :where [?job :job/id _] [?job :job/confirmed? true]] (db conn))))
+
+@(d/transact conn (for [job jobs] {:db/id job :job/approved? true})
+
+(def fulltime (map first (q '[:find ?job :where [?job :job/fulltime? true]] (db conn))))
+
+@(d/transact conn (for [job fulltime] {:db/id job :job/role job.role/fulltime}))
+
+(def interns (map first (q '[:find ?job :where [?job :job/fulltime? false]] (db conn))))
+
+@(d/transact conn (for [job interns] {:db/id job :job/role :job.role/internship}))
+```

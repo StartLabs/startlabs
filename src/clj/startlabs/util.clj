@@ -18,6 +18,11 @@
     ""  nil
     (Integer. n)))
 
+(defn intify [n fallback] ^:clj
+  (try 
+    (Integer. n)
+    (catch Exception e fallback)))
+
 (defn parse-date 
   "Returns the parsed date if valid, otherwise returns false"
   [the-date]

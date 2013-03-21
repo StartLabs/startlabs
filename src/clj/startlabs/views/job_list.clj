@@ -5,7 +5,8 @@
 (ns startlabs.views.job-list
   (:use [clojure.set :only [union difference]]
         [noir.validation :only [is-email?]]
-        [markdown.core :only [md-to-html-string]]))
+        [markdown.core :only [md-to-html-string]]
+        [startlabs.util :only [intify]]))
 
 ; this is taken straight from lib-noir.validation
 #_(:cljs 
@@ -16,8 +17,11 @@
 #_(:cljs (def converter (Markdown/getSanitizingConverter.)))
 #_(:cljs (defn markdownify [text] (.makeHtml converter text)))
 
-(defn intify [n] ^:clj (Integer. n))
-#_(:cljs (defn intify [n] (js/parseInt n)))
+#_(:cljs
+   (defn intify [n fallback]
+     (let [res (js/parseInt n)]
+       (if (js/isNaN res) fallback
+           res))))
 
 (def ordered-job-keys
   [:role :company :founder-name
@@ -94,7 +98,7 @@
   (let [subheader    (if (empty? (:position job-info))
                        (:founder-name job-info)
                        (:position job-info))
-        company-size (intify (:company-size job-info))]
+        company-size (intify (:company-size job-info) 0)]
     [:div.job-summary
       (if editable?
         [:div.pull-right
