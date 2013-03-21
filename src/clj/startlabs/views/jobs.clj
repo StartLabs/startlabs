@@ -502,7 +502,7 @@ We prefer candidates who wear green clothing."
 ;; (abs<= "10" 50) => true
 
 (defn whitelist-contains? [whitelist site-host]
-  (re-find (re-pattern (str "\\b" site-host "\\b")) whitelist))
+  (re-find (re-pattern (str "(?i)\\b" site-host "\\b")) whitelist))
 
 (defn email-domain [email]
   (second (str/split email #"@")))
