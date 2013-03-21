@@ -14768,11 +14768,11 @@ startlabs.views.job_list.converter = new Markdown.getSanitizingConverter;
 startlabs.views.job_list.markdownify = function(a) {
   return startlabs.views.job_list.converter.makeHtml(a)
 };
-startlabs.views.job_list.ordered_job_keys = cljs.core.PersistentVector.fromArray("\ufdd0'role \ufdd0'company \ufdd0'position \ufdd0'location \ufdd0'website \ufdd0'start-date \ufdd0'end-date \ufdd0'company-size \ufdd0'description \ufdd0'contact-info \ufdd0'email".split(" "), !0);
+startlabs.views.job_list.ordered_job_keys = cljs.core.PersistentVector.fromArray("\ufdd0'role \ufdd0'company \ufdd0'founder-name \ufdd0'position \ufdd0'location \ufdd0'website \ufdd0'start-date \ufdd0'end-date \ufdd0'company-size \ufdd0'description \ufdd0'contact-info \ufdd0'email".split(" "), !0);
 startlabs.views.job_list.visible_job_keys = function visible_job_keys(b) {
   var c = cljs.core._EQ_;
-  return c.call(null, "\ufdd0'internship", b) ? cljs.core.set.call(null, startlabs.views.job_list.ordered_job_keys) : c.call(null, "\ufdd0'fulltime", b) ? clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date"])) : c.call(null, "\ufdd0'cofounder", b) ? clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'position", "\ufdd0'end-date", "\ufdd0'start-date"])) : 
-  visible_job_keys.call(null, "\ufdd0'internship")
+  return c.call(null, "\ufdd0'internship", b) ? clojure.set.difference.call(null, cljs.core.set.call(null, startlabs.views.job_list.ordered_job_keys), cljs.core.PersistentHashSet.fromArray(["\ufdd0'founder-name"])) : c.call(null, "\ufdd0'fulltime", b) ? clojure.set.difference.call(null, visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'end-date"])) : c.call(null, "\ufdd0'cofounder", b) ? clojure.set.union.call(null, clojure.set.difference.call(null, 
+  visible_job_keys.call(null, "\ufdd0'internship"), cljs.core.PersistentHashSet.fromArray(["\ufdd0'position", "\ufdd0'end-date", "\ufdd0'start-date"])), cljs.core.PersistentHashSet.fromArray(["\ufdd0'founder-name"])) : visible_job_keys.call(null, "\ufdd0'internship")
 };
 startlabs.views.job_list.required_job_keys = function required_job_keys(b) {
   var c = cljs.core._EQ_;
@@ -14800,12 +14800,14 @@ startlabs.views.job_list.job_delete_modal = function(a) {
   "\ufdd0'data-dismiss", "\ufdd0'aria-hidden"], {"\ufdd0'href":"#", "\ufdd0'data-dismiss":"modal", "\ufdd0'aria-hidden":!0}), "Whoops, never mind."], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'button.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'type"], {"\ufdd0'type":"submit"}), "Yes, Remove it."], !0)], !0)], !0)
 };
 startlabs.views.job_list.job_summary = function(a, b) {
+  var c = cljs.core.empty_QMARK_.call(null, (new cljs.core.Keyword("\ufdd0'position")).call(null, a)) ? (new cljs.core.Keyword("\ufdd0'founder-name")).call(null, a) : (new cljs.core.Keyword("\ufdd0'position")).call(null, a);
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-summary", cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.pull-right", cljs.core.PersistentVector.fromArray(["\ufdd0'a.edit-link", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Edit"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'href", 
-  "\ufdd0'role"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button"}), "Delete"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
+  "\ufdd0'role"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button"}), "Delete"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.truth_(cljs.core.truth_(b) ? cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'approved?")).call(null, a), "false") : b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div", cljs.core.PersistentVector.fromArray(["\ufdd0'input.checkbox", cljs.core.ObjMap.fromObject(["\ufdd0'type"], 
+  {"\ufdd0'type":"checkbox"})], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'input", cljs.core.ObjMap.fromObject(["\ufdd0'type", "\ufdd0'value", "\ufdd0'name"], {"\ufdd0'type":"hidden", "\ufdd0'value":"0", "\ufdd0'name":(new cljs.core.Keyword("\ufdd0'id")).call(null, a)})], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
     var b = startlabs.views.job_list.linkify.call(null, (new cljs.core.Keyword("\ufdd0'website")).call(null, a));
     return cljs.core.truth_(b) ? b : "#"
-  }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", (new cljs.core.Keyword("\ufdd0'position")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.meta", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start-date")).call(null, a), cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'role")).call(null, 
-  a), "internship") ? [cljs.core.str(" - "), cljs.core.str((new cljs.core.Keyword("\ufdd0'end-date")).call(null, a))].join("") : null], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'span.label.label-info", (new cljs.core.Keyword("\ufdd0'role")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, 
+  }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", c], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.meta", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start-date")).call(null, a), cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'role")).call(null, a), "internship") ? 
+  [cljs.core.str(" - "), cljs.core.str((new cljs.core.Keyword("\ufdd0'end-date")).call(null, a))].join("") : null], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'span.label.label-info", (new cljs.core.Keyword("\ufdd0'role")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, 
   a)], !0), !cljs.core.empty_QMARK_.call(null, "" + cljs.core.str((new cljs.core.Keyword("\ufdd0'company-size")).call(null, a))) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6.employees", cljs.core.PersistentVector.fromArray(["\ufdd0'span.badge.badge-info", (new cljs.core.Keyword("\ufdd0'company-size")).call(null, a)], !0), "Employees"], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("#"), cljs.core.str(startlabs.views.job_list.more_id.call(null, 
   (new cljs.core.Keyword("\ufdd0'id")).call(null, a)))].join("")}), "Read More..."], !0)], !0)], !0)
 };
@@ -15042,7 +15044,10 @@ startlabs.jobs.toggle_job_details = function(a) {
   a.preventDefault();
   a = jayq.core.$.call(null, this);
   a.find(".more").toggle();
-  return a.find(".read").toggle()
+  a.find(".read").toggle();
+  var a = a.find(".checkbox"), b = cljs.core.not.call(null, a.prop("checked"));
+  a.prop("checked", b);
+  return a.siblings("input[type=hidden]").val(b)
 };
 startlabs.jobs.drop_nil_pairs = function(a) {
   return cljs.core.into.call(null, cljs.core.ObjMap.EMPTY, cljs.core.filter.call(null, cljs.core.second, a))
@@ -15114,22 +15119,6 @@ startlabs.jobs.setup_jobs_list = function() {
     a.preventDefault();
     return jayq.core.$.call(null, "#map").toggle()
   });
-  a = jayq.core.$.call(null, "#job-container");
-  jayq.core.on.call(null, a, "\ufdd0'click", ".job-info", startlabs.jobs.toggle_job_details);
-  jayq.core.on.call(null, a, "\ufdd0'click", ".read", function(a) {
-    a.preventDefault();
-    return jayq.core.$.call(null, this).parents(".job-info").trigger("click")
-  });
-  jayq.core.on.call(null, a, "\ufdd0'click", ".btn-danger", function(a) {
-    a.preventDefault();
-    return jayq.core.$.call(null, jayq.core.$.call(null, this).attr("href")).modal("show")
-  });
-  jayq.core.on.call(null, a, "\ufdd0'click", "a, button", function(a) {
-    return a.stopPropagation()
-  });
-  jayq.core.on.call(null, a, "\ufdd0'click", "form button", function() {
-    return jayq.core.$.call(null, this).parent().submit()
-  });
   var b = jayq.core.$.call(null, "#filter");
   jayq.core.on.call(null, b, "\ufdd0'click", "#show-fulltime, #show-internships", function(a) {
     a.preventDefault();
@@ -15159,6 +15148,24 @@ startlabs.jobs.setup_jobs_list = function() {
     return cljs.core.swap_BANG_.call(null, startlabs.jobs.query_map, cljs.core.assoc, "\ufdd0'sort-order", e)
   });
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
+};
+startlabs.jobs.setup_job_container = function() {
+  var a = jayq.core.$.call(null, "#job-container");
+  jayq.core.on.call(null, a, "\ufdd0'click", ".job-info", startlabs.jobs.toggle_job_details);
+  jayq.core.on.call(null, a, "\ufdd0'click", ".read", function(a) {
+    a.preventDefault();
+    return jayq.core.$.call(null, this).parents(".job-info").trigger("click")
+  });
+  jayq.core.on.call(null, a, "\ufdd0'click", ".btn-danger", function(a) {
+    a.preventDefault();
+    return jayq.core.$.call(null, jayq.core.$.call(null, this).attr("href")).modal("show")
+  });
+  jayq.core.on.call(null, a, "\ufdd0'click", "a, button", function(a) {
+    return a.stopPropagation()
+  });
+  return jayq.core.on.call(null, a, "\ufdd0'click", "form button", function() {
+    return jayq.core.$.call(null, this).parent().submit()
+  })
 };
 startlabs.jobs.analytics_data = cljs.core.atom.call(null, cljs.core.ObjMap.EMPTY);
 startlabs.jobs.analytics_table = cljs.core.atom.call(null, cljs.core.PersistentVector.EMPTY);
@@ -15358,6 +15365,7 @@ jayq.core.document_ready.call(null, function() {
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#upcoming-events")) && startlabs.main.setup_home.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#me")) && startlabs.main.setup_me.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#map")) && startlabs.jobs.setup_jobs_list.call(null);
+  cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-container")) && startlabs.jobs.setup_job_container.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#job-form")) && startlabs.jobs.setup_job_submit.call(null);
   cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#analytics")) && startlabs.jobs.setup_job_analytics.call(null);
   return cljs.core.truth_(startlabs.util.exists_QMARK_.call(null, "#visitors")) ? startlabs.visitors.setup_visitors.call(null) : null

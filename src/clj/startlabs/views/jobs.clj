@@ -396,8 +396,8 @@ We prefer candidates who wear green clothing."
    [:a {:class (u/cond-class "btn" [(= active-tab :jobs) "active"]) 
         :href "/jobs"} "Browse Available"]
    (if (user/logged-in?)
-     [:a {:class (u/cond-class "btn" [(= active-tab :whitelist) "active"]) 
-          :href "/whitelist"} "Whitelist"])
+     [:a {:class (u/cond-class "btn" [(= active-tab :approve) "active"]) 
+          :href "/jobs/approve"} "Approve"])
    [:a {:class (u/cond-class "btn" [(= active-tab :new-job) "active"]) 
         :href "/job/new"} "Submit a Job"]])
 
@@ -410,6 +410,37 @@ We prefer candidates who wear green clothing."
      (nav-buttons :jobs)
      [:div (browse-jobs q sort-field page-jobs)])))
 
+(defn approve-redirect []
+  (u/flash-message! :error "You must be logged in to approve jobs.")
+  (response/redirect "/jobs"))
+
+;; [:get /jobs/approve]
+(defn get-unapproved-jobs []
+  (if (user/logged-in?)
+    (let [unapproved-jobs (job/filtered-jobs 
+                           "" :company 0 {:show-approved false})]
+      (common/layout
+       (nav-buttons :approve)
+       
+       [:div
+        [:h1 "Approve Jobs"]
+        [:form#job-container.row-fluid
+         {:action "/jobs/approve" :method "post"}
+         [:button.btn.btn-primary "Approve Checked Jobs"]
+         
+         (job-list {:jobs unapproved-jobs
+                    :editable? true
+                    :q ""
+                    :page 1
+                    :page-count 1})]]))
+    ;else
+    (approve-redirect)))
+
+;; [:post /jobs/approve]
+(defn post-approve-jobs [& params]
+  (if (user/logged-in?)
+    (str params "hello")
+    (approve-redirect)))
 
 (defn get-hostname [url]
   (try
@@ -768,9 +799,7 @@ We prefer candidates who wear green clothing."
    (if (job/confirm-job id)
      [:div
       [:h1 "Thanks for Confirming"]
-      [:p "Your listing should now be posted."]
-      [:p "Check it out "
-       [:a {:href (str "/jobs#" id)} "on the jobs page"] "."]]
+      [:p "Your listing will be posted as soon as we get a chance to look over it."]]
      ;; else
      (unexpected-error))))
 

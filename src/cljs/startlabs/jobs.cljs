@@ -90,7 +90,11 @@
   (this-as this
            (let [$this ($ this)]
              (-> $this (.find ".more") .toggle)
-             (-> $this (.find ".read") .toggle))))
+             (-> $this (.find ".read") .toggle)
+             (let [$chk (.find $this ".checkbox")
+                   new-val (not (.prop $chk "checked"))]
+               (.prop $chk "checked" new-val)
+               (.val (.siblings $chk "input[type=hidden]") new-val)))))
 
 (defn drop-nil-pairs [m]
   (into {} (filter second m)))
@@ -164,32 +168,6 @@
              (.preventDefault e)
              (.toggle ($ "#map")))))
 
-  (let [$job-container ($ "#job-container")]
-    (jq/on $job-container :click ".job-info" toggle-job-details)
-
-    (jq/on $job-container :click ".read"
-           (fn [e]
-             (.preventDefault e)
-             (this-as this
-                      (-> ($ this) 
-                          (.parents ".job-info")
-                          (.trigger "click")))))
-
-    (jq/on $job-container :click ".btn-danger"
-           (fn [e]
-             (.preventDefault e)
-             (this-as this
-                     (-> ($ this)
-                         (.attr "href") $ (.modal "show")))))
-
-    (jq/on $job-container :click "a, button"
-           (fn [e] (.stopPropagation e)))
-
-    (jq/on $job-container :click "form button"
-           (fn [e]
-             (this-as this
-                      (.submit (.parent ($ this)))))))
-
   (let [$filter ($ "#filter")]
     (jq/on $filter :click "#show-fulltime, #show-internships" 
            (fn [e]
@@ -238,6 +216,33 @@
                       (swap! query-map assoc :sort-order new-order)))))
 
   (reset! filtered-jobs job-data))
+
+(defn setup-job-container []
+  (let [$job-container ($ "#job-container")]
+    (jq/on $job-container :click ".job-info" toggle-job-details)
+
+    (jq/on $job-container :click ".read"
+           (fn [e]
+             (.preventDefault e)
+             (this-as this
+                      (-> ($ this) 
+                          (.parents ".job-info")
+                          (.trigger "click")))))
+
+    (jq/on $job-container :click ".btn-danger"
+           (fn [e]
+             (.preventDefault e)
+             (this-as this
+                     (-> ($ this)
+                         (.attr "href") $ (.modal "show")))))
+
+    (jq/on $job-container :click "a, button"
+           (fn [e] (.stopPropagation e)))
+
+    (jq/on $job-container :click "form button"
+           (fn [e]
+             (this-as this
+                      (.submit (.parent ($ this))))))))
 
 
 ;;

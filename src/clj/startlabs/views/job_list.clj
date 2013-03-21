@@ -18,19 +18,21 @@
 
 
 (def ordered-job-keys
-  [:role :company :position 
-   :location :website 
+  [:role :company :founder-name
+   :position :location :website 
    :start-date :end-date 
    :company-size :description 
    :contact-info :email])
 
 (defn visible-job-keys [role]
   (condp = role
-    :internship (set ordered-job-keys)
+    :internship (difference (set ordered-job-keys) #{:founder-name})
     :fulltime   (difference (visible-job-keys :internship) 
                             #{:end-date})
-    :cofounder  (difference (visible-job-keys :internship)
+    :cofounder  (union
+                 (difference (visible-job-keys :internship)
                             #{:start-date :end-date :position})
+                 #{:founder-name})
     (visible-job-keys :internship)))
 
 (defn required-job-keys [role]
@@ -87,33 +89,40 @@
       [:button.btn.btn-danger {:type "submit"} "Yes, Remove it."]]])
 
 (defn job-summary [job-info editable?]
-  [:div.job-summary
-    (if editable?
-      [:div.pull-right
-       [:a.edit-link {:href (str "/job/" (:id job-info))} "Edit"]
-       [:a.btn.btn-danger
-        {:href (str "#delete-" (:id job-info)) :role "button"} "Delete"]])
-
-    [:h2 
-     [:a {:href (or (linkify (:website job-info)) "#")}
-      (:company job-info) ":"]
-     [:small " " (:position job-info)]]
-
-   [:div.row-fluid.meta
-    ; need to format dates
-    [:div.span6 [:i.icon.icon-calendar] (:start-date job-info) 
-     (if (= (:role job-info) "internship")
-       (str " - " (:end-date job-info)))]
-
-    [:div.span6 [:span.label.label-info (:role job-info)]]
-    [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]
-
-    (if (not (empty? (str (:company-size job-info))))
-      [:div.span6.employees 
-       [:span.badge.badge-info (:company-size job-info)] "Employees"])
-
-   [:a.read {:href (str "#" (more-id (:id job-info)))}
-    "Read More..." ]]])
+  (let [subheader (if (empty? (:position job-info))
+                    (:founder-name job-info)
+                    (:position job-info))]
+    [:div.job-summary
+      (if editable?
+        [:div.pull-right
+         [:a.edit-link {:href (str "/job/" (:id job-info))} "Edit"]
+         [:a.btn.btn-danger
+          {:href (str "#delete-" (:id job-info)) :role "button"} "Delete"]])
+  
+      [:h2 
+       (if (and editable? (= (:approved? job-info) "false"))
+         [:div
+           [:input.checkbox {:type "checkbox"}]
+           [:input {:type "hidden" :value "0" :name (:id job-info)}]])
+       [:a {:href (or (linkify (:website job-info)) "#")}
+        (:company job-info) ":"]
+       [:small " " subheader]]
+  
+     [:div.row-fluid.meta
+      ; need to format dates
+      [:div.span6 [:i.icon.icon-calendar] (:start-date job-info) 
+       (if (= (:role job-info) "internship")
+         (str " - " (:end-date job-info)))]
+  
+      [:div.span6 [:span.label.label-info (:role job-info)]]
+      [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]
+  
+      (if (not (empty? (str (:company-size job-info))))
+        [:div.span6.employees 
+         [:span.badge.badge-info (:company-size job-info)] "Employees"])
+  
+     [:a.read {:href (str "#" (more-id (:id job-info)))}
+      "Read More..." ]]]))
 
 (defn job-card [job-info editable?]
   [:div.job-info

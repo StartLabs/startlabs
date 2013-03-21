@@ -82,6 +82,8 @@
 
   (GET "/jobs" [& params] (jobs/get-jobs params))
   (POST "/jobs/filters" [& params] (jobs/post-job-filters params))
+  (GET "/jobs/approve" [] (jobs/get-unapproved-jobs))
+  (POST "/jobs/approve" [& params] (jobs/post-approve-jobs params))
 
   (GET ["/jobs.:fmt" :fmt #"(edn|json|xml)"] [fmt & params] 
        (jobs/job-search (keyword fmt) params))

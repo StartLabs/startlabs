@@ -20,7 +20,8 @@
 
 (defn create-job [job-map]
   (let [job-map-with-id (conj job-map {:id (uuid) 
-                                       :secret (uuid)})
+                                       :secret (uuid)
+                                       :approved? false})
         tx-data         (util/txify-new-entity :job job-map-with-id)]
     @(d/transact *conn* tx-data)
     job-map-with-id))
@@ -70,9 +71,13 @@
       false)))
 
 (defn confirm-job [job-id]
-  (update-job-fields job-id {:job/confirmed? true
-                             :job/post-date (now-date)}
+  (update-job-fields job-id {:job/confirmed? true}
                      "Trouble confirming job"))
+
+(defn approve-job [job-id]
+  (update-job-fields job-id {:job/approved? true
+                             :job/post-date (now-date)}
+                     "Trouble approving job"))
 
 (defn remove-job [job-id]
   (update-job-fields job-id {:job/removed? true}
@@ -82,9 +87,11 @@
 (defn upcoming-jobs-q [{:keys [show-internships show-fulltime
                                min-company-size max-company-size
                                min-start-date max-start-date
-                               min-end-date max-end-date] :as filters
+                               min-end-date max-end-date
+                               show-approved] :as filters
                         :or {show-internships true
-                             show-fulltime true}}]
+                             show-fulltime true
+                             show-approved true}}]
   (let [lmin-start (if min-start-date (tc/to-long min-start-date))
         lmax-start (if max-start-date (tc/to-long max-start-date))
         lmin-end   (if min-end-date   (tc/to-long min-end-date))
@@ -92,15 +99,14 @@
         truff      `[(true? true)]]
     [:find '?job :where
      ['?job :job/confirmed? true]
+     ['?job :job/approved? '?show-approved]
      ['?job :job/company-size '?size]
-     ['?job :job/fulltime? '?fulltime]
      ['?job :job/start-date '?start]
      ['?job :job/end-date '?end]
      ['(clj-time.coerce/to-long ?start) '?lstart]
      ['(clj-time.coerce/to-long ?end) '?lend]
      ['(startlabs.util/after-now? ?end)]
-     (if (not= true show-internships) `[(= ~'?fulltime true)] truff)
-     (if (not= true show-fulltime) `[(= ~'?fulltime false)] truff)
+     ;;(if (not= true show-fulltime) `[(= ~'?fulltime false)] truff)
      (if min-company-size `[(>= ~'?size ~min-company-size)] truff)
      (if max-company-size `[(<= ~'?size ~max-company-size)] truff)
      (if lmin-start `[(>= ~'?lstart ~lmin-start)] truff)

@@ -2,8 +2,9 @@
   (:use [jayq.core :only [$]]
         [startlabs.views.job-list :only [markdownify]]
         [startlabs.jobs :only [setup-jobs-list 
-                               setup-job-submit
-                               setup-job-analytics]]
+                               setup-job-analytics
+                               setup-job-container
+                               setup-job-submit]]
         [startlabs.visitors :only [setup-visitors]])
 
   (:require [jayq.core :as jq]
@@ -82,6 +83,9 @@
 
  (if (u/exists? "#map")
    (setup-jobs-list))
+ 
+ (if (u/exists? "#job-container")
+   (setup-job-container))
 
  (if (u/exists? "#job-form")
    (setup-job-submit))
