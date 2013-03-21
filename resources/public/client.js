@@ -14768,6 +14768,12 @@ startlabs.views.job_list.converter = new Markdown.getSanitizingConverter;
 startlabs.views.job_list.markdownify = function(a) {
   return startlabs.views.job_list.converter.makeHtml(a)
 };
+startlabs.views.job_list.intify = function(a) {
+  return new startlabs.views.job_list.Integer(a)
+};
+startlabs.views.job_list.intify = function(a) {
+  return parseInt(a)
+};
 startlabs.views.job_list.ordered_job_keys = cljs.core.PersistentVector.fromArray("\ufdd0'role \ufdd0'company \ufdd0'founder-name \ufdd0'position \ufdd0'location \ufdd0'website \ufdd0'start-date \ufdd0'end-date \ufdd0'company-size \ufdd0'description \ufdd0'contact-info \ufdd0'email".split(" "), !0);
 startlabs.views.job_list.visible_job_keys = function visible_job_keys(b) {
   var c = cljs.core._EQ_;
@@ -14800,7 +14806,7 @@ startlabs.views.job_list.job_delete_modal = function(a) {
   "\ufdd0'data-dismiss", "\ufdd0'aria-hidden"], {"\ufdd0'href":"#", "\ufdd0'data-dismiss":"modal", "\ufdd0'aria-hidden":!0}), "Whoops, never mind."], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'button.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'type"], {"\ufdd0'type":"submit"}), "Yes, Remove it."], !0)], !0)], !0)
 };
 startlabs.views.job_list.job_summary = function(a, b) {
-  var c = cljs.core.empty_QMARK_.call(null, (new cljs.core.Keyword("\ufdd0'position")).call(null, a)) ? (new cljs.core.Keyword("\ufdd0'founder-name")).call(null, a) : (new cljs.core.Keyword("\ufdd0'position")).call(null, a);
+  var c = cljs.core.empty_QMARK_.call(null, (new cljs.core.Keyword("\ufdd0'position")).call(null, a)) ? (new cljs.core.Keyword("\ufdd0'founder-name")).call(null, a) : (new cljs.core.Keyword("\ufdd0'position")).call(null, a), d = startlabs.views.job_list.intify.call(null, (new cljs.core.Keyword("\ufdd0'company-size")).call(null, a));
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-summary", cljs.core.truth_(b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.pull-right", cljs.core.PersistentVector.fromArray(["\ufdd0'a.edit-link", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("/job/"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join("")}), "Edit"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'a.btn.btn-danger", cljs.core.ObjMap.fromObject(["\ufdd0'href", 
   "\ufdd0'role"], {"\ufdd0'href":[cljs.core.str("#delete-"), cljs.core.str((new cljs.core.Keyword("\ufdd0'id")).call(null, a))].join(""), "\ufdd0'role":"button"}), "Delete"], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'h2", cljs.core.truth_(cljs.core.truth_(b) ? cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'approved?")).call(null, a), "false") : b) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div", cljs.core.PersistentVector.fromArray(["\ufdd0'input.checkbox", cljs.core.ObjMap.fromObject(["\ufdd0'type"], 
   {"\ufdd0'type":"checkbox"})], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'input", cljs.core.ObjMap.fromObject(["\ufdd0'type", "\ufdd0'value", "\ufdd0'name"], {"\ufdd0'type":"hidden", "\ufdd0'value":"0", "\ufdd0'name":(new cljs.core.Keyword("\ufdd0'id")).call(null, a)})], !0)], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'a", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":function() {
@@ -14808,8 +14814,8 @@ startlabs.views.job_list.job_summary = function(a, b) {
     return cljs.core.truth_(b) ? b : "#"
   }()}), (new cljs.core.Keyword("\ufdd0'company")).call(null, a), ":"], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'small", " ", c], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.meta", cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-calendar"], !0), (new cljs.core.Keyword("\ufdd0'start-date")).call(null, a), cljs.core._EQ_.call(null, (new cljs.core.Keyword("\ufdd0'role")).call(null, a), "internship") ? 
   [cljs.core.str(" - "), cljs.core.str((new cljs.core.Keyword("\ufdd0'end-date")).call(null, a))].join("") : null], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'span.label.label-info", (new cljs.core.Keyword("\ufdd0'role")).call(null, a)], !0)], !0), cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6", cljs.core.PersistentVector.fromArray(["\ufdd0'i.icon.icon-map-marker"], !0), (new cljs.core.Keyword("\ufdd0'location")).call(null, 
-  a)], !0), !cljs.core.empty_QMARK_.call(null, "" + cljs.core.str((new cljs.core.Keyword("\ufdd0'company-size")).call(null, a))) ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6.employees", cljs.core.PersistentVector.fromArray(["\ufdd0'span.badge.badge-info", (new cljs.core.Keyword("\ufdd0'company-size")).call(null, a)], !0), "Employees"], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("#"), cljs.core.str(startlabs.views.job_list.more_id.call(null, 
-  (new cljs.core.Keyword("\ufdd0'id")).call(null, a)))].join("")}), "Read More..."], !0)], !0)], !0)
+  a)], !0), 0 < d ? cljs.core.PersistentVector.fromArray(["\ufdd0'div.span6.employees", cljs.core.PersistentVector.fromArray(["\ufdd0'span.badge.badge-info", d], !0), "Employee", cljs.core.not_EQ_.call(null, 1, d) ? "s" : null], !0) : null, cljs.core.PersistentVector.fromArray(["\ufdd0'a.read", cljs.core.ObjMap.fromObject(["\ufdd0'href"], {"\ufdd0'href":[cljs.core.str("#"), cljs.core.str(startlabs.views.job_list.more_id.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, a)))].join("")}), 
+  "Read More..."], !0)], !0)], !0)
 };
 startlabs.views.job_list.job_card = function(a, b) {
   return cljs.core.PersistentVector.fromArray(["\ufdd0'div.job-info", cljs.core.truth_(b) ? startlabs.views.job_list.job_delete_modal.call(null, a) : null, startlabs.views.job_list.job_summary.call(null, a, b), cljs.core.PersistentVector.fromArray(["\ufdd0'div.row-fluid.more", cljs.core.ObjMap.fromObject(["\ufdd0'id"], {"\ufdd0'id":startlabs.views.job_list.more_id.call(null, (new cljs.core.Keyword("\ufdd0'id")).call(null, a))}), cljs.core.PersistentVector.fromArray(["\ufdd0'div.description", startlabs.views.job_list.markdownify.call(null, 

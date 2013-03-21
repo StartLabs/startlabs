@@ -16,6 +16,8 @@
 #_(:cljs (def converter (Markdown/getSanitizingConverter.)))
 #_(:cljs (defn markdownify [text] (.makeHtml converter text)))
 
+(defn intify [n] (Integer. n))
+#_(:cljs (defn intify [n] (js/parseInt n)))
 
 (def ordered-job-keys
   [:role :company :founder-name
@@ -89,9 +91,10 @@
       [:button.btn.btn-danger {:type "submit"} "Yes, Remove it."]]])
 
 (defn job-summary [job-info editable?]
-  (let [subheader (if (empty? (:position job-info))
-                    (:founder-name job-info)
-                    (:position job-info))]
+  (let [subheader    (if (empty? (:position job-info))
+                       (:founder-name job-info)
+                       (:position job-info))
+        company-size (intify (:company-size job-info))]
     [:div.job-summary
       (if editable?
         [:div.pull-right
@@ -117,9 +120,10 @@
       [:div.span6 [:span.label.label-info (:role job-info)]]
       [:div.span6 [:i.icon.icon-map-marker] (:location job-info)]
   
-      (if (not (empty? (str (:company-size job-info))))
+      (if (> company-size 0)
         [:div.span6.employees 
-         [:span.badge.badge-info (:company-size job-info)] "Employees"])
+         [:span.badge.badge-info company-size]
+         "Employee" (when (not= 1 company-size) "s")])
   
      [:a.read {:href (str "#" (more-id (:id job-info)))}
       "Read More..." ]]]))
