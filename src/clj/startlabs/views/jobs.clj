@@ -438,10 +438,14 @@ We prefer candidates who wear green clothing."
     (approve-redirect)))
 
 ;; [:post /jobs/approve]
-(defn post-approve-jobs [& params]
+(defn post-approve-jobs [job-map]
   (if (user/logged-in?)
-    (for [param params]
-      param)
+    (do
+      (doseq [[job-id approved?] job-map]
+        (if (= approved? "true")
+          (job/approve-job (name job-id))))
+      (response/redirect "/jobs/approve"))
+    ;;else cannot approve jobs
     (approve-redirect)))
 
 (defn get-hostname [url]

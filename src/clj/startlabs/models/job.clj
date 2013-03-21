@@ -29,6 +29,8 @@
 (defn job-with-id [job-id]
   (util/elem-with-attr :job/id job-id))
 
+;; (job-with-id "dd578977-470f-41c4-890c-44c68037aec7")
+
 (defn job-secret [job-id]
   (ffirst (q '[:find ?secret :in $ ?id :where [?job :job/id ?id]
                [?job :job/secret ?secret]] (db *conn*) job-id)))
@@ -99,7 +101,7 @@
         truff      `[(true? true)]]
     [:find '?job :where
      ['?job :job/confirmed? true]
-     ['?job :job/approved? '?show-approved]
+     ['?job :job/approved? show-approved]
      ['?job :job/company-size '?size]
      ['?job :job/start-date '?start]
      ['?job :job/end-date '?end]
