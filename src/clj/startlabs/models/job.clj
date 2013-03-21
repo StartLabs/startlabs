@@ -45,8 +45,8 @@
       ;; return true to indicate success
       true)
     (catch Exception e
-      (flash-message! 
-       :error 
+      (flash-message!
+       :error
        (if err-msg
          (str err-msg ": " e)
          ;; no default error message provided

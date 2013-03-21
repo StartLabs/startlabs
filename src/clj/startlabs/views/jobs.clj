@@ -40,7 +40,8 @@
     [:div
       [:p "Hey there,"]
       [:p "Thanks for submitting to the StartLabs jobs list."]
-      [:p "To confirm your listing, " [:strong (:position job-map)]
+      [:p "To confirm your listing, " 
+       [:strong (or (:position job-map) (:founder-name job-map))]
           ", please visit this link:"]
       [:p [:a {:href conf-link} conf-link]]
 
@@ -439,7 +440,8 @@ We prefer candidates who wear green clothing."
 ;; [:post /jobs/approve]
 (defn post-approve-jobs [& params]
   (if (user/logged-in?)
-    (str params "hello")
+    (for [param params]
+      param)
     (approve-redirect)))
 
 (defn get-hostname [url]
@@ -532,8 +534,8 @@ We prefer candidates who wear green clothing."
                     (u/httpify-url website) 
                     "")
        :start-date (if start-date
-                     start-date
-                     (t/now))
+                     (u/unparse-date start-date)
+                     (u/unparse-date (t/now)))
        :end-date   (if internship?
                      (:end-date params)
                      (u/unparse-date end-date))})))
