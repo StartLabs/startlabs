@@ -245,21 +245,23 @@ We prefer candidates who wear green clothing."
 
    [:form.form-horizontal {:action "/jobs/filters" :method "POST"}
     [:div.modal-body
-     [:div.control-group
-      [:div.controls
-       [:div.btn-group {:data-toggle "buttons-checkbox"}
-        (for [kw [:show-fulltime :show-internships]]
-          (let [id  (name kw)
-                val (kw filters)]
-            [:a {:href "#" :id id
-                 ;; kw could be nil, in which case, resort to true
-                 :class (u/cond-class "btn" [(not= val false) "active"])}
-             (u/phrasify kw)]))]]]
 
-     (for [kw [:show-fulltime :show-internships]]
-       [:input {:name (name kw) :type "hidden" 
-                :value (str (or (nil? filters)
-                                (true? (kw filters))))}])
+     (comment
+       [:div.control-group
+        [:div.controls
+         [:div.btn-group {:data-toggle "buttons-checkbox"}
+          (for [kw [:show-fulltime :show-internships]]
+            (let [id  (name kw)
+                  val (kw filters)]
+              [:a {:href "#" :id id
+                   ;; kw could be nil, in which case, resort to true
+                   :class (u/cond-class "btn" [(not= val false) "active"])}
+               (u/phrasify kw)]))]]]
+
+       (for [kw [:show-fulltime :show-internships]]
+         [:input {:name (name kw) :type "hidden" 
+                  :value (str (or (nil? filters)
+                                  (true? (kw filters))))}]))
 
      (input-range :company-size ["input-small"] filters)
      (input-range :start-date   ["datepicker"] filters)
