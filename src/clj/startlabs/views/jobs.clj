@@ -29,38 +29,69 @@
         [startlabs.views.job-list 
          :only [job-card job-list ordered-job-keys required-job-keys]])
 
-  (:import java.net.URI))
+  (:import java.net.URI
+           [java.util.concurrent Callable Executors]))
 
 (defn edit-link [job-map]
   (u/home-uri (str "/job/" (:id job-map) "?secret=" (:secret job-map))))
 
+(defhtml p-email-error []
+  [:p "If this email was sent in error, feel free to ignore it or contact "
+   (common/webmaster-link "our webmaster") "."])
+
 (defhtml job-email-body [job-map]
   (let [conf-link     (u/home-uri (str "/job/" (:id job-map) "/confirm"))
-        the-edit-link (edit-link job-map)]
+        the-edit-link (edit-link job-map)
+        listing-title (if (empty? (:position job-map))
+                        (:founder-name job-map)
+                        (:position job-map))]
     [:div
-      [:p "Hey there,"]
-      [:p "Thanks for submitting to the StartLabs jobs list."]
-      [:p "To confirm your listing, " 
-       [:strong (or (:position job-map) (:founder-name job-map))]
-          ", please visit this link:"]
-      [:p [:a {:href conf-link} conf-link]]
+     [:p "Hey there,"]
+     [:p "Thanks for submitting to the StartLabs jobs list."]
+     [:p "To confirm your listing, " 
+      [:strong listing-title]
+      ", please visit this link:"]
+     [:p [:a {:href conf-link} conf-link]]
+     [:p "If you ever need to edit the listing, use this link:"]
+     [:p [:a {:href the-edit-link} the-edit-link]]
+     (p-email-error)]))
 
-      [:p "If you ever need to edit the listing, use this link:"]
-      [:p [:a {:href the-edit-link} the-edit-link]]
+(defhtml approve-email-body [job-map]
+  [:p "Check it out on the "
+   [:a {:href (u/home-uri "/jobs")} "Jobs Page"] "."]
+  (p-email-error))
 
-      [:p "If this email was sent in error, feel free to ignore it or contact "
-       (common/webmaster-link "our webmaster") "."]]))
+;; stupid simple email queue
+;; will fail to send email if the server goes down mid-execution...
+(def email-executor
+  (Executors/newSingleThreadExecutor))
+
+(defn enqueue-email-job [fn]
+  (.submit email-executor
+           (reify Callable 
+             (call [_] (fn)))))
+
+(defn send-jobs-email [to subject body]
+  (enqueue-email-job
+   #(postal/send-message {:host (env :email-host)
+                          :user (env :email-user)
+                          :pass (env :email-pass)
+                          :ssl  :yes}
+                         {:from    "jobs@startlabs.org"
+                          :to      to
+                          :subject subject
+                          :body [{:type    "text/html; charset=utf-8"
+                                  :content body}]})))
 
 (defn send-confirmation-email [job-map]
-  (postal/send-message ^{:host (env :email-host)
-                         :user (env :email-user)
-                         :pass (env :email-pass)
-                         :ssl  :yes}
-    {:from    "jobs@startlabs.org"
-     :to      (:email job-map)
-     :subject "Confirm your StartLabs Job Listing"
-     :body [{:type    "text/html; charset=utf-8"
-             :content (job-email-body job-map)}]}))
+  (send-jobs-email (:email job-map)
+                   "Confirm your StartLabs Job Listing"
+                   (job-email-body job-map)))
+
+(defn send-approval-email [job-map]
+  (send-jobs-email (:email job-map)
+                   "Your StartLabs Jobs Listing has been Approved!"
+                   (approve-email-body job-map)))
 
 (def hidden-job-keys [:longitude :latitude])
 
@@ -438,12 +469,16 @@ We prefer candidates who wear green clothing."
     (approve-redirect)))
 
 ;; [:post /jobs/approve]
-(defn post-approve-jobs [job-map]
+;; takes as input a map of {:job-id "true/false"}
+(defn post-approve-jobs [id-map]
   (if (user/logged-in?)
     (do
-      (doseq [[job-id approved?] job-map]
-        (if (= approved? "true")
-          (job/approve-job (name job-id))))
+      (doseq [[job-id approved?] id-map]
+        (let [id-str (name job-id)]
+          (if (= approved? "true")
+            (do
+              (job/approve-job id-str)
+              (send-approval-email (job/job-map id-str))))))
       (response/redirect "/jobs/approve"))
     ;;else cannot approve jobs
     (approve-redirect)))
@@ -564,17 +599,9 @@ We prefer candidates who wear green clothing."
   (let [fixed-params (trim-and-fix-params params)]
     (if (valid-job? fixed-params)
       (try
-        (let [job-info  (job/create-job fixed-params)
-              email-res (send-confirmation-email job-info)]
-          (if (= (:error email-res) :SUCCESS)
-            (do
-              (response/redirect "/job/success"))
-            (do
-              (u/flash-message!
-               :error (str "Trouble sending confirmation email:" 
-                           (:message email-res)))
-              (render get-new-job fixed-params))))
-
+        (let [job-info  (job/create-job fixed-params)]
+          (send-confirmation-email job-info)
+          (response/redirect "/job/success"))
         (catch Exception e
           (u/flash-message!
            :error (str "Trouble connecting to the database:" e))
