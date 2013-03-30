@@ -15124,7 +15124,7 @@ startlabs.jobs.setup_jobs_list = function() {
     return jayq.core.$.call(null, "#map").toggle()
   });
   var b = jayq.core.$.call(null, "#filter");
-  jayq.core.on.call(null, b, "\ufdd0'click", "#show-fulltime, #show-internships", function(a) {
+  jayq.core.on.call(null, jayq.core.$.call(null, "#role-buttons"), "\ufdd0'click", "a", function(a) {
     a.preventDefault();
     var b = jayq.core.$.call(null, this), a = b.attr("id"), b = cljs.core.truth_(b.hasClass("active")) ? !1 : !0;
     return jayq.core.$.call(null, [cljs.core.str("input[name='"), cljs.core.str(a), cljs.core.str("']")].join("")).val(b)

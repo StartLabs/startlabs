@@ -244,32 +244,35 @@ We prefer candidates who wear green clothing."
     [:h2#filter-label "Filtering Options"]]
 
    [:form.form-horizontal {:action "/jobs/filters" :method "POST"}
+    [:p (str filters)]
     [:div.modal-body
-
-     (comment
+     (let [roles      (job/get-job-roles)
+           show-roles (map #(keyword (str "show-" (name %))) roles)]
        [:div.control-group
+        [:label.control-label "Show roles"]
         [:div.controls
-         [:div.btn-group {:data-toggle "buttons-checkbox"}
-          (for [kw [:show-fulltime :show-internships]]
-            (let [id  (name kw)
-                  val (kw filters)]
+         [:div#role-buttons.btn-group {:data-toggle "buttons-checkbox"}
+          (for [i (range (count roles))]
+            (let [kw      (nth roles i)
+                  show-kw (nth show-roles i)
+                  id      (name show-kw)
+                  val     (show-kw filters)]
               [:a {:href "#" :id id
                    ;; kw could be nil, in which case, resort to true
                    :class (u/cond-class "btn" [(not= val false) "active"])}
-               (u/phrasify kw)]))]]]
-
-       (for [kw [:show-fulltime :show-internships]]
-         [:input {:name (name kw) :type "hidden" 
-                  :value (str (or (nil? filters)
-                                  (true? (kw filters))))}]))
-
-     (input-range :company-size ["input-small"] filters)
-     (input-range :start-date   ["datepicker"] filters)
-     (input-range :end-date     ["datepicker"] filters)]
+               (u/phrasify kw)]))]]
+       
+          (for [kw show-roles]
+            [:input {:name (name kw) :type "hidden"
+                     :value (str (not= (kw filters) false))}])])
+  
+      (input-range :company-size ["input-small"] filters)
+      (input-range :start-date   ["datepicker"] filters)
+      (input-range :end-date     ["datepicker"] filters)]
     
-    [:div.modal-footer
-     [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
-     [:button.btn.btn-primary "Save Changes"]]]])
+      [:div.modal-footer
+       [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
+       [:button.btn.btn-primary "Save Changes"]]]])
 
 (def sort-field-choices 
   [:post-date :company :company-size 

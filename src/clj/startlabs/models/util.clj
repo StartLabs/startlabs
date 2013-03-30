@@ -225,6 +225,6 @@
                :where [?ent :db/ident ?ident]] 
              (db *conn*) ident)))
 
+;; example:
 ;; (get-enum-entity :job.role/internship)
-
 ;; (get-enum-vals :job/role) => (:internship :cofounder :fulltime)

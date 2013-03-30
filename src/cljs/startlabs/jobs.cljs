@@ -169,7 +169,7 @@
              (.toggle ($ "#map")))))
 
   (let [$filter ($ "#filter")]
-    (jq/on $filter :click "#show-fulltime, #show-internships" 
+    (jq/on ($ "#role-buttons") :click "a" 
            (fn [e]
              (.preventDefault e)
              (this-as this

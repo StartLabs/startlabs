@@ -1,5 +1,6 @@
 (ns startlabs.models.job
-  (:use [datomic.api :only [q db ident] :as d]
+  (:use [clojure.set :only [difference]]
+        [datomic.api :only [q db ident] :as d]
         [startlabs.models.database :only [*conn*]]
         [startlabs.util :only 
          [stringify-values uuid after-now? now-date flash-message!]])
@@ -16,7 +17,10 @@
   (util/map-of-entity-tuples :job))
 
 (defn job-role-ent [role]
-  (util/get-enum-entity (keyword (str "job.role/" role))))
+  (util/get-enum-entity (keyword (str "job.role/" (name role)))))
+
+(defn get-job-roles []
+  (util/get-enum-vals :job/role))
 
 (defn create-job [job-map]
   (let [job-map-with-id (conj job-map {:id (uuid) 
@@ -85,36 +89,49 @@
   (update-job-fields job-id {:job/removed? true}
                      "Trouble deleting job"))
 
+(defn role-set [show-cofounder show-fulltime show-internship]
+  (difference
+   (conj #{}
+    (when show-cofounder   (job-role-ent :cofounder))
+    (when show-fulltime    (job-role-ent :fulltime))
+    (when show-internship  (job-role-ent :internship)))
+   #{nil}))
+
 ;; HERE BE DRAGONS.
-(defn upcoming-jobs-q [{:keys [show-internships show-fulltime
+(defn upcoming-jobs-q [{:keys [show-cofounder show-fulltime show-internship
                                min-company-size max-company-size
                                min-start-date max-start-date
                                min-end-date max-end-date
                                show-approved] :as filters
-                        :or {show-internships true
+                        :or {show-cofounder true
                              show-fulltime true
+                             show-internship true
                              show-approved true}}]
-  (let [lmin-start (if min-start-date (tc/to-long min-start-date))
-        lmax-start (if max-start-date (tc/to-long max-start-date))
-        lmin-end   (if min-end-date   (tc/to-long min-end-date))
-        lmax-end   (if max-end-date   (tc/to-long max-end-date))
-        truff      `[(true? true)]]
+  (let [lmin-start  (if min-start-date (tc/to-long min-start-date))
+        lmax-start  (if max-start-date (tc/to-long max-start-date))
+        lmin-end    (if min-end-date   (tc/to-long min-end-date))
+        lmax-end    (if max-end-date   (tc/to-long max-end-date))
+        valid-roles (role-set show-cofounder show-fulltime show-internship)
+        truff       `[(true? true)]]
     [:find '?job :where
      ['?job :job/confirmed? true]
      ['?job :job/approved? show-approved]
      ['?job :job/company-size '?size]
      ['?job :job/start-date '?start]
      ['?job :job/end-date '?end]
+     ['?job :job/role '?role]
      ['(clj-time.coerce/to-long ?start) '?lstart]
      ['(clj-time.coerce/to-long ?end) '?lend]
      ['(startlabs.util/after-now? ?end)]
-     ;;(if (not= true show-fulltime) `[(= ~'?fulltime false)] truff)
+     `[(contains? ~valid-roles ~'?role)]
      (if min-company-size `[(>= ~'?size ~min-company-size)] truff)
      (if max-company-size `[(<= ~'?size ~max-company-size)] truff)
      (if lmin-start `[(>= ~'?lstart ~lmin-start)] truff)
      (if lmax-start `[(<= ~'?lstart ~lmax-start)] truff)
      (if lmin-end `[(>= ~'?lend ~lmin-end)] truff)
      (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)]))
+
+;; (upcoming-jobs-q {:show-cofounder false})
 
 (defn find-upcoming-jobs 
   "returns all confirmed, non-removed jobs whose start dates 
@@ -159,7 +176,6 @@
         all-jobs))))
 
 ;; whitelist
-
 (defn get-whitelist []
   (let [whitelist (q '[:find ?ent ?whitelist
                        :where [?ent :joblist/whitelist ?whitelist]]
