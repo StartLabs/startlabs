@@ -79,12 +79,15 @@
            (reify Callable 
              (call [_] (fn)))))
 
+(def email-creds
+  {:host (env :email-host)
+   :user (env :email-user)
+   :pass (env :email-pass)
+   :ssl  :yes})
+
 (defn send-jobs-email [to subject body]
   (enqueue-email-job
-   #(postal/send-message {:host (env :email-host)
-                          :user (env :email-user)
-                          :pass (env :email-pass)
-                          :ssl  :yes}
+   #(postal/send-message email-creds
                          {:from    "jobs@startlabs.org"
                           :to      to
                           :subject subject
@@ -431,12 +434,16 @@ We prefer candidates who wear green clothing."
     (jobs-map {:filters 
                 {:min-post-date (u/n-days-ago days-ago)}})))
 
+(defn date-range-string [days-ago]
+  (str
+   (u/unparse-date (u/n-days-ago days-ago))
+   " through " (u/unparse-date (t/now))))
+
 (defhtml render-digest [days-ago job-groups]
   [:div
    [:h1 "StartLabs Jobs Digest "]
-    [:h2 "New posts from " 
-     (u/unparse-date (u/n-days-ago days-ago))
-     " through " (u/unparse-date (t/now))]
+    [:h2 "New submissions from " 
+     (date-range-string days-ago)]
    (for [[role jobs] job-groups]
      [:div
        [:h2 (str/capitalize role) " Posts"]
@@ -451,12 +458,30 @@ We prefer candidates who wear green clothing."
              [:div (:description job)]
              [:p [:strong "Contact: "] (:contact-info job)]]))])])
 
+;; should actually be 7
+(def days-ago 17)
+
 ;; /jobs/digest
 (defn get-digest []
   ;; grab all jobs posted in the past week
-  (let [days-ago   17
-        job-groups (group-by :role (jobs-posted-n-days-ago days-ago))]
+  (let [job-groups (group-by :role (jobs-posted-n-days-ago days-ago))]
     (render-digest days-ago job-groups)))
+
+;; /send-digest
+;; requires basic auth
+;; trigger email with authenticated GET request
+;; called by cron-tab script every Friday at noon
+(defn send-digest-email []
+ ;; get /jobs/digest, then email contents
+  (let [body (get-digest)]
+   (postal/send-message email-creds
+                        {:from    "digest@startlabs.org"
+                         :to      "digest@startlabs.org"
+                         :subject (str "StartLabs Jobs Digest: "
+                                       (date-range-string days-ago))
+                         :body [{:type    "text/html; charset=utf-8"
+                                 :content body}]})))
+
 
 ;; [:get /jobs.(edn|json|xml)?q=...]
 ;; see jobs-and-list-html for all possible arguments

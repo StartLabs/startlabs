@@ -59,6 +59,9 @@
   (GET "/" [& params] (visitors/get-signin params))
   (POST "/" [& params] (visitors/post-signin params)))
 
+(defroutes digest-route
+  (GET "/" [] (jobs/send-digest-email)))
+
 (defroutes main-routes
   (GET "/" [] (main/home))
   (POST "/" [email] (main/post-mailing-list email))
@@ -108,6 +111,9 @@
 
   (context "/signin" [& params] 
            (wrap-basic-authentication signin-routes authenticated?))
+  
+  (context "/send-digest" []
+           (wrap-basic-authentication digest-route authenticated?))
 
   ;; Redirect. Dead links = evil
   (GET "/company" [] (response/redirect "/about"))
