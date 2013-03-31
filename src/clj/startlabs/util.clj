@@ -35,6 +35,12 @@
 (defn now-date []
   (to-date (t/now)))
 
+(defn a-week-ago []
+  (t/minus (t/now) (t/weeks 1)))
+
+(defn n-days-ago [n]
+  (t/minus (t/now) (t/days n)))
+
 (defn after-now?
   "Determines if the provided date is in the future."
   [date]

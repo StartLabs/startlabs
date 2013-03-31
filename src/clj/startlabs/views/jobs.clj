@@ -276,7 +276,9 @@ We prefer candidates who wear green clothing."
       (input-range :company-size ["input-small"] filters)
       (input-range :start-date   ["datepicker"] filters)
       (input-range :end-date     ["datepicker"] filters)
-      (input-range :post-date    ["datepicker"] filters)]
+      ;; this field is just for testing purposes
+      ;; (input-range :post-date    ["datepicker"] filters)
+     ]
     
       [:div.modal-footer
        [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
@@ -359,13 +361,16 @@ We prefer candidates who wear green clothing."
 
 ;; returns a hash-map containing a list of jobs for the current page
 ;; filtered and sorted based on the inputs
+;; note that filters are determined by both the :filters
+;; field and the session parameter
 (defn jobs-map
-  [{:keys [q page page-size sort-field sort-order]
+  [{:keys [q page page-size sort-field sort-order filters]
     :or {q          "" 
          page       1 
          page-size  20
          sort-field (get-sort-field nil)
-         sort-order 1}}]
+         sort-order 1
+         filters    {}}}]
 
   (session/session-put! :sort-field sort-field)
   (session/session-put! :sort-order sort-order)
@@ -373,7 +378,7 @@ We prefer candidates who wear green clothing."
   (let [page         (u/intify page 1)
         page-size    (u/intify page-size 20)
         sort-order   (u/intify sort-order 1)
-        filters      (session/session-get :filters)
+        filters      (merge (session/session-get :filters) filters)
         jobs         (job/filtered-jobs q sort-field sort-order filters)
         page-jobs    (jobs-on-page jobs page page-size)
         page-count   (ceil (/ (count jobs) page-size))
@@ -420,6 +425,38 @@ We prefer candidates who wear green clothing."
     :edn  pr-str
     :json #(json/generate-string % {:pretty true})
     :xml  job-rss))
+
+(defn jobs-posted-n-days-ago [days-ago]
+  (:jobs 
+    (jobs-map {:filters 
+                {:min-post-date (u/n-days-ago days-ago)}})))
+
+(defhtml render-digest [days-ago job-groups]
+  [:div
+   [:h1 "StartLabs Jobs Digest "]
+    [:h2 "New posts from " 
+     (u/unparse-date (u/n-days-ago days-ago))
+     " through " (u/unparse-date (t/now))]
+   (for [[role jobs] job-groups]
+     [:div
+       [:h2 (str/capitalize role) " Posts"]
+       (for [job jobs]
+         (let [position (:position job)]
+           [:div
+             [:h3 
+              [:a {:href (:website job)} (:company job)]
+              (str (if (not= "" position) ": ") position)]
+             [:p [:strong "Start Date: "] (:start-date job)]
+             [:p [:strong "Location: "] (:location job)]
+             [:div (:description job)]
+             [:p [:strong "Contact: "] (:contact-info job)]]))])])
+
+;; /jobs/digest
+(defn get-digest []
+  ;; grab all jobs posted in the past week
+  (let [days-ago   17
+        job-groups (group-by :role (jobs-posted-n-days-ago days-ago))]
+    (render-digest days-ago job-groups)))
 
 ;; [:get /jobs.(edn|json|xml)?q=...]
 ;; see jobs-and-list-html for all possible arguments
