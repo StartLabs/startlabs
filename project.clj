@@ -74,8 +74,12 @@
              {:datomic
               {:config "conf/free-transactor-template.properties"
                :db-uri "datomic:free://localhost:4334/startlabs"}}}
-  
+ 
+  ;; do lein ring server [port]
   :ring {:handler startlabs.server/app
          :init startlabs.server/init
          :port 8000
-         :auto-reload? true})
+         :auto-reload? true}
+  
+  ;; alternatively, do lein run [port]
+  :main startlabs.server)

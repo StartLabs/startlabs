@@ -1,6 +1,7 @@
 (ns startlabs.views.jobs
   (:require [clojure.string :as str]
             [cheshire.core :as json]
+            [cheshire.generate :refer [add-encoder encode-date]]
             [clj-rss.core :as rss]
             [clj-time.core :as t]
             [clj-time.coerce :as tc]
@@ -30,7 +31,14 @@
          :only [job-card job-list ordered-job-keys required-job-keys]])
 
   (:import java.net.URI
-           [java.util.concurrent Callable Executors]))
+           [java.util.concurrent Callable Executors]
+           org.joda.time.DateTime))
+
+;; add joda time encoder!
+(add-encoder
+ org.joda.time.DateTime
+ (fn [dt json-generator]
+   (.writeString json-generator (u/unparse-date dt))))
 
 (defn edit-link [job-map]
   (u/home-uri (str "/job/" (:id job-map) "?secret=" (:secret job-map))))
@@ -267,7 +275,8 @@ We prefer candidates who wear green clothing."
   
       (input-range :company-size ["input-small"] filters)
       (input-range :start-date   ["datepicker"] filters)
-      (input-range :end-date     ["datepicker"] filters)]
+      (input-range :end-date     ["datepicker"] filters)
+      (input-range :post-date    ["datepicker"] filters)]
     
       [:div.modal-footer
        [:button.btn {:data-dismiss "modal" :aria-hidden "true"} "Close"]
@@ -506,7 +515,6 @@ We prefer candidates who wear green clothing."
 
 (defn email-domain [email]
   (second (str/split email #"@")))
-
 
 
 (defn valid-job? [job-params]

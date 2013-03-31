@@ -97,20 +97,26 @@
     (when (= true show-internship) (job-role-ent :internship)))
    #{nil}))
 
+
 ;; HERE BE DRAGONS.
+;; this code smells of repetition
 (defn upcoming-jobs-q [{:keys [show-cofounder show-fulltime show-internship
                                min-company-size max-company-size
                                min-start-date max-start-date
                                min-end-date max-end-date
+                               min-post-date max-post-date
                                show-approved] :as filters
                         :or {show-cofounder true
                              show-fulltime true
                              show-internship true
                              show-approved true}}]
+  ;; convert dates to longs for numeric comparison
   (let [lmin-start  (if min-start-date (tc/to-long min-start-date))
         lmax-start  (if max-start-date (tc/to-long max-start-date))
         lmin-end    (if min-end-date   (tc/to-long min-end-date))
         lmax-end    (if max-end-date   (tc/to-long max-end-date))
+        lmin-post   (if min-post-date  (tc/to-long min-post-date))
+        lmax-post   (if max-post-date  (tc/to-long max-post-date))
         valid-roles (role-set show-cofounder show-fulltime show-internship)
         truff       `[(true? true)]]
     [:find '?job :where
@@ -119,9 +125,11 @@
      ['?job :job/company-size '?size]
      ['?job :job/start-date '?start]
      ['?job :job/end-date '?end]
+     ['?job :job/post-date '?post]
      ['?job :job/role '?role]
      ['(clj-time.coerce/to-long ?start) '?lstart]
      ['(clj-time.coerce/to-long ?end) '?lend]
+     ['(clj-time.coerce/to-long ?post) '?lpost]
      ['(startlabs.util/after-now? ?end)]
      `[(contains? ~valid-roles ~'?role)]
      (if min-company-size `[(>= ~'?size ~min-company-size)] truff)
@@ -129,7 +137,9 @@
      (if lmin-start `[(>= ~'?lstart ~lmin-start)] truff)
      (if lmax-start `[(<= ~'?lstart ~lmax-start)] truff)
      (if lmin-end `[(>= ~'?lend ~lmin-end)] truff)
-     (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)]))
+     (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)
+     (if lmin-post `[(>= ~'?lpost ~lmin-post)] truff)
+     (if lmax-post `[(<= ~'?lpost ~lmax-post)] truff)]))
 
 ;; (upcoming-jobs-q {:show-cofounder false})
 
