@@ -459,7 +459,7 @@ We prefer candidates who wear green clothing."
              [:p [:strong "Contact: "] (:contact-info job)]]))])])
 
 ;; should actually be 7
-(def days-ago 17)
+(def days-ago 7)
 
 ;; /jobs/digest
 (defn get-digest []
