@@ -218,6 +218,16 @@
        [:p "Runs all year long, final show takes place in May"]]
       [:td "Prizes up to $100K (they take 0 equity)"]]
 
+    [:tr
+      [:td [:a {:href "http://masschallenge.org/"} "MassChallenge"]]
+      [:td [:p
+            "MassChallenge is a Boston accelerator with no strings attached. 
+            They provide a 4-month accelerator program with mentoring, free office space, 
+            and access to funding and media, with $1M in cash awards and $10M+ in in-kind support."]
+
+       [:p "Runs through the summer."]]
+      [:td "Free."]]
+
      [:tr 
       [:td [:a {:href "http://dogpatchlabs.com"} "DogPatch Labs"]]
       [:td [:p "A working space run by Polaris Ventures that offers 
