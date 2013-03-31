@@ -92,9 +92,9 @@
 (defn role-set [show-cofounder show-fulltime show-internship]
   (difference
    (conj #{}
-    (when show-cofounder   (job-role-ent :cofounder))
-    (when show-fulltime    (job-role-ent :fulltime))
-    (when show-internship  (job-role-ent :internship)))
+    (when (= true show-cofounder)  (job-role-ent :cofounder))
+    (when (= true show-fulltime)   (job-role-ent :fulltime))
+    (when (= true show-internship) (job-role-ent :internship)))
    #{nil}))
 
 ;; HERE BE DRAGONS.

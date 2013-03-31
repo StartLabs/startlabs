@@ -244,7 +244,6 @@ We prefer candidates who wear green clothing."
     [:h2#filter-label "Filtering Options"]]
 
    [:form.form-horizontal {:action "/jobs/filters" :method "POST"}
-    [:p (str filters)]
     [:div.modal-body
      (let [roles      (job/get-job-roles)
            show-roles (map #(keyword (str "show-" (name %))) roles)]
@@ -375,7 +374,8 @@ We prefer candidates who wear green clothing."
      :q q
      :page page
      :page-count page-count
-     :editable? editable?}))
+     :editable? editable?
+     :filters filters}))
 
 (defn job-rss [job-map]
   (apply rss/channel-xml
