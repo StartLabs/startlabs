@@ -133,19 +133,14 @@
       wrap-stateful-session
       uri-middleware))
 
-;; For interactive development, evaluate these:
-(comment
-  (do
-    ;; 1. Initialize the database
-    (init)
-    ;; 2. Run the server
-    (def app (reload/wrap-reload app))
-    (defonce server (http/run-server #'app {:port 8000}))))
-
 (defn -main [& [port]]
   (let [port (if port (Integer. port) 8000)]
     (init)
-    (http/run-server #'app {:port port})))
+    (when (= true (env :dev))
+      (def app (reload/wrap-reload app)))
+    (defonce server (http/run-server #'app {:port port}))))
+
+;; (-main)
 
 ;; To stop the server, just do:
 ;; (server)

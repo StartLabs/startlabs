@@ -25,3 +25,4 @@ supervise/
 *.*\~
 startlabs-data.dtm
 .#*
+node_modules/

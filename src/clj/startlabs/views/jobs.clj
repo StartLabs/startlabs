@@ -456,7 +456,15 @@ We prefer candidates who wear green clothing."
              [:p [:strong "Start Date: "] (:start-date job)]
              [:p [:strong "Location: "] (:location job)]
              [:div (:description job)]
-             [:p [:strong "Contact: "] (:contact-info job)]]))])])
+             [:p [:strong "Contact: "] (:contact-info job)]]))])
+   [:p "Troule viewing this email? See it in your browser: "
+    [:a {:href (u/home-uri "/jobs/digest")} "Jobs Digest"]
+    ", or visit the "
+    [:a {:href (u/home-uri "/jobs")} "Jobs Page"] "."]
+   
+   [:p "Feel free to unsubscribe from this list at any time. "
+       "Just reply to this email with " 
+      [:strong "REMOVE ME"] " as the subject."]])
 
 ;; should actually be 7
 (def days-ago 7)

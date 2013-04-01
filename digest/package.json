@@ -1,0 +1,9 @@
+{
+  "name": "digest-sender",
+  "version": "0.0.1",
+  "author": "Ethan Sherbondy <ethan@startlabs.org>",
+  "main": "./send-digest",
+  "dependencies": {
+    "jsedn": "0.1.9"
+  }
+}
