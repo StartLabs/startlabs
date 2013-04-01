@@ -151,10 +151,12 @@
         [:div.push]]]
 
       [:footer.container
-       [:p "&copy; " (t/year (t/now)) " Startlabs. Follow us on "
-        [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
-        [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"}
-         "Facebook"] "."]]
+        [:p "&copy; " (t/year (t/now)) " Startlabs. Follow us on "
+          [:a {:href "http://twitter.com/Start_Labs"} "Twitter"] " or "
+          [:a {:href "https://www.facebook.com/pages/StartLabs/178890518841863"}
+           "Facebook"] ", or " [:a {:href "mailto:contact@startlabs.org"} "email us."]
+           ]
+         ]
 
       [:script {:type "text/javascript"} google-analytics]
       
