@@ -214,6 +214,12 @@
                       (-> (.children $this "span")
                           (.toggleClass "hidden"))
                       (swap! query-map assoc :sort-order new-order)))))
+  
+  (jq/on ($ "#job-subscribe") :click ".close"
+         (fn [e]
+            (jq/ajax "jobs/hide-subscribe"
+                     {:success (fn [data status xhr]
+                                 (u/log data))})))
 
   (reset! filtered-jobs job-data))
 

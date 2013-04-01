@@ -15151,6 +15151,11 @@ startlabs.jobs.setup_jobs_list = function() {
     b.children("span").toggleClass("hidden");
     return cljs.core.swap_BANG_.call(null, startlabs.jobs.query_map, cljs.core.assoc, "\ufdd0'sort-order", e)
   });
+  jayq.core.on.call(null, jayq.core.$.call(null, "#job-subscribe"), "\ufdd0'click", ".close", function() {
+    return jayq.core.ajax.call(null, "jobs/hide-subscribe", cljs.core.ObjMap.fromObject(["\ufdd0'success"], {"\ufdd0'success":function(a) {
+      return startlabs.util.log.call(null, a)
+    }}))
+  });
   return cljs.core.reset_BANG_.call(null, startlabs.jobs.filtered_jobs, startlabs.jobs.job_data)
 };
 startlabs.jobs.setup_job_container = function() {

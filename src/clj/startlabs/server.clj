@@ -82,8 +82,10 @@
 
   (GET "/team" [] (user-views/team))
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
+  
+  (GET "/jobs/hide-subscribe" {cookies :cookies} (jobs/hide-subscribe cookies))
 
-  (GET "/jobs" [& params] (jobs/get-jobs params))
+  (GET "/jobs" {params :params cookies :cookies} (jobs/get-jobs params cookies))
   (POST "/jobs/filters" [& params] (jobs/post-job-filters params))
   (GET "/jobs/approve" [] (jobs/get-unapproved-jobs))
   (POST "/jobs/approve" [& params] (jobs/post-approve-jobs params))
@@ -127,7 +129,6 @@
 (def app
   (-> main-routes
       handler/site
-
       wrap-noir-validation
       wrap-strip-trailing-slash
       wrap-stateful-session

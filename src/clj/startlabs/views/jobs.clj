@@ -174,6 +174,10 @@ Must have **4+ years** of lab experience.
 We prefer candidates who wear green clothing."
    :contact-info "contact@startlabs.org"})
 
+(defhtml close-button [dismiss]
+  [:button.close {:type"button" :data-dismiss dismiss
+                  :aria-hidden "true"} "x"])
+
 (def job-list-email-body
   (c/url-encode
    (str "Please fill out all of the following details for consideration:\n\n"
@@ -250,8 +254,7 @@ We prefer candidates who wear green clothing."
                                 :aria-labelledby "filter-label"
                                 :aria-hidden "true"}
    [:div.modal-header
-    [:button.close {:type"button" :data-dismiss "modal" 
-                    :aria-hidden "true"} "x"]
+    (close-button "modal")
     [:h2#filter-label "Filtering Options"]]
 
    [:form.form-horizontal {:action "/jobs/filters" :method "POST"}
@@ -479,8 +482,8 @@ We prefer candidates who wear green clothing."
  ;; get /jobs/digest, then email contents
   (let [body (get-digest)]
    (postal/send-message email-creds
-                        {:from    "digest@startlabs.org"
-                         :to      "digest@startlabs.org"
+                        {:from    "jobdigest@googlegroups.org"
+                         :to      "jobdigest@googlegroups.com"
                          :subject (str "StartLabs Jobs Digest: "
                                        (date-range-string days-ago))
                          :body [{:type    "text/html; charset=utf-8"
@@ -509,13 +512,34 @@ We prefer candidates who wear green clothing."
         :href "/job/new"} "Submit a Job"]])
 
 ;; [:get /jobs]
-(defn get-jobs [{:keys [q sort-field] :as params}]
+(defn get-jobs [{:keys [q sort-field] :as params} cookies]
   (let [page-jobs  (jobs-map params)
         sort-field (or sort-field
                        (session/session-get :sort-field))]
     (common/layout
-     (nav-buttons :jobs)
+     ;; cookie to keep track of ignore
+     ;; yuck, our cookie keyword is now a string, as is the value :(
+     (if-not (= (get-in cookies ["hide-subscribe" :value]) "true")
+       [:div#job-subscribe.alert.alert-info
+        (close-button "alert")
+        [:h3 "Subscribe to the Jobs Digest"]
+        [:p "Enter your email address to receive a weekly email "
+            "summary of all job postings every Friday:"]
+        [:form {:action "http://groups.google.com/group/jobdigest/boxsubscribe"}
+         [:div.input-append
+          [:input 
+           {:type "text" :name "email" :placeholder "Your Email Address"}]
+          [:input.btn.btn-primary 
+           {:type "submit" :name "sub" :value "Subscribe"}]]]])
+     
+     (nav-buttons :jobs)     
      [:div (browse-jobs q sort-field page-jobs)])))
+
+;; [:get /jobs/hide-subscribe]
+;; save cookie to hide subscribe alert
+(defn hide-subscribe [cookies]
+  {:cookies (assoc cookies :hide-subscribe true)
+   :body "Success"})
 
 (defn approve-redirect []
   (u/flash-message! :error "You must be logged in to approve jobs.")
