@@ -78,8 +78,8 @@
       (u/flash-message! :error "Invalid email address.")
       (render home email))
     (try
-      (let [list-id (env :mc_list_id)]
-        (binding [mc/*mc-api-key* (env :mc_api_key)]
+      (let [list-id (env :mc-list-id)]
+        (binding [mc/*mc-api-key* (env :mc-api-key)]
           (mc/subscribe list-id email)
           (u/flash-message! 
            :success "You've been subscribed! We promise not to spam you. <3")
