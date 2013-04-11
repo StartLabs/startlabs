@@ -160,9 +160,6 @@
 
       [:script {:type "text/javascript"} google-analytics]
       
-      [:script#lt_ws {:type "text/javascript" 
-                      :src "http://localhost:34312/socket.io/lighttable/ws.js"}]
-
       (include-js "/markdown.js"
                   "/jquery.js"
                   "/bootstrap/js/bootstrap.min.js"
