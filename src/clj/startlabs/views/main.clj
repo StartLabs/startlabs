@@ -80,9 +80,11 @@
     (try
       (let [list-id (env :mc-list-id)]
         (binding [mc/*mc-api-key* (env :mc-api-key)]
-          (mc/subscribe list-id email)
-          (u/flash-message! 
-           :success "You've been subscribed! We promise not to spam you. <3")
+          (if-let [error (:error (mc/subscribe list-id email))]
+            (u/flash-message!
+             :error error)
+            (u/flash-message! 
+             :success "You've been subscribed! We promise not to spam you. <3"))
           (response/redirect "/")))
       (catch Exception e
         (u/flash-message!
