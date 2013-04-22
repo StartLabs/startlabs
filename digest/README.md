@@ -12,5 +12,5 @@ Modify `/etc/crontab`:
 ```
 # m h dom mon dow
 # every friday at noon
-0 12 * * 5 node /root/startlabs/digest/send-digest.js
+0 12 * * 5 root cd /root/startlabs/digest && node send-digest.js¬
 ```
