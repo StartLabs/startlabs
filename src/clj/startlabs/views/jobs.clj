@@ -460,7 +460,7 @@ We prefer candidates who wear green clothing."
              [:p [:strong "Location: "] (:location job)]
              [:div (:description job)]
              [:p [:strong "Contact: "] (:contact-info job)]]))])
-   [:p "Troule viewing this email? See it in your browser: "
+   [:p "Trouble viewing this email? See it in your browser: "
     [:a {:href (u/home-uri "/jobs/digest")} "Jobs Digest"]
     ", or visit the "
     [:a {:href (u/home-uri "/jobs")} "Jobs Page"] "."]])
