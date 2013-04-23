@@ -480,15 +480,18 @@ We prefer candidates who wear green clothing."
 ;; called by cron-tab script every Friday at noon
 (defn send-digest-email []
  ;; get /jobs/digest, then email contents
-  (let [body (get-digest)]
-   (postal/send-message email-creds
-                        {:from    "jobdigest@googlegroups.org"
-                         :to      "jobdigest@googlegroups.com"
-                         :subject (str "StartLabs Jobs Digest: "
-                                       (date-range-string days-ago))
-                         :body [{:type    "text/html; charset=utf-8"
-                                 :content body}]})))
-
+  (let [job-count (count (jobs-posted-n-days-ago days-ago))]
+    (when (> job-count 0)
+      ;; only send the email if new jobs were posted this week
+      (let [body (get-digest)]
+        (postal/send-message email-creds
+                             {:from    "jobdigest@googlegroups.com"
+                              :to      "jobdigest@googlegroups.com"
+                              :subject (str "StartLabs Jobs Digest: "
+                                            (date-range-string days-ago))
+                              :body [{:type    "text/html; charset=utf-8"
+                                      :content body}]})))
+    (println "No new jobs to report.")))
 
 ;; [:get /jobs.(edn|json|xml)?q=...]
 ;; see jobs-and-list-html for all possible arguments
