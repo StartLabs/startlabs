@@ -100,36 +100,35 @@
 
 ;; HERE BE DRAGONS.
 ;; this code smells of repetition
-(defn upcoming-jobs-q [{:keys [show-cofounder show-fulltime show-internship
+(defn upcoming-jobs-q [{:keys [show-cofounder show-fulltime 
+                               show-internship show-approved
                                min-company-size max-company-size
                                min-start-date max-start-date
                                min-end-date max-end-date
-                               min-post-date max-post-date
-                               show-approved] :as filters
+                               min-post-date max-post-date] :as filters
                         :or {show-cofounder true
                              show-fulltime true
                              show-internship true
                              show-approved true}}]
   ;; convert dates to longs for numeric comparison
-  (let [lmin-start  (if min-start-date (tc/to-long min-start-date))
-        lmax-start  (if max-start-date (tc/to-long max-start-date))
-        lmin-end    (if min-end-date   (tc/to-long min-end-date))
-        lmax-end    (if max-end-date   (tc/to-long max-end-date))
-        lmin-post   (if min-post-date  (tc/to-long min-post-date))
-        lmax-post   (if max-post-date  (tc/to-long max-post-date))
+  (let [lmin-start  (when min-start-date (tc/to-long min-start-date))
+        lmax-start  (when max-start-date (tc/to-long max-start-date))
+        lmin-end    (when min-end-date   (tc/to-long min-end-date))
+        lmax-end    (when max-end-date   (tc/to-long max-end-date))
+        lmin-post   (when min-post-date  (tc/to-long min-post-date))
+        lmax-post   (when max-post-date  (tc/to-long max-post-date))
+        post-date?  (or lmin-post lmax-post)
         valid-roles (role-set show-cofounder show-fulltime show-internship)
         truff       `[(true? true)]]
     [:find '?job :where
      ['?job :job/confirmed? true]
-     ['?job :job/approved? show-approved]
      ['?job :job/company-size '?size]
      ['?job :job/start-date '?start]
      ['?job :job/end-date '?end]
-     ['?job :job/post-date '?post]
+     ['?job :job/approved? show-approved]
      ['?job :job/role '?role]
      ['(clj-time.coerce/to-long ?start) '?lstart]
      ['(clj-time.coerce/to-long ?end) '?lend]
-     ['(clj-time.coerce/to-long ?post) '?lpost]
      ['(startlabs.util/after-now? ?end)]
      `[(contains? ~valid-roles ~'?role)]
      (if min-company-size `[(>= ~'?size ~min-company-size)] truff)
@@ -138,10 +137,17 @@
      (if lmax-start `[(<= ~'?lstart ~lmax-start)] truff)
      (if lmin-end `[(>= ~'?lend ~lmin-end)] truff)
      (if lmax-end `[(<= ~'?lend ~lmax-end)] truff)
+     (if post-date? `[~'?job :job/post-date ~'?post] truff)
+     (if post-date? `[(clj-time.coerce/to-long ~'?post) ~'?lpost] truff)
      (if lmin-post `[(>= ~'?lpost ~lmin-post)] truff)
      (if lmax-post `[(<= ~'?lpost ~lmax-post)] truff)]))
 
+;; (count (filtered-jobs "" :company 0 {:show-approved false}))
+
+(comment)
+
 ;; (upcoming-jobs-q {:show-cofounder false})
+;; (count (q '[:find ?job :where [?job :job/confirmed? true]] (db *conn*)))
 
 (defn find-upcoming-jobs 
   "returns all confirmed, non-removed jobs whose start dates 
