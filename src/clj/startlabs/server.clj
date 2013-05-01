@@ -18,7 +18,7 @@
    [startlabs.views.user :as user-views]
    [startlabs.views.visitors :as visitors])
 
-  (:use 
+  (:use
    compojure.core
    [environ.core :only [env]]
    [noir.validation :only [wrap-noir-validation]]
@@ -66,7 +66,7 @@
   (GET "/" [] (main/home))
   (POST "/" [email] (main/post-mailing-list email))
   (POST "/event" [& params] (main/post-event params))
-  
+
   (GET "/about" [] (about/about))
   (GET "/blog" [] (blog/blog))
   (GET "/resources" [] (resources/resources))
@@ -82,7 +82,7 @@
 
   (GET "/team" [] (user-views/team))
   (GET ["/team/:name" :name #"\w+"] [name] (user-views/get-team-member name))
-  
+
   (GET "/jobs/hide-subscribe" {cookies :cookies} (jobs/hide-subscribe cookies))
 
   (GET "/jobs" {params :params cookies :cookies} (jobs/get-jobs params cookies))
@@ -92,7 +92,7 @@
   ;; digest of the past week's postings
   (GET "/jobs/digest" [] (jobs/get-digest))
 
-  (GET ["/jobs.:fmt" :fmt #"(edn|json|xml)"] [fmt & params] 
+  (GET ["/jobs.:fmt" :fmt #"(edn|json|xml)"] [fmt & params]
        (jobs/job-search (keyword fmt) params))
 
   (GET "/whitelist" [] (jobs/get-whitelist))
@@ -111,9 +111,9 @@
   (POST "/pay" [& params] (pay/post-pay params))
   (GET "/payments" [] (pay/get-payments))
 
-  (context "/signin" [& params] 
+  (context "/signin" [& params]
            (wrap-basic-authentication signin-routes authenticated?))
-  
+
   (context "/send-digest" []
            (wrap-basic-authentication digest-route authenticated?))
 

@@ -28,11 +28,19 @@
                     projects into seed-stage ventures."]
               [:li "Work in rapidly expanding companies – place students in internships
                     and full-time positions at promising startups."]]
-       [:p "We are creating the next generation of technical entrepreneurs."]]
-       
+       [:p "We are creating the next generation of technical entrepreneurs."]
+
+       [:h3 "Join our mailing list to stay in the loop:"]
+       [:form {:action "/" :method "post"}
+        [:input#email.span7 {:name "email"
+                             :placeholder "Your email address"
+                             :value (if (not (empty? email)) email "")}]
+        [:button#submit.btn.btn-primary.span3.pull-left
+         {:type "submit"} "Submit"]]]
+
      (let [event-descr (second (event/get-event))
            logged-in?  (user/logged-in?)]
-            
+
         [:div#upcoming-events.span6
          [:h2.centered "Upcoming Events"
           (if logged-in?
@@ -50,16 +58,8 @@
           [:p "To keep up with going-ons, subscribe to our "
             [:a {:href common/calendar-link} "event calendar"] "."]])]
 
-     [:div.row-fluid.push-down
+     [:div.row-fluid
        [:div.span4]
-       [:div.span5
-       [:h3 "Join our mailing list to stay in the loop:"]
-       [:form {:action "/" :method "post"}
-        [:input#email.span7 {:name "email" 
-                             :placeholder "Your email address"
-                             :value (if (not (empty? email)) email "")}]
-        [:button#submit.btn.btn-primary.span3.pull-left
-         {:type "submit"} "Submit"]]]
        [:div.span4]]))
 
 ;; :post "/event"
@@ -83,7 +83,7 @@
           (if-let [error (:error (mc/subscribe list-id email))]
             (u/flash-message!
              :error error)
-            (u/flash-message! 
+            (u/flash-message!
              :success "You've been subscribed! We promise not to spam you. <3"))
           (response/redirect "/")))
       (catch Exception e
@@ -93,7 +93,7 @@
 (defn internal-error []
   (common/layout
    [:h1 "Something very bad has happened."]
-   [:p "Well this is embarassing. Please notify " (common/webmaster-link "our webmaster") 
+   [:p "Well this is embarassing. Please notify " (common/webmaster-link "our webmaster")
     " of the issue."]
    [:p "Sorry for the inconvience."]))
 
@@ -103,5 +103,5 @@
    [:p "We couldn't find the page you requested."]
    [:p "If you got here through a link on another website, then we've
          probably made a mistake."]
-   [:p "Feel free to contact " (common/webmaster-link "the webmaster") 
+   [:p "Feel free to contact " (common/webmaster-link "the webmaster")
     " so we can be aware of the issue."]))
